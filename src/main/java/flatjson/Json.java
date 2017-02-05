@@ -26,8 +26,13 @@ public class Json {
         NULL,
         TRUE,
         FALSE,
+        STRING,
         ARRAY
     }
+
+    private static final char[] HEX_CHARS = "0123456789abcdefABCDEF".toCharArray();
+    private static final char[] ESCAPED_CHARS = "\"\\/bfnrt".toCharArray();
+
 
     private static class State {
         State consume(Json json, int index, char c) {
@@ -46,109 +51,154 @@ public class Json {
         @Override State consume(Json json, int index, char c) {
             if (c == 'n') {
                 json.begin(index, Token.NULL);
-                return N;
+                return NULL_1;
             } else if (c == 't') {
                 json.begin(index, Token.TRUE);
-                return T;
+                return TRUE_1;
             } else if (c == 'f') {
                 json.begin(index, Token.FALSE);
-                return F;
+                return FALSE_1;
             } else if (c == '[') {
                 json.begin(index, Token.ARRAY);
                 return ARRAY;
+            } else if (c == '"') {
+                json.begin(index, Token.STRING);
+                return STRING;
             } else return super.consume(json, index, c);
         }
     }
 
-    private static final State END = new SkipWhitespace() {};
+    private static final State VALUE = new Value();
 
-    private static final State NUL = new State() {
+    private static final State END = new SkipWhitespace();
+
+    private static final State NULL_1 = new State() {
+        @Override State consume(Json json, int index, char c) {
+            if (c == 'u') return NULL_2;
+            else return super.consume(json, index, c);
+        }
+    };
+
+    private static final State NULL_2 = new State() {
+        @Override State consume(Json json, int index, char c) {
+            if (c == 'l') return NULL_3;
+            else return super.consume(json, index, c);
+        }
+    };
+
+    private static final State NULL_3 = new State() {
         @Override State consume(Json json, int index, char c) {
             if (c == 'l') return json.end(index, Token.NULL);
             else return super.consume(json, index, c);
         }
     };
 
-    private static final State NU = new State() {
+    private static final State TRUE_1 = new State() {
         @Override State consume(Json json, int index, char c) {
-            if (c == 'l') return NUL;
+            if (c == 'r') return TRUE_2;
             else return super.consume(json, index, c);
         }
     };
 
-    private static final State N = new State() {
+    private static final State TRUE_2 = new State() {
         @Override State consume(Json json, int index, char c) {
-            if (c == 'u') return NU;
+            if (c == 'u') return TRUE_3;
             else return super.consume(json, index, c);
         }
     };
 
-    private static final State TRU = new State() {
+    private static final State TRUE_3 = new State() {
         @Override State consume(Json json, int index, char c) {
             if (c == 'e') return json.end(index, Token.TRUE);
             else return super.consume(json, index, c);
         }
     };
 
-    private static final State TR = new State() {
+    private static final State FALSE_1 = new State() {
         @Override State consume(Json json, int index, char c) {
-            if (c == 'u') return TRU;
+            if (c == 'a') return FALSE_2;
             else return super.consume(json, index, c);
         }
     };
 
-    private static final State T = new State() {
+    private static final State FALSE_2 = new State() {
         @Override State consume(Json json, int index, char c) {
-            if (c == 'r') return TR;
+            if (c == 'l') return FALSE_3;
             else return super.consume(json, index, c);
         }
     };
 
-    private static final State FALS = new State() {
+    private static final State FALSE_3 = new State() {
+        @Override State consume(Json json, int index, char c) {
+            if (c == 's') return FALSE_4;
+            else return super.consume(json, index, c);
+        }
+    };
+
+    private static final State FALSE_4 = new State() {
         @Override State consume(Json json, int index, char c) {
             if (c == 'e') return json.end(index, Token.FALSE);
             else return super.consume(json, index, c);
         }
     };
 
-    private static final State FAL = new State() {
-        @Override State consume(Json json, int index, char c) {
-            if (c == 's') return FALS;
-            else return super.consume(json, index, c);
-        }
-    };
-
-    private static final State FA = new State() {
-        @Override State consume(Json json, int index, char c) {
-            if (c == 'l') return FAL;
-            else return super.consume(json, index, c);
-        }
-    };
-
-    private static final State F = new State() {
-        @Override State consume(Json json, int index, char c) {
-            if (c == 'a') return FA;
-            else return super.consume(json, index, c);
-        }
-    };
-
-    private static final State VALUE = new Value();
-
     private static final State ARRAY = new Value() {
         @Override State consume(Json json, int index, char c) {
-            if (c == ']') {
-                return json.end(index, Token.ARRAY);
-            } else return super.consume(json, index, c);
+            if (c == ']') return json.end(index, Token.ARRAY);
+            else return super.consume(json, index, c);
         }
     };
 
     private static final State ARRAY_NEXT = new Value() {
         @Override State consume(Json json, int index, char c) {
-            if (c == ']') {
-                return json.end(index, Token.ARRAY);
-            } else if (c == ',') {
-                return VALUE;
-            } else return super.consume(json, index, c);
+            if (c == ']') return json.end(index, Token.ARRAY);
+            else if (c == ',') return VALUE;
+            else return super.consume(json, index, c);
+        }
+    };
+
+    private static final State STRING = new State() {
+        @Override State consume(Json json, int index, char c) {
+            if (c == '"') return json.end(index, Token.STRING);
+            else if (c == '\\') return STRING_ESCAPED;
+            else if (c <= 31) return super.consume(json, index, c);
+            else return this;
+        }
+    };
+
+    private static final State STRING_ESCAPED = new State() {
+        @Override State consume(Json json, int index, char c) {
+            for (char e : ESCAPED_CHARS) if (c == e) return STRING;
+            if (c == 'u') return UNICODE_1;
+            else return super.consume(json, index, c);
+        }
+    };
+
+    private static final State UNICODE_1 = new State() {
+        @Override State consume(Json json, int index, char c) {
+            for (char h : HEX_CHARS) if (c == h) return UNICODE_2;
+            return super.consume(json, index, c);
+        }
+    };
+
+    private static final State UNICODE_2 = new State() {
+        @Override State consume(Json json, int index, char c) {
+            for (char h : HEX_CHARS) if (c == h) return UNICODE_3;
+            return super.consume(json, index, c);
+        }
+    };
+
+    private static final State UNICODE_3 = new State() {
+        @Override State consume(Json json, int index, char c) {
+            for (char h : HEX_CHARS) if (c == h) return UNICODE_4;
+            return super.consume(json, index, c);
+        }
+    };
+
+    private static final State UNICODE_4 = new State() {
+        @Override State consume(Json json, int index, char c) {
+            for (char h : HEX_CHARS) if (c == h) return STRING;
+            return super.consume(json, index, c);
         }
     };
 
@@ -160,12 +210,6 @@ public class Json {
         }
         if (state != END) throw new ParseException("unbalanced json");
         return json;
-    }
-
-    public static void main(String[] args) {
-        String input = "   [null, [true, false], null]  ";
-        Json json = parse(input);
-        System.out.println(json);
     }
 
     private String _raw;
@@ -209,4 +253,11 @@ public class Json {
     public String toString() {
         return Arrays.toString(_indexes.toArray()) + Arrays.toString(_tokens.toArray());
     }
+
+    public static void main(String[] args) {
+        String input = "   [null, [ \"hello world\" ], null]  ";
+        Json json = parse(input);
+        System.out.println(json);
+    }
+
 }
