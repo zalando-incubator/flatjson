@@ -1,0 +1,15 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+version = '0.1'
+mainClassName = 'flatjson.Parser'
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+
+}
+
+
