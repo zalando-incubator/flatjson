@@ -10,73 +10,98 @@ public class Parser {
 
     public enum Token {
         NULL_BEGIN,
-        NULL_END
-    }
-
-    public static class Index {
-        void addToken(Token token) {
-            System.out.println(token);
-        }
+        NULL_END,
+        TRUE_BEGIN,
+        TRUE_END
     }
 
     public static class State {
-        State consume(Index index, char c) {
+        State consume(Json json, char c) {
             throw new ParseException(c);
         }
     }
 
     public static class SkipWhitespace extends State {
-        @Override State consume(Index index, char c) {
+        @Override State consume(Json json, char c) {
             if (c == ' ') return this;
-            else return super.consume(index, c);
+            else return super.consume(json, c);
         }
     }
 
-    private static final State NULL = new SkipWhitespace() {
+    private static final State END = new SkipWhitespace() {
     };
 
     private static final State NUL = new State() {
-        @Override State consume(Index index, char c) {
+        @Override State consume(Json json, char c) {
             if (c == 'l') {
-                index.addToken(Token.NULL_END);
-                return NULL;
+                json.addToken(Token.NULL_END);
+                return END;
             }
-            else return super.consume(index, c);
+            else return super.consume(json, c);
         }
     };
 
     private static final State NU = new State() {
-        @Override State consume(Index index, char c) {
+        @Override State consume(Json json, char c) {
             if (c == 'l') return NUL;
-            else return super.consume(index, c);
+            else return super.consume(json, c);
         }
     };
 
     private static final State N = new State() {
-        @Override State consume(Index index, char c) {
+        @Override State consume(Json json, char c) {
             if (c == 'u') return NU;
-            else return super.consume(index, c);
+            else return super.consume(json, c);
         }
     };
 
-    private static final State VALUE = new SkipWhitespace() {
-        State consume(Index index, char c) {
-            if (c == 'n') {
-                index.addToken(Token.NULL_BEGIN);
-                return N;
+    private static final State TRU = new State() {
+        @Override State consume(Json json, char c) {
+            if (c == 'e') {
+                json.addToken(Token.TRUE_END);
+                return END;
             }
-            else return super.consume(index, c);
+            else return super.consume(json, c);
         }
     };
+
+    private static final State TR = new State() {
+        @Override State consume(Json json, char c) {
+            if (c == 'u') return TRU;
+            else return super.consume(json, c);
+        }
+    };
+
+    private static final State T = new State() {
+        @Override State consume(Json json, char c) {
+            if (c == 'r') return TR;
+            else return super.consume(json, c);
+        }
+    };
+    private static final State VALUE = new SkipWhitespace() {
+        State consume(Json json, char c) {
+            if (c == 'n') {
+                json.addToken(Token.NULL_BEGIN);
+                return N;
+            } else if (c == 't') {
+                json.addToken(Token.TRUE_BEGIN);
+                return T;
+            } else return super.consume(json, c);
+        }
+    };
+
+    public static Json parse(String input) {
+        Json json = new Json(input);
+        State state = VALUE;
+        for (int i = 0; i < input.length(); i++) {
+            state = state.consume(json, input.charAt(i));
+        }
+        return json;
+    }
 
     public static void main(String[] args) {
-        Index index = new Index();
-        State state = VALUE;
-        String json = "  null  ";
-        for (int i = 0; i < json.length(); i++) {
-            state = state.consume(index, json.charAt(i));
-        }
-        System.out.println(state == NULL);
+        Json json = parse("null");
+        System.out.println(json);
     }
 
 }
