@@ -32,7 +32,7 @@ public class Json {
 
     private static final char[] HEX_CHARS = "0123456789abcdefABCDEF".toCharArray();
     private static final char[] ESCAPED_CHARS = "\"\\/bfnrt".toCharArray();
-
+    private static final char[] WHITESPACE_CHARS = " \t\r\n".toCharArray();
 
     private static class State {
         State consume(Json json, int index, char c) {
@@ -42,8 +42,8 @@ public class Json {
 
     private static class SkipWhitespace extends State {
         @Override State consume(Json json, int index, char c) {
-            if (c == ' ') return this;
-            else return super.consume(json, index, c);
+            for (char w : WHITESPACE_CHARS) if (c == w) return this;
+            return super.consume(json, index, c);
         }
     }
 

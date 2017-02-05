@@ -18,9 +18,9 @@ public class JsonTest {
         );
     }
 
-    @Test public void parseNil() {
+    @Test public void parseBrokenNull() {
         try {
-            Json.parse("nil");
+            Json.parse("nul");
             fail("should raise ParseException");
         } catch (Json.ParseException expected) {}
     }
@@ -28,7 +28,7 @@ public class JsonTest {
     @Test public void parseNullWithWhitespace() {
         assertEquals(
                 asList(Token.NULL, Token.NULL),
-                Json.parse("   null ").getTokens()
+                Json.parse("   \r\n null \t").getTokens()
         );
     }
 
