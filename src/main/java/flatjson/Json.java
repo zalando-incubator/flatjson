@@ -60,7 +60,7 @@ public class Json {
                 return FALSE_1;
             } else if (c == '[') {
                 json.begin(index, Token.ARRAY);
-                return ARRAY;
+                return ARRAY_VALUE;
             } else if (c == '"') {
                 json.begin(index, Token.STRING);
                 return STRING;
@@ -142,17 +142,17 @@ public class Json {
         }
     };
 
-    private static final State ARRAY = new Value() {
+    private static final State ARRAY_VALUE = new Value() {
         @Override State consume(Json json, int index, char c) {
             if (c == ']') return json.end(index, Token.ARRAY);
             else return super.consume(json, index, c);
         }
     };
 
-    private static final State ARRAY_NEXT = new Value() {
+    private static final State ARRAY_NEXT = new SkipWhitespace() {
         @Override State consume(Json json, int index, char c) {
             if (c == ']') return json.end(index, Token.ARRAY);
-            else if (c == ',') return VALUE;
+            else if (c == ',') return ARRAY_VALUE;
             else return super.consume(json, index, c);
         }
     };
