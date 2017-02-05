@@ -27,7 +27,9 @@ public class Json {
         TRUE,
         FALSE,
         STRING,
-        ARRAY
+        ARRAY,
+        OBJECT,
+        OBJECT_VALUE
     }
 
     private static final char[] HEX_CHARS = "0123456789abcdefABCDEF".toCharArray();
@@ -60,7 +62,10 @@ public class Json {
                 return FALSE_1;
             } else if (c == '[') {
                 json.begin(index, Token.ARRAY);
-                return ARRAY_VALUE;
+                return ARRAY_START;
+            } else if (c == '{') {
+                json.begin(index, Token.OBJECT);
+                return OBJECT_START;
             } else if (c == '"') {
                 json.begin(index, Token.STRING);
                 return STRING;
@@ -142,7 +147,7 @@ public class Json {
         }
     };
 
-    private static final State ARRAY_VALUE = new Value() {
+    private static final State ARRAY_START = new Value() {
         @Override State consume(Json json, int index, char c) {
             if (c == ']') return json.end(index, Token.ARRAY);
             else return super.consume(json, index, c);
@@ -152,8 +157,44 @@ public class Json {
     private static final State ARRAY_NEXT = new SkipWhitespace() {
         @Override State consume(Json json, int index, char c) {
             if (c == ']') return json.end(index, Token.ARRAY);
-            else if (c == ',') return ARRAY_VALUE;
+            else if (c == ',') return VALUE;
             else return super.consume(json, index, c);
+        }
+    };
+
+    private static final State OBJECT_START = new SkipWhitespace() {
+        @Override State consume(Json json, int index, char c) {
+            if (c == '}') return json.end(index, Token.OBJECT);
+            else if (c == '"') {
+                json.begin(index, Token.STRING);
+                return STRING;
+            } else return super.consume(json, index, c);
+        }
+    };
+
+    private static final State OBJECT_KEY = new SkipWhitespace() {
+        @Override State consume(Json json, int index, char c) {
+            if (c == '"') {
+                json.begin(index, Token.STRING);
+                return STRING;
+            } else return super.consume(json, index, c);
+        }
+    };
+
+    private static final State OBJECT_COLON = new SkipWhitespace() {
+        @Override State consume(Json json, int index, char c) {
+            if (c == ':') {
+                json.begin(index, Token.OBJECT_VALUE);
+                return VALUE;
+            } else return super.consume(json, index, c);
+        }
+    };
+
+    private static final State OBJECT_NEXT = new SkipWhitespace() {
+        @Override State consume(Json json, int index, char c) {
+            if (c == '}') return json.end(index, Token.OBJECT);
+            else if (c == ',') return OBJECT_KEY;
+            return super.consume(json, index, c);
         }
     };
 
@@ -222,20 +263,29 @@ public class Json {
     }
 
     void begin(int index, Token token) {
+        System.out.println("BEGIN " + token);
         _stack.add(token);
-        _indexes.add(index);
-        _tokens.add(token);
+        if (token != Token.OBJECT_VALUE) {
+            _indexes.add(index);
+            _tokens.add(token);
+        }
     }
 
     State end(int index, Token token) {
+        System.out.println("END " + token);
         Token last = _stack.pop();
         if (last != token) throw new ParseException(token);
         _indexes.add(index);
         _tokens.add(token);
         if (_stack.empty()) {
             return END;
+        } else if (Token.OBJECT_VALUE == _stack.peek()) {
+            _stack.pop();
+            return OBJECT_NEXT;
         } else if (Token.ARRAY == _stack.peek()) {
             return ARRAY_NEXT;
+        } else if (Token.OBJECT == _stack.peek()) {
+            return OBJECT_COLON;
         } else {
             throw new ParseException("illegal state: " + token);
         }
@@ -255,7 +305,8 @@ public class Json {
     }
 
     public static void main(String[] args) {
-        String input = "   [null, [ \"hello world\" ], null]  ";
+//        String input = "   [null, [ \"hello world\" ], null]  ";
+        String input = "{ \"foo\": null }";
         Json json = parse(input);
         System.out.println(json);
     }

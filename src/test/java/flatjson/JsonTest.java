@@ -172,6 +172,20 @@ public class JsonTest {
         } catch (Json.ParseException expected) {}
     }
 
+    @Test public void parseEmptyObject() {
+        assertEquals(
+                asList(Token.OBJECT, Token.OBJECT),
+                Json.parse("{}").getTokens()
+        );
+    }
+
+    @Test public void parseObject() {
+        assertEquals(
+                asList(Token.OBJECT, Token.STRING, Token.STRING, Token.TRUE, Token.TRUE, Token.OBJECT),
+                Json.parse("{\"foo\": true }").getTokens()
+        );
+    }
+
     private List asList(Object... objects) {
         return Arrays.asList(objects);
     }
