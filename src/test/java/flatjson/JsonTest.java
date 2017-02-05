@@ -18,6 +18,13 @@ public class JsonTest {
         );
     }
 
+    @Test public void parseNil() {
+        try {
+            Json.parse("nil");
+            fail("should raise ParseException");
+        } catch (Json.ParseException expected) {}
+    }
+
     @Test public void parseNullWithWhitespace() {
         assertEquals(
                 asList(Token.NULL, Token.NULL),
@@ -33,16 +40,44 @@ public class JsonTest {
     }
 
     @Test public void parseFalse() {
+        assertEquals(
+                asList(Token.FALSE, Token.FALSE),
+                Json.parse("false").getTokens()
+        );
+    }
+
+    @Test public void parseEmptyArray() {
+        assertEquals(
+                asList(Token.ARRAY, Token.ARRAY),
+                Json.parse("[ ]").getTokens()
+        );
+    }
+
+    @Test public void parseBrokenArray() {
         try {
-            Json.parse("false");
+            Json.parse("[ ,]");
             fail("should raise ParseException");
         } catch (Json.ParseException expected) {}
     }
 
-    @Test public void parseArray() {
+    @Test public void parseOpenArray() {
+        try {
+            Json.parse("[ null,");
+            fail("should raise ParseException");
+        } catch (Json.ParseException expected) {}
+    }
+
+    @Test public void parseNestedArray() {
         assertEquals(
-                asList(Token.ARRAY, Token.ARRAY),
-                Json.parse("[]").getTokens()
+                asList(Token.ARRAY, Token.ARRAY, Token.ARRAY, Token.ARRAY),
+                Json.parse("[ [ ]]").getTokens()
+        );
+    }
+
+    @Test public void parseBooleanArray() {
+        assertEquals(
+                asList(Token.ARRAY, Token.TRUE, Token.TRUE, Token.FALSE, Token.FALSE, Token.ARRAY),
+                Json.parse("[ true,false ]").getTokens()
         );
     }
 

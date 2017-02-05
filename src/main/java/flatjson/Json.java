@@ -25,6 +25,7 @@ public class Json {
     public enum Token {
         NULL,
         TRUE,
+        FALSE,
         ARRAY
     }
 
@@ -49,6 +50,9 @@ public class Json {
             } else if (c == 't') {
                 json.begin(index, Token.TRUE);
                 return T;
+            } else if (c == 'f') {
+                json.begin(index, Token.FALSE);
+                return F;
             } else if (c == '[') {
                 json.begin(index, Token.ARRAY);
                 return ARRAY;
@@ -60,9 +64,8 @@ public class Json {
 
     private static final State NUL = new State() {
         @Override State consume(Json json, int index, char c) {
-            if (c == 'l') {
-                return json.end(index, Token.NULL);
-            } else return super.consume(json, index, c);
+            if (c == 'l') return json.end(index, Token.NULL);
+            else return super.consume(json, index, c);
         }
     };
 
@@ -82,9 +85,8 @@ public class Json {
 
     private static final State TRU = new State() {
         @Override State consume(Json json, int index, char c) {
-            if (c == 'e') {
-                return json.end(index, Token.TRUE);
-            } else return super.consume(json, index, c);
+            if (c == 'e') return json.end(index, Token.TRUE);
+            else return super.consume(json, index, c);
         }
     };
 
@@ -98,6 +100,34 @@ public class Json {
     private static final State T = new State() {
         @Override State consume(Json json, int index, char c) {
             if (c == 'r') return TR;
+            else return super.consume(json, index, c);
+        }
+    };
+
+    private static final State FALS = new State() {
+        @Override State consume(Json json, int index, char c) {
+            if (c == 'e') return json.end(index, Token.FALSE);
+            else return super.consume(json, index, c);
+        }
+    };
+
+    private static final State FAL = new State() {
+        @Override State consume(Json json, int index, char c) {
+            if (c == 's') return FALS;
+            else return super.consume(json, index, c);
+        }
+    };
+
+    private static final State FA = new State() {
+        @Override State consume(Json json, int index, char c) {
+            if (c == 'l') return FAL;
+            else return super.consume(json, index, c);
+        }
+    };
+
+    private static final State F = new State() {
+        @Override State consume(Json json, int index, char c) {
+            if (c == 'a') return FA;
             else return super.consume(json, index, c);
         }
     };
@@ -128,11 +158,12 @@ public class Json {
         for (int index = 0; index < input.length(); index++) {
             state = state.consume(json, index, input.charAt(index));
         }
+        if (state != END) throw new ParseException("unbalanced json");
         return json;
     }
 
     public static void main(String[] args) {
-        String input = "   [ null ]  ";
+        String input = "   [null, [true, false], null]  ";
         Json json = parse(input);
         System.out.println(json);
     }
