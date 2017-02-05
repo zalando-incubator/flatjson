@@ -51,25 +51,13 @@ public class Json {
 
     private static class Value extends SkipWhitespace {
         @Override State consume(Json json, int index, char c) {
-            if (c == 'n') {
-                json.begin(index, Token.NULL);
-                return NULL_1;
-            } else if (c == 't') {
-                json.begin(index, Token.TRUE);
-                return TRUE_1;
-            } else if (c == 'f') {
-                json.begin(index, Token.FALSE);
-                return FALSE_1;
-            } else if (c == '[') {
-                json.begin(index, Token.ARRAY);
-                return ARRAY_START;
-            } else if (c == '{') {
-                json.begin(index, Token.OBJECT);
-                return OBJECT_START;
-            } else if (c == '"') {
-                json.begin(index, Token.STRING);
-                return STRING;
-            } else return super.consume(json, index, c);
+            if (c == 'n') return json.begin(index, Token.NULL);
+            if (c == 't') return json.begin(index, Token.TRUE);
+            if (c == 'f') return json.begin(index, Token.FALSE);
+            if (c == '"') return json.begin(index, Token.STRING);
+            if (c == '[') return json.begin(index, Token.ARRAY);
+            if (c == '{') return json.begin(index, Token.OBJECT);
+            return super.consume(json, index, c);
         }
     }
 
@@ -80,120 +68,114 @@ public class Json {
     private static final State NULL_1 = new State() {
         @Override State consume(Json json, int index, char c) {
             if (c == 'u') return NULL_2;
-            else return super.consume(json, index, c);
+            return super.consume(json, index, c);
         }
     };
 
     private static final State NULL_2 = new State() {
         @Override State consume(Json json, int index, char c) {
             if (c == 'l') return NULL_3;
-            else return super.consume(json, index, c);
+            return super.consume(json, index, c);
         }
     };
 
     private static final State NULL_3 = new State() {
         @Override State consume(Json json, int index, char c) {
             if (c == 'l') return json.end(index, Token.NULL);
-            else return super.consume(json, index, c);
+            return super.consume(json, index, c);
         }
     };
 
     private static final State TRUE_1 = new State() {
         @Override State consume(Json json, int index, char c) {
             if (c == 'r') return TRUE_2;
-            else return super.consume(json, index, c);
+            return super.consume(json, index, c);
         }
     };
 
     private static final State TRUE_2 = new State() {
         @Override State consume(Json json, int index, char c) {
             if (c == 'u') return TRUE_3;
-            else return super.consume(json, index, c);
+            return super.consume(json, index, c);
         }
     };
 
     private static final State TRUE_3 = new State() {
         @Override State consume(Json json, int index, char c) {
             if (c == 'e') return json.end(index, Token.TRUE);
-            else return super.consume(json, index, c);
+            return super.consume(json, index, c);
         }
     };
 
     private static final State FALSE_1 = new State() {
         @Override State consume(Json json, int index, char c) {
             if (c == 'a') return FALSE_2;
-            else return super.consume(json, index, c);
+            return super.consume(json, index, c);
         }
     };
 
     private static final State FALSE_2 = new State() {
         @Override State consume(Json json, int index, char c) {
             if (c == 'l') return FALSE_3;
-            else return super.consume(json, index, c);
+            return super.consume(json, index, c);
         }
     };
 
     private static final State FALSE_3 = new State() {
         @Override State consume(Json json, int index, char c) {
             if (c == 's') return FALSE_4;
-            else return super.consume(json, index, c);
+            return super.consume(json, index, c);
         }
     };
 
     private static final State FALSE_4 = new State() {
         @Override State consume(Json json, int index, char c) {
             if (c == 'e') return json.end(index, Token.FALSE);
-            else return super.consume(json, index, c);
+            return super.consume(json, index, c);
         }
     };
 
     private static final State ARRAY_START = new Value() {
         @Override State consume(Json json, int index, char c) {
             if (c == ']') return json.end(index, Token.ARRAY);
-            else return super.consume(json, index, c);
+            return super.consume(json, index, c);
         }
     };
 
     private static final State ARRAY_NEXT = new SkipWhitespace() {
         @Override State consume(Json json, int index, char c) {
             if (c == ']') return json.end(index, Token.ARRAY);
-            else if (c == ',') return VALUE;
-            else return super.consume(json, index, c);
+            if (c == ',') return VALUE;
+            return super.consume(json, index, c);
         }
     };
 
     private static final State OBJECT_START = new SkipWhitespace() {
         @Override State consume(Json json, int index, char c) {
             if (c == '}') return json.end(index, Token.OBJECT);
-            else if (c == '"') {
-                json.begin(index, Token.STRING);
-                return STRING;
-            } else return super.consume(json, index, c);
+            if (c == '"') return json.begin(index, Token.STRING);
+            return super.consume(json, index, c);
         }
     };
 
     private static final State OBJECT_KEY = new SkipWhitespace() {
         @Override State consume(Json json, int index, char c) {
-            if (c == '"') {
-                json.begin(index, Token.STRING);
-                return STRING;
-            } else return super.consume(json, index, c);
+            if (c == '"') return json.begin(index, Token.STRING);
+            return super.consume(json, index, c);
         }
     };
 
     private static final State OBJECT_COLON = new SkipWhitespace() {
         @Override State consume(Json json, int index, char c) {
-            if (c == ':') {
-                json.begin(index, Token.OBJECT_VALUE);
-                return VALUE;
-            } else return super.consume(json, index, c);
+            if (c == ':') return json.begin(index, Token.OBJECT_VALUE);
+            return super.consume(json, index, c);
         }
     };
 
     private static final State OBJECT_NEXT = new SkipWhitespace() {
         @Override State consume(Json json, int index, char c) {
             if (c == '}') return json.end(index, Token.OBJECT);
-            else if (c == ',') return OBJECT_KEY;
+            if (c == ',') return OBJECT_KEY;
             return super.consume(json, index, c);
         }
     };
@@ -201,9 +183,9 @@ public class Json {
     private static final State STRING = new State() {
         @Override State consume(Json json, int index, char c) {
             if (c == '"') return json.end(index, Token.STRING);
-            else if (c == '\\') return STRING_ESCAPED;
-            else if (c <= 31) return super.consume(json, index, c);
-            else return this;
+            if (c == '\\') return STRING_ESCAPED;
+            if (c <= 31) return super.consume(json, index, c);
+            return this;
         }
     };
 
@@ -211,7 +193,7 @@ public class Json {
         @Override State consume(Json json, int index, char c) {
             for (char e : ESCAPED_CHARS) if (c == e) return STRING;
             if (c == 'u') return UNICODE_1;
-            else return super.consume(json, index, c);
+            return super.consume(json, index, c);
         }
     };
 
@@ -262,13 +244,21 @@ public class Json {
         _raw = raw;
     }
 
-    void begin(int index, Token token) {
+    State begin(int index, Token token) {
         System.out.println("BEGIN " + token);
         _stack.add(token);
         if (token != Token.OBJECT_VALUE) {
             _indexes.add(index);
             _tokens.add(token);
         }
+        if (token == Token.NULL) return NULL_1;
+        if (token == Token.TRUE) return TRUE_1;
+        if (token == Token.FALSE) return FALSE_1;
+        if (token == Token.ARRAY) return ARRAY_START;
+        if (token == Token.OBJECT) return OBJECT_START;
+        if (token == Token.OBJECT_VALUE) return VALUE;
+        if (token == Token.STRING) return STRING;
+        throw new ParseException("illegal state: " + token);
     }
 
     State end(int index, Token token) {
@@ -277,18 +267,14 @@ public class Json {
         if (last != token) throw new ParseException(token);
         _indexes.add(index);
         _tokens.add(token);
-        if (_stack.empty()) {
-            return END;
-        } else if (Token.OBJECT_VALUE == _stack.peek()) {
+        if (_stack.empty()) return END;
+        if (Token.ARRAY == _stack.peek()) return ARRAY_NEXT;
+        if (Token.OBJECT == _stack.peek()) return OBJECT_COLON;
+        if (Token.OBJECT_VALUE == _stack.peek()) {
             _stack.pop();
             return OBJECT_NEXT;
-        } else if (Token.ARRAY == _stack.peek()) {
-            return ARRAY_NEXT;
-        } else if (Token.OBJECT == _stack.peek()) {
-            return OBJECT_COLON;
-        } else {
-            throw new ParseException("illegal state: " + token);
         }
+        throw new ParseException("illegal state: " + token);
     }
 
     public List<Integer> getIndexes() {
@@ -306,7 +292,7 @@ public class Json {
 
     public static void main(String[] args) {
 //        String input = "   [null, [ \"hello world\" ], null]  ";
-        String input = "{ \"foo\": null }";
+        String input = "{ \"foo\": [true, false] }";
         Json json = parse(input);
         System.out.println(json);
     }
