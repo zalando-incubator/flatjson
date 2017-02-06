@@ -1,6 +1,9 @@
 package flatjson;
 
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -277,10 +280,6 @@ public class Json {
         throw new ParseException("illegal state: " + token);
     }
 
-    public List<Integer> getIndexes() {
-        return _indexes;
-    }
-
     public List<Token> getTokens() {
         return _tokens;
     }
@@ -290,9 +289,10 @@ public class Json {
         return Arrays.toString(_indexes.toArray()) + Arrays.toString(_tokens.toArray());
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 //        String input = "   [null, [ \"hello world\" ], null]  ";
-        String input = "{ \"foo\": [true, false] }";
+//        String input = "{ \"foo\": [true, false] }";
+        String input = new String(Files.readAllBytes(Paths.get("test/sample.json")));
         Json json = parse(input);
         System.out.println(json);
     }
