@@ -2,12 +2,11 @@ package flatjson;
 
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 public class Json {
 
@@ -238,22 +237,46 @@ public class Json {
         return json;
     }
 
+    private class Element {
+        final Token token;
+        final int from;
+        int to;
+        int contains;
+
+        Element(Token token, int from) {
+            this.token = token;
+            this.from = from;
+        }
+
+        @Override public String toString() {
+            return "Element{" + token + " [" + from + ".." + to + "] " + " contains=" + contains + " " + _raw.substring(from, to + 1) + "\n";
+        }
+    }
+
+    private class Frame {
+        final Token token;
+        final int element;
+
+        Frame(Token token, int element) {
+            this.token = token;
+            this.element = element;
+        }
+    }
+
     private String _raw;
-    private List<Integer> _indexes = new ArrayList<>();
-    private List<Token> _tokens = new ArrayList<>();
-    private Stack<Token> _stack = new Stack();
+    private List<Element> _elements = new ArrayList<>();
+    private Stack<Frame> _stack = new Stack<>();
 
     private Json(String raw) {
         _raw = raw;
     }
 
     State begin(int index, Token token) {
-        System.out.println("BEGIN " + token);
-        _stack.add(token);
+//        System.out.println("BEGIN " + token);
         if (token != Token.OBJECT_VALUE) {
-            _indexes.add(index);
-            _tokens.add(token);
+            _elements.add(new Element(token, index));
         }
+        _stack.add(new Frame(token, _elements.size() - 1));
         if (token == Token.NULL) return NULL_1;
         if (token == Token.TRUE) return TRUE_1;
         if (token == Token.FALSE) return FALSE_1;
@@ -265,15 +288,16 @@ public class Json {
     }
 
     State end(int index, Token token) {
-        System.out.println("END " + token);
-        Token last = _stack.pop();
-        if (last != token) throw new ParseException(token);
-        _indexes.add(index);
-        _tokens.add(token);
+//        System.out.println("END " + token);
+        Frame last = _stack.pop();
+        if (last.token != token) throw new ParseException(token);
+        Element element = _elements.get(last.element);
+        element.to = index;
+        element.contains = _elements.size() - last.element - 1;
         if (_stack.empty()) return END;
-        if (Token.ARRAY == _stack.peek()) return ARRAY_NEXT;
-        if (Token.OBJECT == _stack.peek()) return OBJECT_COLON;
-        if (Token.OBJECT_VALUE == _stack.peek()) {
+        if (Token.ARRAY == _stack.peek().token) return ARRAY_NEXT;
+        if (Token.OBJECT == _stack.peek().token) return OBJECT_COLON;
+        if (Token.OBJECT_VALUE == _stack.peek().token) {
             _stack.pop();
             return OBJECT_NEXT;
         }
@@ -281,18 +305,18 @@ public class Json {
     }
 
     public List<Token> getTokens() {
-        return _tokens;
+        return _elements.stream().map(element -> element.token).collect(Collectors.toList());
     }
 
     @Override
     public String toString() {
-        return Arrays.toString(_indexes.toArray()) + Arrays.toString(_tokens.toArray());
+        return Arrays.toString(_elements.toArray());
     }
 
     public static void main(String[] args) throws IOException {
-//        String input = "   [null, [ \"hello world\" ], null]  ";
+        String input = "   [null, [ \"hello world\", [], true ], null]  ";
 //        String input = "{ \"foo\": [true, false] }";
-        String input = new String(Files.readAllBytes(Paths.get("test/sample.json")));
+//        String input = new String(Files.readAllBytes(Paths.get("test/sample.json")));
         Json json = parse(input);
         System.out.println(json);
     }

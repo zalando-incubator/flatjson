@@ -13,7 +13,7 @@ public class JsonTest {
 
     @Test public void parseNull() {
         assertEquals(
-                asList(Token.NULL, Token.NULL),
+                asList(Token.NULL),
                 Json.parse("null").getTokens()
         );
     }
@@ -27,28 +27,28 @@ public class JsonTest {
 
     @Test public void parseNullWithWhitespace() {
         assertEquals(
-                asList(Token.NULL, Token.NULL),
+                asList(Token.NULL),
                 Json.parse("   \r\n null \t").getTokens()
         );
     }
 
     @Test public void parseTrue() {
         assertEquals(
-                asList(Token.TRUE, Token.TRUE),
+                asList(Token.TRUE),
                 Json.parse("true").getTokens()
         );
     }
 
     @Test public void parseFalse() {
         assertEquals(
-                asList(Token.FALSE, Token.FALSE),
+                asList(Token.FALSE),
                 Json.parse("false").getTokens()
         );
     }
 
     @Test public void parseEmptyArray() {
         assertEquals(
-                asList(Token.ARRAY, Token.ARRAY),
+                asList(Token.ARRAY),
                 Json.parse("[ ]").getTokens()
         );
     }
@@ -69,63 +69,63 @@ public class JsonTest {
 
     @Test public void parseNestedArray() {
         assertEquals(
-                asList(Token.ARRAY, Token.ARRAY, Token.ARRAY, Token.ARRAY),
+                asList(Token.ARRAY, Token.ARRAY),
                 Json.parse("[ [ ]]").getTokens()
         );
     }
 
     @Test public void parseBooleanArray() {
         assertEquals(
-                asList(Token.ARRAY, Token.TRUE, Token.TRUE, Token.FALSE, Token.FALSE, Token.ARRAY),
+                asList(Token.ARRAY, Token.TRUE, Token.FALSE),
                 Json.parse("[ true,false ]").getTokens()
         );
     }
 
     @Test public void parseString() {
         assertEquals(
-                asList(Token.STRING, Token.STRING),
+                asList(Token.STRING),
                 Json.parse("\"hello\"").getTokens()
         );
     }
 
     @Test public void parseStringWithEscapedQuote() {
         assertEquals(
-                asList(Token.STRING, Token.STRING),
+                asList(Token.STRING),
                 Json.parse("\"hello \\\"darling\\\"\"").getTokens()
         );
     }
 
     @Test public void parseStringWithEscapedBackslash() {
         assertEquals(
-                asList(Token.STRING, Token.STRING),
+                asList(Token.STRING),
                 Json.parse("\"hello \\\\ world\"").getTokens()
         );
     }
 
     @Test public void parseStringWithEscapedSlash() {
         assertEquals(
-                asList(Token.STRING, Token.STRING),
+                asList(Token.STRING),
                 Json.parse("\"hello \\/ world\"").getTokens()
         );
     }
 
     @Test public void parseStringWithEscapedBackspace() {
         assertEquals(
-                asList(Token.STRING, Token.STRING),
+                asList(Token.STRING),
                 Json.parse("\"hello \\b world\"").getTokens()
         );
     }
 
     @Test public void parseStringWithEscapedFormfeed() {
         assertEquals(
-                asList(Token.STRING, Token.STRING),
+                asList(Token.STRING),
                 Json.parse("\"hello \\f world\"").getTokens()
         );
     }
 
     @Test public void parseStringWithEscapedNewline() {
         assertEquals(
-                asList(Token.STRING, Token.STRING),
+                asList(Token.STRING),
                 Json.parse("\"hello \\n world\"").getTokens()
         );
     }
@@ -139,21 +139,21 @@ public class JsonTest {
 
     @Test public void parseStringWithEscapedCarriageReturn() {
         assertEquals(
-                asList(Token.STRING, Token.STRING),
+                asList(Token.STRING),
                 Json.parse("\"hello \\r world\"").getTokens()
         );
     }
 
     @Test public void parseStringWithEscapedTab() {
         assertEquals(
-                asList(Token.STRING, Token.STRING),
+                asList(Token.STRING),
                 Json.parse("\"hello \\t world\"").getTokens()
         );
     }
 
     @Test public void parseStringWithEscapedUnicode() {
         assertEquals(
-                asList(Token.STRING, Token.STRING),
+                asList(Token.STRING),
                 Json.parse("\"hello \\u2ebf world\"").getTokens()
         );
     }
@@ -174,14 +174,14 @@ public class JsonTest {
 
     @Test public void parseEmptyObject() {
         assertEquals(
-                asList(Token.OBJECT, Token.OBJECT),
+                asList(Token.OBJECT),
                 Json.parse("{}").getTokens()
         );
     }
 
     @Test public void parseObject() {
         assertEquals(
-                asList(Token.OBJECT, Token.STRING, Token.STRING, Token.TRUE, Token.TRUE, Token.OBJECT),
+                asList(Token.OBJECT, Token.STRING, Token.TRUE),
                 Json.parse("{\"foo\": true }").getTokens()
         );
     }
