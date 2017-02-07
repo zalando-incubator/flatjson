@@ -228,7 +228,7 @@ public class Json {
         }
     };
 
-    private static Json parseWithStateMachine(String input) {
+    public static Json parse(String input) {
         Json json = new Json(input);
         State state = VALUE;
         for (int index = 0; index < input.length(); index++) {
@@ -238,71 +238,10 @@ public class Json {
         return json;
     }
 
-
-    private static class Json2 extends Json {
-
-        private Json2(String raw) {
-            super(raw);
-        }
-
-        static Json parseWithFunctions(String input) {
-            try {
-                Json2 json = new Json2(input);
-                json.parseValue(0);
-                return json;
-            } catch (StringIndexOutOfBoundsException e) {
-                throw new ParseException("unbalanced json");
-            }
-        }
-
-        private int parseValue(int i) {
-            char c = _raw.charAt(i);
-            if (c == ' ') return parseValue(i + 1);
-            if (c == '\n') return parseValue(i + 1);
-            if (c == '\r') return parseValue(i + 1);
-            if (c == '\t') return parseValue(i + 1);
-            if (c == 'n') return parseNull_1(i + 1);
-//            if (c == 't') parseTrue(i + 1);
-//            if (c == 'f') parseFalse(i + 1);
-//            if (c == '"') parseString(i + 1);
-//            if (c == '[') parseArray(i + 1);
-//            if (c == '{') parseObject(i + 1);
-            throw new ParseException(c);
-        }
-
-        private int parseNull_1(int i) {
-            begin(i - 1, Token.NULL);
-            char c = _raw.charAt(i);
-            if (c == 'u') return parseNull_2(i + 1);
-            throw new ParseException(c);
-        }
-
-        private int parseNull_2(int i) {
-            char c = _raw.charAt(i);
-            if (c == 'l') return parseNull_3(i + 1);
-            throw new ParseException(c);
-        }
-
-        private int parseNull_3(int i) {
-            char c = _raw.charAt(i);
-            if (c == 'l') {
-                end(i, Token.NULL);
-                return i;
-            }
-            throw new ParseException(c);
-        }
-    }
-
-
-    public static Json parse(String input) {
-//        return parseWithStateMachine(input);
-        return Json2.parseWithFunctions(input);
-    }
-
-    String _raw;
-    List<Integer> _indexes = new ArrayList<>();
-    List<Token> _tokens = new ArrayList<>();
-    Stack<Token> _stack = new Stack();
+    private String _raw;
+    private List<Integer> _indexes = new ArrayList<>();
+    private List<Token> _tokens = new ArrayList<>();
+    private Stack<Token> _stack = new Stack();
 
     private Json(String raw) {
         _raw = raw;
