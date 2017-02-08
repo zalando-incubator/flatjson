@@ -186,10 +186,45 @@ public class JsonTest {
         );
     }
 
+    @Test public void parseZero() {
+        assertEquals(
+                asList(Token.NUMBER),
+                Json.parse("0").getTokens()
+        );
+    }
+
+    @Test public void parseSingleDigit() {
+        assertEquals(
+                asList(Token.NUMBER),
+                Json.parse("3").getTokens()
+        );
+    }
+
+    @Test public void parseNumberWithLeadingZero() {
+        try {
+            Json.parse("023");
+            fail("should raise ParseException");
+        } catch (Json.ParseException expected) {}
+    }
+
     @Test public void parseInteger() {
         assertEquals(
                 asList(Token.NUMBER),
                 Json.parse("23").getTokens()
+        );
+    }
+
+    @Test public void parseNegativeInteger() {
+        assertEquals(
+                asList(Token.NUMBER),
+                Json.parse("-23").getTokens()
+        );
+    }
+
+    @Test public void parseNegativeZero() {
+        assertEquals(
+                asList(Token.NUMBER),
+                Json.parse("-0").getTokens()
         );
     }
 

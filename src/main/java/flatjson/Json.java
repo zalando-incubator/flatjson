@@ -60,7 +60,20 @@ public class Json {
             if (c == '"') return json.begin(index, Token.STRING);
             if (c == '[') return json.begin(index, Token.ARRAY);
             if (c == '{') return json.begin(index, Token.OBJECT);
-            if (c >= '0' && c <= '9') return json.begin(index, Token.NUMBER);
+            if (c == '0') {
+                if (next >= '0' && next <= '9') return super.consume(json, index, c, next);
+                json.begin(index, Token.NUMBER);
+                return json.end(index, Token.NUMBER);
+            }
+            if (c >= '1' && c <= '9') {
+                if (next >= '0' && next <= '9') return json.begin(index, Token.NUMBER);
+                json.begin(index, Token.NUMBER);
+                return json.end(index, Token.NUMBER);
+            }
+            if (c == '-') {
+                json.begin(index, Token.NUMBER);
+                return MINUS;
+            }
             return super.consume(json, index, c, next);
         }
     }
@@ -229,10 +242,41 @@ public class Json {
         }
     };
 
-    private static final State NUMBER = new State() {
+    private static final State MINUS = new State() {
+        @Override State consume(Json json, int index, char c, char next) {
+            if (c == '0') {
+                if (next >= '0' && next <= '9') return super.consume(json, index, c, next);
+                return json.end(index, Token.NUMBER);
+            }
+            if (c >= '1' && c <= '9') {
+                if (next >= '0' && next <= '9') return DIGIT_0_9;
+                return json.end(index, Token.NUMBER);
+
+            }
+            return super.consume(json, index, c, next);
+        }
+    };
+
+    private static final State DIGIT_0 = new State() {
+        @Override State consume(Json json, int index, char c, char next) {
+            return DIGIT_0;
+        }
+    };
+
+    private static final State DIGIT_1_9 = new State() {
+        @Override State consume(Json json, int index, char c, char next) {
+            if (c >= '1' && c <= '9') {
+                if (next >= '0' && next <= '9') return DIGIT_0_9;
+                return json.end(index, Token.NUMBER);
+            }
+            return super.consume(json, index, c, next);
+        }
+    };
+
+    private static final State DIGIT_0_9 = new State() {
         @Override State consume(Json json, int index, char c, char next) {
             if (c >= '0' && c <= '9') {
-                if (next >= '0' && next <= '9') return NUMBER;
+                if (next >= '0' && next <= '9') return DIGIT_1_9;
                 return json.end(index, Token.NUMBER);
             }
             return super.consume(json, index, c, next);
@@ -300,7 +344,7 @@ public class Json {
         if (token == Token.OBJECT) return OBJECT_START;
         if (token == Token.OBJECT_VALUE) return VALUE;
         if (token == Token.STRING) return STRING;
-        if (token == Token.NUMBER) return NUMBER;
+        if (token == Token.NUMBER) return DIGIT_1_9;
         throw new ParseException("illegal state: " + token);
     }
 
@@ -334,7 +378,7 @@ public class Json {
 //        String input = "   [null, [ \"hello world\", [], true ], null]  ";
 //        String input = "{ \"foo\": [true, false] }";
 //        String input = new String(Files.readAllBytes(Paths.get("test/sample.json")));
-        String input = "23 ";
+        String input = "0";
         Json json = parse(input);
         System.out.println(json);
     }
