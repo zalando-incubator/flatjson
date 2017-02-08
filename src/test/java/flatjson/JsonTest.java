@@ -186,6 +186,20 @@ public class JsonTest {
         );
     }
 
+    @Test public void parseInteger() {
+        assertEquals(
+                asList(Token.NUMBER),
+                Json.parse("23").getTokens()
+        );
+    }
+
+    @Test public void parseIntegerArray() {
+        assertEquals(
+                asList(Token.ARRAY, Token.NUMBER, Token.NUMBER),
+                Json.parse("[23, 42]").getTokens()
+        );
+    }
+
     private List asList(Object... objects) {
         return Arrays.asList(objects);
     }
