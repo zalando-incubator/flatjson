@@ -61,7 +61,7 @@ public class Json {
             if (c == '[') return json.begin(index, Token.ARRAY);
             if (c == '{') return json.begin(index, Token.OBJECT);
             if (c == '0') {
-                if (next >= '0' && next <= '9') return super.consume(json, index, c, next);
+                if (next >= '0' && next <= '9') throw new ParseException(c);
                 if (next == '.') return json.begin(index, Token.NUMBER);
                 json.begin(index, Token.NUMBER);
                 return json.end(index, Token.NUMBER);
@@ -74,7 +74,7 @@ public class Json {
             }
             if (c == '-') {
                 json.begin(index, Token.NUMBER);
-                return MINUS;
+                return NUMBER_NEGATIVE;
             }
             return super.consume(json, index, c, next);
         }
@@ -150,6 +150,52 @@ public class Json {
     private static final State FALSE_4 = new State() {
         @Override State consume(Json json, int index, char c, char next) {
             if (c == 'e') return json.end(index, Token.FALSE);
+            return super.consume(json, index, c, next);
+        }
+    };
+
+    private static final State NUMBER_NEGATIVE = new State() {
+        @Override State consume(Json json, int index, char c, char next) {
+            if (c == '0') {
+                if (next >= '0' && next <= '9') return super.consume(json, index, c, next);
+                if (next == '.') return DOT;
+                return json.end(index, Token.NUMBER);
+            }
+            if (c >= '1' && c <= '9') {
+                if (next >= '0' && next <= '9') return NUMBER_START;
+                if (next == '.') return DOT;
+                return json.end(index, Token.NUMBER);
+
+            }
+            return super.consume(json, index, c, next);
+        }
+    };
+
+    private static final State NUMBER_START = new State() {
+        @Override State consume(Json json, int index, char c, char next) {
+            if (c == '.') return NUMBER_FRACTION;
+            if (c >= '0' && c <= '9') {
+                if (next >= '0' && next <= '9') return NUMBER_START;
+                if (next == '.') return DOT;
+                return json.end(index, Token.NUMBER);
+            }
+            return super.consume(json, index, c, next);
+        }
+    };
+
+    private static final State DOT = new State() {
+        @Override State consume(Json json, int index, char c, char next) {
+            if (c == '.') return NUMBER_FRACTION;
+            return super.consume(json, index, c, next);
+        }
+    };
+
+    private static final State NUMBER_FRACTION = new State() {
+        @Override State consume(Json json, int index, char c, char next) {
+            if (c >= '0' && c <= '9') {
+                if (next >= '0' && next <= '9') return NUMBER_FRACTION;
+                return json.end(index, Token.NUMBER);
+            }
             return super.consume(json, index, c, next);
         }
     };
@@ -244,52 +290,6 @@ public class Json {
         }
     };
 
-    private static final State MINUS = new State() {
-        @Override State consume(Json json, int index, char c, char next) {
-            if (c == '0') {
-                if (next >= '0' && next <= '9') return super.consume(json, index, c, next);
-                if (next == '.') return DOT;
-                return json.end(index, Token.NUMBER);
-            }
-            if (c >= '1' && c <= '9') {
-                if (next >= '0' && next <= '9') return DIGIT_OR_DOT;
-                if (next == '.') return DOT;
-                return json.end(index, Token.NUMBER);
-
-            }
-            return super.consume(json, index, c, next);
-        }
-    };
-
-    private static final State DIGIT_OR_DOT = new State() {
-        @Override State consume(Json json, int index, char c, char next) {
-            if (c == '.') return DIGIT_FRACTION;
-            if (c >= '0' && c <= '9') {
-                if (next >= '0' && next <= '9') return DIGIT_OR_DOT;
-                if (next == '.') return DOT;
-                return json.end(index, Token.NUMBER);
-            }
-            return super.consume(json, index, c, next);
-        }
-    };
-
-    private static final State DOT = new State() {
-        @Override State consume(Json json, int index, char c, char next) {
-            if (c == '.') return DIGIT_FRACTION;
-            return super.consume(json, index, c, next);
-        }
-    };
-
-    private static final State DIGIT_FRACTION = new State() {
-        @Override State consume(Json json, int index, char c, char next) {
-            if (c >= '0' && c <= '9') {
-                if (next >= '0' && next <= '9') return DIGIT_FRACTION;
-                return json.end(index, Token.NUMBER);
-            }
-            return super.consume(json, index, c, next);
-        }
-    };
-
     public static Json parse(String input) {
         if (input == null) throw new ParseException("cannot parse null");
         if (input.isEmpty()) throw new ParseException("cannot parse empty string");
@@ -351,7 +351,7 @@ public class Json {
         if (token == Token.OBJECT) return OBJECT_START;
         if (token == Token.OBJECT_VALUE) return VALUE;
         if (token == Token.STRING) return STRING;
-        if (token == Token.NUMBER) return DIGIT_OR_DOT;
+        if (token == Token.NUMBER) return NUMBER_START;
         throw new ParseException("illegal state: " + token);
     }
 

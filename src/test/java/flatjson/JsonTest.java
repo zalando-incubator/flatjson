@@ -242,6 +242,13 @@ public class JsonTest {
         );
     }
 
+    @Test public void parseMinus() {
+        try {
+            Json.parse("-");
+            fail("should raise ParseException");
+        } catch (Json.ParseException expected) {}
+    }
+
     @Test public void parseFloat() {
         assertEquals(
                 asList(Token.NUMBER),
