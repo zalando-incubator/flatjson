@@ -214,10 +214,24 @@ public class JsonTest {
         );
     }
 
+    @Test public void parseVeryLongInteger() {
+        assertEquals(
+                asList(Token.NUMBER),
+                Json.parse("100000000000000023").getTokens()
+        );
+    }
+
     @Test public void parseNegativeInteger() {
         assertEquals(
                 asList(Token.NUMBER),
                 Json.parse("-23").getTokens()
+        );
+    }
+
+    @Test public void parseVeryLongNegativeInteger() {
+        assertEquals(
+                asList(Token.NUMBER),
+                Json.parse("-234567898765432").getTokens()
         );
     }
 
@@ -226,6 +240,48 @@ public class JsonTest {
                 asList(Token.NUMBER),
                 Json.parse("-0").getTokens()
         );
+    }
+
+    @Test public void parseFloat() {
+        assertEquals(
+                asList(Token.NUMBER),
+                Json.parse("3.141").getTokens()
+        );
+    }
+
+    @Test public void parseNegativeFloat() {
+        assertEquals(
+                asList(Token.NUMBER),
+                Json.parse("-3.141").getTokens()
+        );
+    }
+
+    @Test public void parseFloatWithLeadingZero() {
+        assertEquals(
+                asList(Token.NUMBER),
+                Json.parse("0.33333333").getTokens()
+        );
+    }
+
+    @Test public void parseFloatWithComma() {
+        try {
+            Json.parse("3,141");
+            fail("should raise ParseException");
+        } catch (Json.ParseException expected) {}
+    }
+
+    @Test public void parseFloatStartingWithDot() {
+        try {
+            Json.parse(".141");
+            fail("should raise ParseException");
+        } catch (Json.ParseException expected) {}
+    }
+
+    @Test public void parseFloatWithDoubleDot() {
+        try {
+            Json.parse("111.222.333");
+            fail("should raise ParseException");
+        } catch (Json.ParseException expected) {}
     }
 
     @Test public void parseIntegerArray() {

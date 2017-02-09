@@ -62,11 +62,13 @@ public class Json {
             if (c == '{') return json.begin(index, Token.OBJECT);
             if (c == '0') {
                 if (next >= '0' && next <= '9') return super.consume(json, index, c, next);
+                if (next == '.') return json.begin(index, Token.NUMBER);
                 json.begin(index, Token.NUMBER);
                 return json.end(index, Token.NUMBER);
             }
             if (c >= '1' && c <= '9') {
                 if (next >= '0' && next <= '9') return json.begin(index, Token.NUMBER);
+                if (next == '.') return json.begin(index, Token.NUMBER);
                 json.begin(index, Token.NUMBER);
                 return json.end(index, Token.NUMBER);
             }
@@ -246,10 +248,12 @@ public class Json {
         @Override State consume(Json json, int index, char c, char next) {
             if (c == '0') {
                 if (next >= '0' && next <= '9') return super.consume(json, index, c, next);
+                if (next == '.') return DOT;
                 return json.end(index, Token.NUMBER);
             }
             if (c >= '1' && c <= '9') {
-                if (next >= '0' && next <= '9') return DIGIT_0_9;
+                if (next >= '0' && next <= '9') return DIGIT_OR_DOT;
+                if (next == '.') return DOT;
                 return json.end(index, Token.NUMBER);
 
             }
@@ -257,26 +261,29 @@ public class Json {
         }
     };
 
-    private static final State DIGIT_0 = new State() {
+    private static final State DIGIT_OR_DOT = new State() {
         @Override State consume(Json json, int index, char c, char next) {
-            return DIGIT_0;
-        }
-    };
-
-    private static final State DIGIT_1_9 = new State() {
-        @Override State consume(Json json, int index, char c, char next) {
-            if (c >= '1' && c <= '9') {
-                if (next >= '0' && next <= '9') return DIGIT_0_9;
+            if (c == '.') return DIGIT_FRACTION;
+            if (c >= '0' && c <= '9') {
+                if (next >= '0' && next <= '9') return DIGIT_OR_DOT;
+                if (next == '.') return DOT;
                 return json.end(index, Token.NUMBER);
             }
             return super.consume(json, index, c, next);
         }
     };
 
-    private static final State DIGIT_0_9 = new State() {
+    private static final State DOT = new State() {
+        @Override State consume(Json json, int index, char c, char next) {
+            if (c == '.') return DIGIT_FRACTION;
+            return super.consume(json, index, c, next);
+        }
+    };
+
+    private static final State DIGIT_FRACTION = new State() {
         @Override State consume(Json json, int index, char c, char next) {
             if (c >= '0' && c <= '9') {
-                if (next >= '0' && next <= '9') return DIGIT_1_9;
+                if (next >= '0' && next <= '9') return DIGIT_FRACTION;
                 return json.end(index, Token.NUMBER);
             }
             return super.consume(json, index, c, next);
@@ -332,7 +339,7 @@ public class Json {
     }
 
     State begin(int index, Token token) {
-//        System.out.println("BEGIN " + token);
+        System.out.println("BEGIN " + token);
         if (token != Token.OBJECT_VALUE) {
             _elements.add(new Element(token, index));
         }
@@ -344,12 +351,12 @@ public class Json {
         if (token == Token.OBJECT) return OBJECT_START;
         if (token == Token.OBJECT_VALUE) return VALUE;
         if (token == Token.STRING) return STRING;
-        if (token == Token.NUMBER) return DIGIT_1_9;
+        if (token == Token.NUMBER) return DIGIT_OR_DOT;
         throw new ParseException("illegal state: " + token);
     }
 
     State end(int index, Token token) {
-//        System.out.println("END " + token);
+        System.out.println("END " + token);
         Frame last = _stack.pop();
         if (last.token != token) throw new ParseException(token);
         Element element = _elements.get(last.element);
@@ -378,7 +385,7 @@ public class Json {
 //        String input = "   [null, [ \"hello world\", [], true ], null]  ";
 //        String input = "{ \"foo\": [true, false] }";
 //        String input = new String(Files.readAllBytes(Paths.get("test/sample.json")));
-        String input = "0";
+        String input = "0.33333333";
         Json json = parse(input);
         System.out.println(json);
     }
