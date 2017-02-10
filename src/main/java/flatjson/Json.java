@@ -166,12 +166,13 @@ public class Json {
         @Override State consume(Json json, int index, char c, char next) {
             if (c == '0') {
                 if (next >= '0' && next <= '9') return super.consume(json, index, c, next);
-                if (next == '.') return DOT;
+                if (next == '.') return NUMBER_DOT;
+                if (next == 'e' || next == 'E') return EXPONENT;
                 return json.end(index, Token.NUMBER);
             }
             if (c >= '1' && c <= '9') {
                 if (next >= '0' && next <= '9') return NUMBER_START;
-                if (next == '.') return DOT;
+                if (next == '.') return NUMBER_DOT;
                 if (next == 'e' || next == 'E') return EXPONENT;
                 return json.end(index, Token.NUMBER);
 
@@ -185,7 +186,7 @@ public class Json {
             if (c == '.') return NUMBER_FRACTION;
             if (c >= '0' && c <= '9') {
                 if (next >= '0' && next <= '9') return NUMBER_START;
-                if (next == '.') return DOT;
+                if (next == '.') return NUMBER_DOT;
                 if (next == 'e' || next == 'E') return EXPONENT;
                 return json.end(index, Token.NUMBER);
             }
@@ -193,10 +194,9 @@ public class Json {
         }
     };
 
-    private static final State DOT = new State() {
+    private static final State NUMBER_DOT = new State() {
         @Override State consume(Json json, int index, char c, char next) {
-            if (c == '.') return NUMBER_FRACTION;
-            return super.consume(json, index, c, next);
+            return NUMBER_FRACTION;
         }
     };
 
@@ -213,18 +213,14 @@ public class Json {
 
     private static final State EXPONENT = new State() {
         @Override State consume(Json json, int index, char c, char next) {
-            if (c == 'e' || c == 'E') {
-                if (next == '+' || next == '-') return EXPONENT_2;
-                return EXPONENT_DIGITS;
-            }
-            return super.consume(json, index, c, next);
+            if (next == '+' || next == '-') return EXPONENT_SIGN;
+            return EXPONENT_DIGITS;
         }
     };
 
-    private static final State EXPONENT_2 = new State() {
+    private static final State EXPONENT_SIGN = new State() {
         @Override State consume(Json json, int index, char c, char next) {
-            if (c == '+' || c == '-') return EXPONENT_DIGITS;
-            return super.consume(json, index, c, next);
+            return EXPONENT_DIGITS;
         }
     };
 

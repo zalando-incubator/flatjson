@@ -214,6 +214,13 @@ public class JsonTest {
         );
     }
 
+    @Test public void parseNegativeZeroWithExponent() {
+        assertEquals(
+                asList(Token.NUMBER),
+                Json.parse("-0e-2").getTokens()
+        );
+    }
+
     @Test public void parseSingleDigit() {
         assertEquals(
                 asList(Token.NUMBER),
@@ -253,6 +260,13 @@ public class JsonTest {
         assertEquals(
                 asList(Token.NUMBER),
                 Json.parse("-23").getTokens()
+        );
+    }
+
+    @Test public void parseNegativeIntegerWithExponent() {
+        assertEquals(
+                asList(Token.NUMBER),
+                Json.parse("-2e-2").getTokens()
         );
     }
 
