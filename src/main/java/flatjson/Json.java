@@ -63,12 +63,20 @@ public class Json {
             if (c == '0') {
                 if (next >= '0' && next <= '9') throw new ParseException(c);
                 if (next == '.') return json.begin(index, Token.NUMBER);
+                if (next == 'e' || next == 'E') {
+                    json.begin(index, Token.NUMBER);
+                    return EXPONENT;
+                }
                 json.begin(index, Token.NUMBER);
                 return json.end(index, Token.NUMBER);
             }
             if (c >= '1' && c <= '9') {
                 if (next >= '0' && next <= '9') return json.begin(index, Token.NUMBER);
                 if (next == '.') return json.begin(index, Token.NUMBER);
+                if (next == 'e' || next == 'E') {
+                    json.begin(index, Token.NUMBER);
+                    return EXPONENT;
+                }
                 json.begin(index, Token.NUMBER);
                 return json.end(index, Token.NUMBER);
             }
@@ -164,6 +172,7 @@ public class Json {
             if (c >= '1' && c <= '9') {
                 if (next >= '0' && next <= '9') return NUMBER_START;
                 if (next == '.') return DOT;
+                if (next == 'e' || next == 'E') return EXPONENT;
                 return json.end(index, Token.NUMBER);
 
             }
@@ -177,6 +186,7 @@ public class Json {
             if (c >= '0' && c <= '9') {
                 if (next >= '0' && next <= '9') return NUMBER_START;
                 if (next == '.') return DOT;
+                if (next == 'e' || next == 'E') return EXPONENT;
                 return json.end(index, Token.NUMBER);
             }
             return super.consume(json, index, c, next);
@@ -194,6 +204,34 @@ public class Json {
         @Override State consume(Json json, int index, char c, char next) {
             if (c >= '0' && c <= '9') {
                 if (next >= '0' && next <= '9') return NUMBER_FRACTION;
+                if (next == 'e' || next == 'E') return EXPONENT;
+                return json.end(index, Token.NUMBER);
+            }
+            return super.consume(json, index, c, next);
+        }
+    };
+
+    private static final State EXPONENT = new State() {
+        @Override State consume(Json json, int index, char c, char next) {
+            if (c == 'e' || c == 'E') {
+                if (next == '+' || next == '-') return EXPONENT_2;
+                return EXPONENT_DIGITS;
+            }
+            return super.consume(json, index, c, next);
+        }
+    };
+
+    private static final State EXPONENT_2 = new State() {
+        @Override State consume(Json json, int index, char c, char next) {
+            if (c == '+' || c == '-') return EXPONENT_DIGITS;
+            return super.consume(json, index, c, next);
+        }
+    };
+
+    private static final State EXPONENT_DIGITS = new State() {
+        @Override State consume(Json json, int index, char c, char next) {
+            if (c >= '0' && c <= '9') {
+                if (next >= '0' && next <= '9') return EXPONENT_DIGITS;
                 return json.end(index, Token.NUMBER);
             }
             return super.consume(json, index, c, next);
