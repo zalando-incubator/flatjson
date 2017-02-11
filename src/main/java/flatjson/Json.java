@@ -325,7 +325,7 @@ public class Json {
         final Token token;
         final int from;
         int to;
-        int contains;
+        int contained;
 
         Element(Token token, int from) {
             this.token = token;
@@ -341,7 +341,7 @@ public class Json {
         }
 
         @Override public String toString() {
-            return "Element{" + token + " [" + from + "-" + to + "] " + contains + " " + getRaw() + "\n";
+            return "Element{" + token + " [" + from + "-" + to + "] " + contained + " " + getRaw() + "\n";
         }
     }
 
@@ -382,8 +382,11 @@ public class Json {
     }
 
     JsonValue create(int element) {
-        if (elements.get(element).token == Token.ARRAY) {
+        Token token = elements.get(element).token;
+        if (token == Token.ARRAY) {
             return new JsonArray(element);
+        } else if (token == Token.OBJECT) {
+            return new JsonObject(element);
         } else {
             return new JsonValue(element);
         }
@@ -412,7 +415,7 @@ public class Json {
         if (last.token != token) throw new ParseException(token);
         Element element = elements.get(last.element);
         element.to = index;
-        element.contains = elements.size() - last.element - 1;
+        element.contained = elements.size() - last.element - 1;
         if (stack.empty()) return END;
         if (Token.ARRAY == stack.peek().token) return ARRAY_NEXT;
         if (Token.OBJECT == stack.peek().token) return OBJECT_COLON;
@@ -480,6 +483,11 @@ public class Json {
             return (JsonArray)this;
         }
 
+        public JsonObject asObject() {
+            if (!isObject()) throw new IllegalStateException("not an object");
+            return (JsonObject)this;
+        }
+
         protected Element element() {
             return elements.get(element);
         }
@@ -494,7 +502,7 @@ public class Json {
         }
 
         int size() {
-            return element().contains;
+            return element().contained;
         }
 
         List<JsonValue> getValues() {
@@ -504,8 +512,35 @@ public class Json {
 
         private List<JsonValue> createValues() {
             List<JsonValue> result = new ArrayList(size());
-            for (int i = 1; i <= size(); i++) {
-                result.add(create(element + i));
+            for (int i = 0; i < size(); i++) {
+                result.add(create(element + i + 1));
+            }
+            return result;
+        }
+    }
+
+    public class JsonObject extends JsonValue {
+
+        private Map<String, JsonValue> values;
+
+        JsonObject(int element) {
+            super(element);
+        }
+
+        int size() {
+            return element().contained / 2;
+        }
+
+        Map<String, JsonValue> getValues() {
+            if (values == null) values = Collections.unmodifiableMap(createValues());
+            return values;
+        }
+
+        private Map<String, JsonValue> createValues() {
+            Map<String, JsonValue> result = new HashMap<>(size());
+            for (int i = 0; i < size(); i++) {
+                String key = elements.get(element + 2 * i + 1).getRawString();
+                result.put(key, create(element + 2 * i + 2));
             }
             return result;
         }

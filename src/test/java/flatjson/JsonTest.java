@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -163,20 +164,22 @@ public class JsonTest {
         } catch (Json.ParseException expected) {}
     }
 
-//    @Test public void parseEmptyObject() {
-//        assertEquals(
-//                asList(Token.OBJECT),
-//                Json.parse("{}").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseObject() {
-//        assertEquals(
-//                asList(Token.OBJECT, Token.STRING, Token.TRUE),
-//                Json.parse("{\"foo\": true }").getTokens()
-//        );
-//    }
-//
+    @Test public void parseEmptyObject() {
+        Json.JsonValue value = Json.parse("{}");
+        assertTrue(value.isObject());
+        assertEquals(0, value.asObject().size());
+    }
+
+    @Test public void parseObject() {
+        Json.JsonValue value = Json.parse("{\"foo\": true }");
+        assertTrue(value.isObject());
+        Json.JsonObject object = value.asObject();
+        assertEquals(1, object.size());
+        Map<String, Json.JsonValue> values = object.getValues();
+        assertTrue(values.containsKey("foo"));
+        assertTrue(values.get("foo").asBoolean());
+    }
+
 //    @Test public void parseZero() {
 //        assertEquals(
 //                asList(Token.NUMBER),
