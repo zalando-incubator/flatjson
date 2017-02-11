@@ -324,20 +324,6 @@ public class Json {
         }
     };
 
-    public static Json parse(String input) {
-        if (input == null) throw new ParseException("cannot parse null");
-        if (input.isEmpty()) throw new ParseException("cannot parse empty string");
-        Json json = new Json(input);
-        State state = VALUE;
-        int last = input.length() - 1;
-        for (int i = 0; i < last; i++) {
-            state = state.consume(json, i, input.charAt(i), input.charAt(i + 1));
-        }
-        state = state.consume(json, last, input.charAt(last), ' ');
-        if (state != END) throw new ParseException("unbalanced json");
-        return json;
-    }
-
     private class Element {
         final Token token;
         final int from;
@@ -349,8 +335,12 @@ public class Json {
             this.from = from;
         }
 
+        public String getRaw() {
+            return _raw.substring(from, to + 1);
+        }
+
         @Override public String toString() {
-            return "Element{" + token + " [" + from + ".." + to + "] " + " contains=" + contains + " " + _raw.substring(from, to + 1) + "\n";
+            return "Element{" + token + " [" + from + "-" + to + "] " + contains + " " + getRaw() + "\n";
         }
     }
 
@@ -364,12 +354,30 @@ public class Json {
         }
     }
 
+    public static JsonValue parse(String raw) {
+        if (raw == null) throw new ParseException("cannot parse null");
+        if (raw.isEmpty()) throw new ParseException("cannot parse empty string");
+        Json json = new Json(raw);
+        return json.parse();
+    }
+
     private String _raw;
     private List<Element> _elements = new ArrayList<>();
     private Stack<Frame> _stack = new Stack<>();
 
     private Json(String raw) {
         _raw = raw;
+    }
+
+    public JsonValue parse() {
+        State state = VALUE;
+        int last = _raw.length() - 1;
+        for (int i = 0; i < last; i++) {
+            state = state.consume(this, i, _raw.charAt(i), _raw.charAt(i + 1));
+        }
+        state = state.consume(this, last, _raw.charAt(last), ' ');
+        if (state != END) throw new ParseException("unbalanced json");
+        return new JsonValue(0);
     }
 
     State begin(int index, Token token) {
@@ -412,16 +420,68 @@ public class Json {
 
     @Override
     public String toString() {
-        return Arrays.toString(_elements.toArray());
+        return String.join("\n", _elements.stream().map(e -> e.toString()).collect(Collectors.toList()));
+    }
+
+    public class JsonValue {
+
+        private int element;
+
+        JsonValue(int element) {
+            this.element = element;
+        }
+
+        public boolean isNull() {
+            return element().token == Token.NULL;
+        }
+
+        public boolean isBoolean() {
+            return element().token == Token.TRUE || element().token == Token.FALSE;
+        }
+
+        public boolean isNumber() {
+            return element().token == Token.NUMBER;
+        }
+
+        public boolean isString() {
+            return element().token == Token.STRING;
+        }
+
+        public boolean isArray() {
+            return element().token == Token.ARRAY;
+        }
+
+        public boolean isObject() {
+            return element().token == Token.OBJECT;
+        }
+
+        public boolean asBoolean() {
+            if (!isBoolean()) throw new IllegalStateException("not a boolean");
+            return Boolean.valueOf(element().getRaw());
+        }
+
+        public double asNumber() {
+            if (!isNumber()) throw new IllegalStateException("not a number");
+            return Double.valueOf(element().getRaw());
+        }
+
+        public String asString() {
+            if (!isString()) throw new IllegalStateException("not a string");
+            return element().getRaw(); // todo: convert escaped chars
+        }
+
+        private Element element() {
+            return _elements.get(element);
+        }
     }
 
     public static void main(String[] args) throws IOException {
 //        String input = "   [null, [ \"hello world\", [], true ], null]  ";
 //        String input = "{ \"foo\": [true, false] }";
 //        String input = new String(Files.readAllBytes(Paths.get("test/sample.json")));
-        String input = "0.33333333";
-        Json json = parse(input);
-        System.out.println(json);
+        String input = "0.33e+4";
+        JsonValue value = Json.parse(input);
+        System.out.println(value.asNumber());
     }
 
 }
