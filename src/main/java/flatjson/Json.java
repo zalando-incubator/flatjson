@@ -2,10 +2,7 @@ package flatjson;
 
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Json {
@@ -336,7 +333,7 @@ public class Json {
         }
 
         public String getRaw() {
-            return _raw.substring(from, to + 1);
+            return raw.substring(from, to + 1);
         }
 
         @Override public String toString() {
@@ -361,31 +358,39 @@ public class Json {
         return json.parse();
     }
 
-    private String _raw;
-    private List<Element> _elements = new ArrayList<>();
-    private Stack<Frame> _stack = new Stack<>();
+    private String raw;
+    private List<Element> elements = new ArrayList<>();
+    private Stack<Frame> stack = new Stack<>();
 
     private Json(String raw) {
-        _raw = raw;
+        this.raw = raw;
     }
 
     public JsonValue parse() {
         State state = VALUE;
-        int last = _raw.length() - 1;
+        int last = raw.length() - 1;
         for (int i = 0; i < last; i++) {
-            state = state.consume(this, i, _raw.charAt(i), _raw.charAt(i + 1));
+            state = state.consume(this, i, raw.charAt(i), raw.charAt(i + 1));
         }
-        state = state.consume(this, last, _raw.charAt(last), ' ');
+        state = state.consume(this, last, raw.charAt(last), ' ');
         if (state != END) throw new ParseException("unbalanced json");
-        return new JsonValue(0);
+        return create(0);
+    }
+
+    JsonValue create(int element) {
+        if (elements.get(element).token == Token.ARRAY) {
+            return new JsonArray(element);
+        } else {
+            return new JsonValue(element);
+        }
     }
 
     State begin(int index, Token token) {
         System.out.println("BEGIN " + token);
         if (token != Token.OBJECT_VALUE) {
-            _elements.add(new Element(token, index));
+            elements.add(new Element(token, index));
         }
-        _stack.add(new Frame(token, _elements.size() - 1));
+        stack.add(new Frame(token, elements.size() - 1));
         if (token == Token.NULL) return NULL_1;
         if (token == Token.TRUE) return TRUE_1;
         if (token == Token.FALSE) return FALSE_1;
@@ -399,33 +404,29 @@ public class Json {
 
     State end(int index, Token token) {
         System.out.println("END " + token);
-        Frame last = _stack.pop();
+        Frame last = stack.pop();
         if (last.token != token) throw new ParseException(token);
-        Element element = _elements.get(last.element);
+        Element element = elements.get(last.element);
         element.to = index;
-        element.contains = _elements.size() - last.element - 1;
-        if (_stack.empty()) return END;
-        if (Token.ARRAY == _stack.peek().token) return ARRAY_NEXT;
-        if (Token.OBJECT == _stack.peek().token) return OBJECT_COLON;
-        if (Token.OBJECT_VALUE == _stack.peek().token) {
-            _stack.pop();
+        element.contains = elements.size() - last.element - 1;
+        if (stack.empty()) return END;
+        if (Token.ARRAY == stack.peek().token) return ARRAY_NEXT;
+        if (Token.OBJECT == stack.peek().token) return OBJECT_COLON;
+        if (Token.OBJECT_VALUE == stack.peek().token) {
+            stack.pop();
             return OBJECT_NEXT;
         }
         throw new ParseException("illegal state: " + token);
     }
 
-    public List<Token> getTokens() {
-        return _elements.stream().map(element -> element.token).collect(Collectors.toList());
-    }
-
     @Override
     public String toString() {
-        return String.join("\n", _elements.stream().map(e -> e.toString()).collect(Collectors.toList()));
+        return String.join("\n", elements.stream().map(e -> e.toString()).collect(Collectors.toList()));
     }
 
     public class JsonValue {
 
-        private int element;
+        protected final int element;
 
         JsonValue(int element) {
             this.element = element;
@@ -470,10 +471,42 @@ public class Json {
             return element().getRaw(); // todo: convert escaped chars
         }
 
-        private Element element() {
-            return _elements.get(element);
+        public JsonArray asArray() {
+            if (!isArray()) throw new IllegalStateException("not an array");
+            return (JsonArray)this;
+        }
+
+        protected Element element() {
+            return elements.get(element);
         }
     }
+
+    public class JsonArray extends JsonValue {
+
+        private List<JsonValue> values;
+
+        JsonArray(int element) {
+            super(element);
+        }
+
+        int size() {
+            return element().contains;
+        }
+
+        List<JsonValue> getValues() {
+            if (values == null) values = Collections.unmodifiableList(createValues());
+            return values;
+        }
+
+        private List<JsonValue> createValues() {
+            List<JsonValue> result = new ArrayList(size());
+            for (int i = 1; i <= size(); i++) {
+                result.add(create(element + i));
+            }
+            return result;
+        }
+    }
+
 
     public static void main(String[] args) throws IOException {
 //        String input = "   [null, [ \"hello world\", [], true ], null]  ";
