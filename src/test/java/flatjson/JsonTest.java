@@ -76,97 +76,93 @@ public class JsonTest {
         assertFalse(values.get(1).asBoolean());
     }
 
-//    @Test public void parseString() {
-//        assertEquals(
-//                asList(Token.STRING),
-//                Json.parse("\"hello\"").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseStringWithEscapedQuote() {
-//        assertEquals(
-//                asList(Token.STRING),
-//                Json.parse("\"hello \\\"darling\\\"\"").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseStringWithEscapedBackslash() {
-//        assertEquals(
-//                asList(Token.STRING),
-//                Json.parse("\"hello \\\\ world\"").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseStringWithEscapedSlash() {
-//        assertEquals(
-//                asList(Token.STRING),
-//                Json.parse("\"hello \\/ world\"").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseStringWithEscapedBackspace() {
-//        assertEquals(
-//                asList(Token.STRING),
-//                Json.parse("\"hello \\b world\"").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseStringWithEscapedFormfeed() {
-//        assertEquals(
-//                asList(Token.STRING),
-//                Json.parse("\"hello \\f world\"").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseStringWithEscapedNewline() {
-//        assertEquals(
-//                asList(Token.STRING),
-//                Json.parse("\"hello \\n world\"").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseStringWithUnescapedNewline() {
-//        try {
-//            Json.parse("\"hello \n world\"");
-//            fail("should raise ParseException");
-//        } catch (Json.ParseException expected) {}
-//    }
-//
-//    @Test public void parseStringWithEscapedCarriageReturn() {
-//        assertEquals(
-//                asList(Token.STRING),
-//                Json.parse("\"hello \\r world\"").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseStringWithEscapedTab() {
-//        assertEquals(
-//                asList(Token.STRING),
-//                Json.parse("\"hello \\t world\"").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseStringWithEscapedUnicode() {
-//        assertEquals(
-//                asList(Token.STRING),
-//                Json.parse("\"hello \\u2ebf world\"").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseStringWithBrokenUnicode() {
-//        try {
-//            Json.parse("\"hello \\u123 world\"");
-//            fail("should raise ParseException");
-//        } catch (Json.ParseException expected) {}
-//    }
-//
-//    @Test public void parseStringWithControlChar() {
-//        try {
-//            Json.parse("\"hello \u0000 world\"");
-//            fail("should raise ParseException");
-//        } catch (Json.ParseException expected) {}
-//    }
-//
+    @Test public void parseEmptyString() {
+        Json.JsonValue value = Json.parse("  \"\"  ");
+        assertTrue(value.isString());
+        assertEquals("", value.asString());
+    }
+
+    @Test public void parseString() {
+        Json.JsonValue value = Json.parse("\"hello\"");
+        assertTrue(value.isString());
+        assertEquals("hello", value.asString());
+    }
+
+    @Test public void parseStringWithEscapedQuote() {
+        Json.JsonValue value = Json.parse("\"hello \\\"quoted\\\" world\"");
+        // todo: unescape quotes
+        assertEquals("hello \\\"quoted\\\" world", value.asString());
+    }
+
+    @Test public void parseStringWithEscapedBackslash() {
+        Json.JsonValue value = Json.parse("\"hello \\\\ world\"");
+        // todo: unescape backslash
+        assertEquals("hello \\\\ world", value.asString());
+    }
+
+    @Test public void parseStringWithEscapedSlash() {
+        Json.JsonValue value = Json.parse("\"hello \\/ world\"");
+        // todo: unescape slash
+        assertEquals("hello \\/ world", value.asString());
+    }
+
+    @Test public void parseStringWithEscapedBackspace() {
+        Json.JsonValue value = Json.parse("\"hello \\b world\"");
+        // todo: unescape backspace
+        assertEquals("hello \\b world", value.asString());
+    }
+
+    @Test public void parseStringWithEscapedFormfeed() {
+        Json.JsonValue value = Json.parse("\"hello \\f world\"");
+        // todo: unescape formfeed
+        assertEquals("hello \\f world", value.asString());
+    }
+
+    @Test public void parseStringWithEscapedNewline() {
+        Json.JsonValue value = Json.parse("\"hello \\n world\"");
+        // todo: unescape newline
+        assertEquals("hello \\n world", value.asString());
+    }
+
+    @Test public void parseStringWithUnescapedNewline() {
+        try {
+            Json.parse("\"hello \n world\"");
+            fail("should raise ParseException");
+        } catch (Json.ParseException expected) {}
+    }
+
+    @Test public void parseStringWithEscapedCarriageReturn() {
+        Json.JsonValue value = Json.parse("\"hello \\r world\"");
+        // todo: unescape carriage return
+        assertEquals("hello \\r world", value.asString());
+    }
+
+    @Test public void parseStringWithEscapedTab() {
+        Json.JsonValue value = Json.parse("\"hello \\t world\"");
+        // todo: unescape tab
+        assertEquals("hello \\t world", value.asString());
+    }
+
+    @Test public void parseStringWithEscapedUnicode() {
+        Json.JsonValue value = Json.parse("\"hello \\u2ebf world\"");
+        // todo: unescape unicode
+        assertEquals("hello \\u2ebf world", value.asString());
+    }
+
+    @Test public void parseStringWithBrokenUnicode() {
+        try {
+            Json.parse("\"hello \\u123 world\"");
+            fail("should raise ParseException");
+        } catch (Json.ParseException expected) {}
+    }
+
+    @Test public void parseStringWithControlChar() {
+        try {
+            Json.parse("\"hello \u0000 world\"");
+            fail("should raise ParseException");
+        } catch (Json.ParseException expected) {}
+    }
+
 //    @Test public void parseEmptyObject() {
 //        assertEquals(
 //                asList(Token.OBJECT),

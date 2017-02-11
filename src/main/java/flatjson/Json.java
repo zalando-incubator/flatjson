@@ -336,6 +336,10 @@ public class Json {
             return raw.substring(from, to + 1);
         }
 
+        public String getRawString() {
+            return raw.substring(from + 1, to);
+        }
+
         @Override public String toString() {
             return "Element{" + token + " [" + from + "-" + to + "] " + contains + " " + getRaw() + "\n";
         }
@@ -468,7 +472,7 @@ public class Json {
 
         public String asString() {
             if (!isString()) throw new IllegalStateException("not a string");
-            return element().getRaw(); // todo: convert escaped chars
+            return element().getRawString(); // todo: convert escaped chars
         }
 
         public JsonArray asArray() {
