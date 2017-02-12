@@ -2,7 +2,6 @@ package flatjson;
 
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -75,6 +74,17 @@ public class JsonTest {
         List<Json.JsonValue> values = array.getValues();
         assertTrue(values.get(0).asBoolean());
         assertFalse(values.get(1).asBoolean());
+    }
+
+    @Test public void parseNumberArray() {
+        Json.JsonValue value = Json.parse("[23,42e8,3.141]");
+        assertTrue(value.isArray());
+        Json.JsonArray array = value.asArray();
+        assertEquals(3, array.size());
+        List<Json.JsonValue> values = array.getValues();
+        assertEquals(23, values.get(0).asLong());
+        assertEquals(42e8, values.get(1).asDouble(), 0);
+        assertEquals(3.141, values.get(2).asDouble(), 0);
     }
 
     @Test public void parseEmptyString() {
@@ -180,212 +190,173 @@ public class JsonTest {
         assertTrue(values.get("foo").asBoolean());
     }
 
-//    @Test public void parseZero() {
-//        assertEquals(
-//                asList(Token.NUMBER),
-//                Json.parse("0").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseZeroWithExponent() {
-//        assertEquals(
-//                asList(Token.NUMBER),
-//                Json.parse("0e-23").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseMinus() {
-//        try {
-//            Json.parse("-");
-//            fail("should raise ParseException");
-//        } catch (Json.ParseException expected) {}
-//    }
-//
-//    @Test public void parseNegativeZero() {
-//        assertEquals(
-//                asList(Token.NUMBER),
-//                Json.parse("-0").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseNegativeZeroWithExponent() {
-//        assertEquals(
-//                asList(Token.NUMBER),
-//                Json.parse("-0e-2").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseSingleDigit() {
-//        assertEquals(
-//                asList(Token.NUMBER),
-//                Json.parse("3").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseSingleDigitWithExponent() {
-//        assertEquals(
-//                asList(Token.NUMBER),
-//                Json.parse("3e+7").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseNumberWithLeadingZero() {
-//        try {
-//            Json.parse("023");
-//            fail("should raise ParseException");
-//        } catch (Json.ParseException expected) {}
-//    }
-//
-//    @Test public void parseInteger() {
-//        assertEquals(
-//                asList(Token.NUMBER),
-//                Json.parse("23").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseVeryLongInteger() {
-//        assertEquals(
-//                asList(Token.NUMBER),
-//                Json.parse("100000000000000023").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseNegativeInteger() {
-//        assertEquals(
-//                asList(Token.NUMBER),
-//                Json.parse("-23").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseNegativeIntegerWithExponent() {
-//        assertEquals(
-//                asList(Token.NUMBER),
-//                Json.parse("-2e-2").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseVeryLongNegativeInteger() {
-//        assertEquals(
-//                asList(Token.NUMBER),
-//                Json.parse("-234567898765432").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseNumberWithExponent() {
-//        assertEquals(
-//                asList(Token.NUMBER),
-//                Json.parse("33e12").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseNumberWithExponentUppercase() {
-//        assertEquals(
-//                asList(Token.NUMBER),
-//                Json.parse("33E12").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseNumberWithExponentPlus() {
-//        assertEquals(
-//                asList(Token.NUMBER),
-//                Json.parse("33E+12").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseNumberWithExponentMinus() {
-//        assertEquals(
-//                asList(Token.NUMBER),
-//                Json.parse("33E-12").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseNumberWithEmptyExponent() {
-//        try {
-//            Json.parse("33E+");
-//            fail("should raise ParseException");
-//        } catch (Json.ParseException expected) {}
-//    }
-//
-//    @Test public void parseNumberWithBrokenExponent() {
-//        try {
-//            Json.parse("33E++2");
-//            fail("should raise ParseException");
-//        } catch (Json.ParseException expected) {}
-//    }
-//
-//    @Test public void parseFloat() {
-//        assertEquals(
-//                asList(Token.NUMBER),
-//                Json.parse("3.141").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseNegativeFloat() {
-//        assertEquals(
-//                asList(Token.NUMBER),
-//                Json.parse("-3.141").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseFloatWithExponent() {
-//        assertEquals(
-//                asList(Token.NUMBER),
-//                Json.parse("-3.141e+4").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseFloatWithLeadingZero() {
-//        assertEquals(
-//                asList(Token.NUMBER),
-//                Json.parse("0.33333333").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseFloatWithLeadingZeroAndExponent() {
-//        assertEquals(
-//                asList(Token.NUMBER),
-//                Json.parse("0.333E4").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseFloatWithComma() {
-//        try {
-//            Json.parse("3,141");
-//            fail("should raise ParseException");
-//        } catch (Json.ParseException expected) {}
-//    }
-//
-//    @Test public void parseFloatStartingWithDot() {
-//        try {
-//            Json.parse(".141");
-//            fail("should raise ParseException");
-//        } catch (Json.ParseException expected) {}
-//    }
-//
-//    @Test public void parseFloatWithDoubleDot() {
-//        try {
-//            Json.parse("111.222.333");
-//            fail("should raise ParseException");
-//        } catch (Json.ParseException expected) {}
-//    }
-//
-//    @Test public void parseNumberArray() {
-//        assertEquals(
-//                asList(Token.ARRAY, Token.NUMBER, Token.NUMBER),
-//                Json.parse("[23, 42]").getTokens()
-//        );
-//    }
-//
-//    @Test public void parseMixedNumberArray() {
-//        assertEquals(
-//                asList(Token.ARRAY, Token.NUMBER, Token.NUMBER, Token.NUMBER, Token.NUMBER),
-//                Json.parse("[0, -23, 2e+5, -0.333]").getTokens()
-//        );
-//    }
-
-    private List asList(Object... objects) {
-        return Arrays.asList(objects);
+    @Test public void parseZero() {
+        Json.JsonValue value = Json.parse("0");
+        assertTrue(value.isNumber());
+        assertEquals(0, value.asLong());
     }
 
+    @Test public void parseZeroWithExponent() {
+        Json.JsonValue value = Json.parse("0e-23");
+        assertTrue(value.isNumber());
+        assertEquals(0, value.asDouble(), 0);
+    }
+
+    @Test public void parseMinus() {
+        try {
+            Json.parse("-");
+            fail("should raise ParseException");
+        } catch (Json.ParseException expected) {}
+    }
+
+    @Test public void parseNegativeZero() {
+        Json.JsonValue value = Json.parse("-0");
+        assertTrue(value.isNumber());
+        assertEquals(0, value.asLong());
+    }
+
+    @Test public void parseNegativeZeroWithExponent() {
+        Json.JsonValue value = Json.parse("-0e-2");
+        assertTrue(value.isNumber());
+        assertEquals(0, value.asDouble(), 0);
+    }
+
+    @Test public void parseSingleDigit() {
+        Json.JsonValue value = Json.parse("3");
+        assertTrue(value.isNumber());
+        assertEquals(3, value.asLong());
+    }
+
+    @Test public void parseSingleDigitWithExponent() {
+        Json.JsonValue value = Json.parse("3e+7");
+        assertTrue(value.isNumber());
+        assertEquals(3e+7, value.asDouble(), 0);
+    }
+
+    @Test public void parseNumberWithLeadingZero() {
+        try {
+            Json.parse("023");
+            fail("should raise ParseException");
+        } catch (Json.ParseException expected) {}
+    }
+
+    @Test public void parseNumber() {
+        Json.JsonValue value = Json.parse("123");
+        assertTrue(value.isNumber());
+        assertEquals(123, value.asLong());
+    }
+
+    @Test public void parseLongNumber() {
+        Json.JsonValue value = Json.parse("100000000000000023");
+        assertTrue(value.isNumber());
+        assertEquals(100000000000000023L, value.asLong());
+    }
+
+    @Test public void parseNegativeNumber() {
+        Json.JsonValue value = Json.parse("-23");
+        assertTrue(value.isNumber());
+        assertEquals(-23, value.asLong());
+    }
+
+    @Test public void parseNegativeNumberWithExponent() {
+        Json.JsonValue value = Json.parse("-2e-2");
+        assertTrue(value.isNumber());
+        assertEquals(-2e-2, value.asDouble(), 0);
+    }
+
+    @Test public void parseNegativeLongNumber() {
+        Json.JsonValue value = Json.parse("-234567898765432");
+        assertTrue(value.isNumber());
+        assertEquals(-234567898765432L, value.asLong());
+    }
+
+    @Test public void parseNumberWithExponent() {
+        Json.JsonValue value = Json.parse("33e12");
+        assertTrue(value.isNumber());
+        assertEquals(33e12, value.asDouble(), 0);
+    }
+
+    @Test public void parseNumberWithExponentUppercase() {
+        Json.JsonValue value = Json.parse("33E12");
+        assertTrue(value.isNumber());
+        assertEquals(33e12, value.asDouble(), 0);
+    }
+
+    @Test public void parseNumberWithExponentPlus() {
+        Json.JsonValue value = Json.parse("33E+12");
+        assertTrue(value.isNumber());
+        assertEquals(33e12, value.asDouble(), 0);
+    }
+
+    @Test public void parseNumberWithExponentMinus() {
+        Json.JsonValue value = Json.parse("33E-12");
+        assertTrue(value.isNumber());
+        assertEquals(33e-12, value.asDouble(), 0);
+    }
+
+    @Test public void parseNumberWithEmptyExponent() {
+        try {
+            Json.parse("33E+");
+            fail("should raise ParseException");
+        } catch (Json.ParseException expected) {}
+    }
+
+    @Test public void parseNumberWithBrokenExponent() {
+        try {
+            Json.parse("33E++2");
+            fail("should raise ParseException");
+        } catch (Json.ParseException expected) {}
+    }
+
+    @Test public void parseFloat() {
+        Json.JsonValue value = Json.parse("3.141");
+        assertTrue(value.isNumber());
+        assertEquals(3.141, value.asDouble(), 0);
+    }
+
+    @Test public void parseNegativeFloat() {
+        Json.JsonValue value = Json.parse("-3.141");
+        assertTrue(value.isNumber());
+        assertEquals(-3.141, value.asDouble(), 0);
+    }
+
+    @Test public void parseFloatWithExponent() {
+        Json.JsonValue value = Json.parse("-3.141e+4");
+        assertTrue(value.isNumber());
+        assertEquals(-3.141e4, value.asDouble(), 0);
+    }
+
+    @Test public void parseFloatWithLeadingZero() {
+        Json.JsonValue value = Json.parse("0.33333333");
+        assertTrue(value.isNumber());
+        assertEquals(0.33333333, value.asDouble(), 0);
+    }
+
+    @Test public void parseFloatWithLeadingZeroAndExponent() {
+        Json.JsonValue value = Json.parse("0.333e4");
+        assertTrue(value.isNumber());
+        assertEquals(0.333e4, value.asDouble(), 0);
+    }
+
+    @Test public void parseFloatWithComma() {
+        try {
+            Json.parse("3,141");
+            fail("should raise ParseException");
+        } catch (Json.ParseException expected) {}
+    }
+
+    @Test public void parseFloatStartingWithDot() {
+        try {
+            Json.parse(".141");
+            fail("should raise ParseException");
+        } catch (Json.ParseException expected) {}
+    }
+
+    @Test public void parseFloatWithDoubleDot() {
+        try {
+            Json.parse("111.222.333");
+            fail("should raise ParseException");
+        } catch (Json.ParseException expected) {}
+    }
 
 }

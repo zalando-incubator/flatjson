@@ -468,7 +468,12 @@ public class Json {
             return Boolean.valueOf(element().getRaw());
         }
 
-        public double asNumber() {
+        public long asLong() {
+            if (!isNumber()) throw new IllegalStateException("not a number");
+            return Long.valueOf(element().getRaw());
+        }
+
+        public double asDouble() {
             if (!isNumber()) throw new IllegalStateException("not a number");
             return Double.valueOf(element().getRaw());
         }
@@ -511,7 +516,7 @@ public class Json {
         }
 
         private List<JsonValue> createValues() {
-            List<JsonValue> result = new ArrayList(size());
+            List<JsonValue> result = new ArrayList<>(size());
             for (int i = 0; i < size(); i++) {
                 result.add(create(element + i + 1));
             }
@@ -553,7 +558,7 @@ public class Json {
 //        String input = new String(Files.readAllBytes(Paths.get("test/sample.json")));
         String input = "0.33e+4";
         JsonValue value = Json.parse(input);
-        System.out.println(value.asNumber());
+        System.out.println(value.asDouble());
     }
 
 }
