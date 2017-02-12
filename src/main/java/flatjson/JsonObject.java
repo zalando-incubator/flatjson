@@ -14,7 +14,7 @@ public class JsonObject extends JsonValue {
     }
 
     int size() {
-        return element().contained / 2;
+        return json.getContained(element) / 2;
     }
 
     synchronized Map<String, JsonValue> getValues() {
@@ -25,8 +25,9 @@ public class JsonObject extends JsonValue {
     private Map<String, JsonValue> createValues() {
         Map<String, JsonValue> result = new HashMap<>(size());
         for (int i = 0; i < size(); i++) {
-            String key = json.getElement(element + 2 * i + 1).getRawString();
-            result.put(key, json.createValue(element + 2 * i + 2));
+            String key = json.getRawString(element + 2 * i + 1);
+            JsonValue value = json.createValue(element + 2 * i + 2);
+            result.put(key, value);
         }
         return result;
     }

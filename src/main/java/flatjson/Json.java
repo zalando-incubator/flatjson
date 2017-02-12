@@ -1,9 +1,6 @@
 package flatjson;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
 public class Json {
 
@@ -309,31 +306,6 @@ public class Json {
         }
     };
 
-    class Element {
-        final Token token;
-        final int from;
-        int to;
-        int contained;
-
-        Element(Token token, int from) {
-            this.token = token;
-            this.from = from;
-        }
-
-        public String getRaw() {
-            return raw.substring(from, to + 1);
-        }
-
-        public String getRawString() {
-            return raw.substring(from + 1, to);
-        }
-
-        @Override
-        public String toString() {
-            return "Element{" + token + " [" + from + "-" + to + "] " + contained + " " + getRaw() + "\n";
-        }
-    }
-
     private class Frame {
         final Token token;
         final int element;
@@ -345,21 +317,59 @@ public class Json {
     }
 
     private final String raw;
-    private final List<Element> elements;
     private final Stack<Frame> stack;
+    private final int[] elements;
+    private int elementCount;
 
     private Json(String raw) {
         this.raw = raw;
-        this.elements = new ArrayList<>();
         this.stack = new Stack<>();
+        this.elements = new int[4 * 1024];
+        this.elementCount = 0;
     }
 
-    Element getElement(int index) {
-        return elements.get(index);
+    Token getToken(int element) {
+        return Token.values()[elements[element * 4]];
+    }
+
+    void setToken(int element, Token token) {
+        elements[element * 4] = token.ordinal();
+    }
+
+    int getFrom(int element) {
+        return elements[element * 4 + 1];
+    }
+
+    void setFrom(int element, int from) {
+        elements[element * 4 + 1] = from;
+    }
+
+    int getTo(int element) {
+        return elements[element * 4 + 2];
+    }
+
+    void setTo(int element, int to) {
+        elements[element * 4 + 2] = to;
+    }
+
+    int getContained(int element) {
+        return elements[element * 4 + 3];
+    }
+
+    void setContained(int element, int contained) {
+        elements[element * 4 + 3] = contained;
+    }
+
+    String getRaw(int element) {
+        return raw.substring(getFrom(element), getTo(element) + 1);
+    }
+
+    String getRawString(int element) {
+        return raw.substring(getFrom(element) + 1, getTo(element));
     }
 
     JsonValue createValue(int element) {
-        Token token = elements.get(element).token;
+        Token token = getToken(element);
         if (token == Token.ARRAY) {
             return new JsonArray(this, element);
         } else if (token == Token.OBJECT) {
@@ -383,9 +393,11 @@ public class Json {
     private State beginElement(int index, Token token) {
         System.out.println("BEGIN " + token);
         if (token != Token.OBJECT_VALUE) {
-            elements.add(new Element(token, index));
+            setToken(elementCount, token);
+            setFrom(elementCount, index);
+            elementCount++;
         }
-        stack.add(new Frame(token, elements.size() - 1));
+        stack.add(new Frame(token, elementCount - 1));
         if (token == Token.NULL) return NULL_1;
         if (token == Token.TRUE) return TRUE_1;
         if (token == Token.FALSE) return FALSE_1;
@@ -401,9 +413,8 @@ public class Json {
         System.out.println("END " + token);
         Frame last = stack.pop();
         if (last.token != token) throw new ParseException(token);
-        Element element = elements.get(last.element);
-        element.to = index;
-        element.contained = elements.size() - last.element - 1;
+        setTo(last.element, index);
+        setContained(last.element, elementCount - last.element - 1);
         if (stack.empty()) return END;
         if (Token.ARRAY == stack.peek().token) return ARRAY_NEXT;
         if (Token.OBJECT == stack.peek().token) return OBJECT_COLON;
@@ -412,10 +423,6 @@ public class Json {
             return OBJECT_NEXT;
         }
         throw new ParseException("illegal state: " + token);
-    }
-
-    @Override public String toString() {
-        return String.join("\n", elements.stream().map(Element::toString).collect(Collectors.toList()));
     }
 
     public static JsonValue parse(String raw) {

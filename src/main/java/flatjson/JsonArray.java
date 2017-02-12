@@ -14,7 +14,7 @@ public class JsonArray extends JsonValue {
     }
 
     int size() {
-        return element().contained;
+        return json.getContained(element);
     }
 
     synchronized List<JsonValue> getValues() {

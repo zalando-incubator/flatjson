@@ -36,22 +36,22 @@ public class JsonValue {
 
     public boolean asBoolean() {
         if (!isBoolean()) throw new IllegalStateException("not a boolean");
-        return Boolean.valueOf(element().getRaw());
+        return Boolean.valueOf(json.getRaw(element));
     }
 
     public long asLong() {
         if (!isNumber()) throw new IllegalStateException("not a number");
-        return Long.valueOf(element().getRaw());
+        return Long.valueOf(json.getRaw(element));
     }
 
     public double asDouble() {
         if (!isNumber()) throw new IllegalStateException("not a number");
-        return Double.valueOf(element().getRaw());
+        return Double.valueOf(json.getRaw(element));
     }
 
     public String asString() {
         if (!isString()) throw new IllegalStateException("not a string");
-        return element().getRawString(); // todo: convert escaped chars
+        return json.getRawString(element); // todo: convert escaped chars
     }
 
     public JsonArray asArray() {
@@ -65,10 +65,7 @@ public class JsonValue {
     }
 
     protected boolean hasToken(Json.Token token) {
-        return element().token == token;
+        return json.getToken(element) == token;
     }
 
-    protected Json.Element element() {
-        return json.getElement(element);
-    }
 }
