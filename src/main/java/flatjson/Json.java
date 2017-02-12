@@ -306,6 +306,7 @@ public class Json {
         }
     };
 
+    // todo: replace with array
     private class Frame {
         final Token token;
         final int element;
@@ -324,7 +325,8 @@ public class Json {
     private Json(String raw) {
         this.raw = raw;
         this.stack = new Stack<>();
-        this.elements = new int[4 * 1024];
+        // todo: make elements scalable
+        this.elements = new int[4 * 1024]; // 16 KB
         this.elementCount = 0;
     }
 
