@@ -1,5 +1,7 @@
 package flatjson;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 public class Json {
@@ -26,16 +28,14 @@ public class Json {
     }
 
     private class SkipWhitespace extends State {
-        @Override
-        State consume(int index, char c, char next) {
+        @Override State consume(int index, char c, char next) {
             for (char w : WHITESPACE_CHARS) if (c == w) return this;
             return super.consume(index, c, next);
         }
     }
 
     private class Value extends SkipWhitespace {
-        @Override
-        State consume(int index, char c, char next) {
+        @Override State consume(int index, char c, char next) {
             if (c == 'n') return beginElement(index, Token.NULL);
             if (c == 't') return beginElement(index, Token.TRUE);
             if (c == 'f') return beginElement(index, Token.FALSE);
@@ -317,49 +317,50 @@ public class Json {
         }
     }
 
+    private static final int BLOCK_SIZE = 4 * 1024; // 16 KB
+
     private final String raw;
     private final Stack<Frame> stack;
-    private final int[] elements;
+    private final List<int[]> elements;
     private int elementCount;
 
     private Json(String raw) {
         this.raw = raw;
         this.stack = new Stack<>();
-        // todo: make elements scalable
-        this.elements = new int[4 * 1024]; // 16 KB
+        this.elements = new ArrayList<>();
         this.elementCount = 0;
     }
 
     Token getToken(int element) {
-        return Token.values()[elements[element * 4]];
+        return Token.values()[getElement(element, 0)];
     }
 
     void setToken(int element, Token token) {
-        elements[element * 4] = token.ordinal();
+        setElement(element, 0, token.ordinal());
     }
 
     int getFrom(int element) {
-        return elements[element * 4 + 1];
+        return getElement(element, 1);
     }
 
     void setFrom(int element, int from) {
-        elements[element * 4 + 1] = from;
+        setElement(element, 1, from);
     }
 
     int getTo(int element) {
-        return elements[element * 4 + 2];
+        return getElement(element, 2);
     }
 
     void setTo(int element, int to) {
-        elements[element * 4 + 2] = to;
+        setElement(element, 2, to);
     }
 
     int getContained(int element) {
-        return elements[element * 4 + 3];
+        return getElement(element, 3);
     }
 
     void setContained(int element, int contained) {
-        elements[element * 4 + 3] = contained;
+        setElement(element, 3, contained);
     }
 
     String getRaw(int element) {
@@ -381,19 +382,24 @@ public class Json {
         }
     }
 
-    private JsonValue parse() {
-        State state = VALUE;
-        int last = raw.length() - 1;
-        for (int i = 0; i < last; i++) {
-            state = state.consume(i, raw.charAt(i), raw.charAt(i + 1));
+    private int getElement(int element, int offset) {
+        int major = (element * 4 + offset) / BLOCK_SIZE;
+        int minor = (element * 4 + offset) % BLOCK_SIZE;
+        return elements.get(major)[minor];
+    }
+
+    private void setElement(int element, int offset, int value) {
+        int major = (element * 4 + offset) / BLOCK_SIZE;
+        int minor = (element * 4 + offset) % BLOCK_SIZE;
+        if (major == elements.size()) {
+            System.out.println("EXTEND elements " + elements.size());
+            elements.add(new int[BLOCK_SIZE]);
         }
-        state = state.consume(last, raw.charAt(last), ' ');
-        if (state != END) throw new ParseException("unbalanced json");
-        return createValue(0);
+        elements.get(major)[minor] = value;
     }
 
     private State beginElement(int index, Token token) {
-        System.out.println("BEGIN " + token);
+        System.out.println("BEGIN " + elementCount + " " + token);
         if (token != Token.OBJECT_VALUE) {
             setToken(elementCount, token);
             setFrom(elementCount, index);
@@ -413,10 +419,10 @@ public class Json {
 
     private State endElement(int index, Token token) {
         System.out.println("END " + token);
-        Frame last = stack.pop();
-        if (last.token != token) throw new ParseException(token);
-        setTo(last.element, index);
-        setContained(last.element, elementCount - last.element - 1);
+        Frame top = stack.pop();
+        if (top.token != token) throw new ParseException(token);
+        setTo(top.element, index);
+        setContained(top.element, elementCount - top.element - 1);
         if (stack.empty()) return END;
         if (Token.ARRAY == stack.peek().token) return ARRAY_NEXT;
         if (Token.OBJECT == stack.peek().token) return OBJECT_COLON;
@@ -425,6 +431,17 @@ public class Json {
             return OBJECT_NEXT;
         }
         throw new ParseException("illegal state: " + token);
+    }
+
+    private JsonValue parse() {
+        State state = VALUE;
+        int last = raw.length() - 1;
+        for (int i = 0; i < last; i++) {
+            state = state.consume(i, raw.charAt(i), raw.charAt(i + 1));
+        }
+        state = state.consume(last, raw.charAt(last), ' ');
+        if (state != END) throw new ParseException("unbalanced json");
+        return createValue(0);
     }
 
     public static JsonValue parse(String raw) {
