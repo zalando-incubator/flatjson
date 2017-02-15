@@ -13,18 +13,20 @@ public class JsonArray extends JsonValue {
         super(json, element);
     }
 
-    int size() {
-        return json.getContained(element);
+    @Override public boolean isArray() {
+        return true;
     }
 
-    synchronized List<JsonValue> getValues() {
-        if (values == null) values = Collections.unmodifiableList(createValues());
+    @Override public synchronized List<JsonValue> asArray() {
+        if (values == null) {
+            values = Collections.unmodifiableList(createValues());
+        }
         return values;
     }
 
     private List<JsonValue> createValues() {
-        List<JsonValue> result = new ArrayList<>(size());
-        for (int i = 0; i < size(); i++) {
+        List<JsonValue> result = new ArrayList<>(json.getContained(element));
+        for (int i = 0; i < json.getContained(element); i++) {
             result.add(json.createValue(element + i + 1));
         }
         return result;

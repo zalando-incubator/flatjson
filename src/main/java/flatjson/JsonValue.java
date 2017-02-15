@@ -1,5 +1,8 @@
 package flatjson;
 
+import java.util.List;
+import java.util.Map;
+
 public class JsonValue {
 
     protected final Json json;
@@ -27,11 +30,11 @@ public class JsonValue {
     }
 
     public boolean isArray() {
-        return hasToken(Json.Token.ARRAY);
+        return false;
     }
 
     public boolean isObject() {
-        return hasToken(Json.Token.OBJECT);
+        return false;
     }
 
     public boolean asBoolean() {
@@ -54,14 +57,12 @@ public class JsonValue {
         return json.getRawString(element); // todo: convert escaped chars
     }
 
-    public JsonArray asArray() {
-        if (!isArray()) throw new IllegalStateException("not an array");
-        return (JsonArray) this;
+    public List<JsonValue> asArray() {
+        throw new IllegalStateException("not an array");
     }
 
-    public JsonObject asObject() {
-        if (!isObject()) throw new IllegalStateException("not an object");
-        return (JsonObject) this;
+    public Map<String, JsonValue> asObject() {
+        throw new IllegalStateException("not an object");
     }
 
     protected boolean hasToken(Json.Token token) {
