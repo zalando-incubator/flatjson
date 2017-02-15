@@ -25,11 +25,12 @@ public class JsonObject extends JsonValue {
     }
 
     private Map<String, JsonValue> createValues() {
-        Map<String, JsonValue> result = new HashMap<>(json.getContained(element) / 2);
-        for (int i = 0; i < json.getContained(element) / 2; i++) {
-            String key = json.getRawString(element + 2 * i + 1);
-            JsonValue value = json.createValue(element + 2 * i + 2);
-            result.put(key, value);
+        Map<String, JsonValue> result = new HashMap<>();
+        int e = element + 1;
+        while (e <= element + json.getContained(element)) {
+            String key = json.getRawString(e);
+            result.put(key, json.createValue(e + 1));
+            e += json.getContained(e + 1) + 2;
         }
         return result;
     }

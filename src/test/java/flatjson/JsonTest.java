@@ -57,13 +57,16 @@ public class JsonTest {
     }
 
     @Test public void parseNestedArray() {
-        JsonValue value = Json.parse("[ []]");
+        JsonValue value = Json.parse("[ [42, 23]]");
         assertTrue(value.isArray());
         List<JsonValue> values = value.asArray();
         assertEquals(1, values.size());
-        JsonValue first = values.get(0);
-        assertTrue(first.isArray());
-        assertEquals(0, first.asArray().size());
+        JsonValue nested = values.get(0);
+        assertTrue(nested.isArray());
+        List<JsonValue> nestedValues = nested.asArray();
+        assertEquals(2, nestedValues.size());
+        assertEquals(42, nestedValues.get(0).asLong());
+        assertEquals(23, nestedValues.get(1).asLong());
     }
 
     @Test public void parseBooleanArray() {
@@ -189,12 +192,14 @@ public class JsonTest {
     }
 
     @Test public void parseNestedObject() {
-        JsonValue value = Json.parse("{\"nested\": {\"foo\": 23}}");
+        JsonValue value = Json.parse("{\"nested\": {\"foo\": 23}, \"bar\": false }");
         assertTrue(value.isObject());
         Map<String, JsonValue> values = value.asObject();
-        assertEquals(1, values.size());
+        assertEquals(2, values.size());
         JsonValue nested = values.get("nested");
         assertTrue(nested.isObject());
+        Map<String, JsonValue> nestedValues = nested.asObject();
+        assertEquals(23, nestedValues.get("foo").asLong());
     }
 
     @Test public void parseZero() {

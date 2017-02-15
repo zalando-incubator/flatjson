@@ -25,9 +25,11 @@ public class JsonArray extends JsonValue {
     }
 
     private List<JsonValue> createValues() {
-        List<JsonValue> result = new ArrayList<>(json.getContained(element));
-        for (int i = 0; i < json.getContained(element); i++) {
-            result.add(json.createValue(element + i + 1));
+        List<JsonValue> result = new ArrayList<>();
+        int e = element + 1;
+        while (e <= element + json.getContained(element)) {
+            result.add(json.createValue(e));
+            e += json.getContained(e) + 1;
         }
         return result;
     }
