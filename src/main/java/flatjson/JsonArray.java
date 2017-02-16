@@ -27,9 +27,9 @@ public class JsonArray extends JsonValue {
     private List<JsonValue> createValues() {
         List<JsonValue> result = new ArrayList<>();
         int e = element + 1;
-        while (e <= element + json.getContained(element)) {
+        while (e <= element + json.getNested(element)) {
             result.add(json.createValue(e));
-            e += json.getContained(e) + 1;
+            e += json.getNested(e) + 1;
         }
         return result;
     }

@@ -355,12 +355,12 @@ public class Json {
         setElement(element, 2, to);
     }
 
-    int getContained(int element) {
+    int getNested(int element) {
         return getElement(element, 3);
     }
 
-    void setContained(int element, int contained) {
-        setElement(element, 3, contained);
+    void setNested(int element, int nested) {
+        setElement(element, 3, nested);
     }
 
     String getRaw(int element) {
@@ -422,7 +422,7 @@ public class Json {
         Frame top = stack.pop();
         if (top.token != token) throw new ParseException(token);
         setTo(top.element, index);
-        setContained(top.element, elementCount - top.element - 1);
+        setNested(top.element, elementCount - top.element - 1);
         if (stack.empty()) return END;
         if (Token.ARRAY == stack.peek().token) return ARRAY_NEXT;
         if (Token.OBJECT == stack.peek().token) return OBJECT_COLON;

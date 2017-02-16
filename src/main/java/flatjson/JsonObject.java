@@ -27,10 +27,10 @@ public class JsonObject extends JsonValue {
     private Map<String, JsonValue> createValues() {
         Map<String, JsonValue> result = new HashMap<>();
         int e = element + 1;
-        while (e <= element + json.getContained(element)) {
+        while (e <= element + json.getNested(element)) {
             String key = json.getRawString(e);
             result.put(key, json.createValue(e + 1));
-            e += json.getContained(e + 1) + 2;
+            e += json.getNested(e + 1) + 2;
         }
         return result;
     }
