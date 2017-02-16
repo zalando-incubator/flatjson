@@ -2,8 +2,10 @@ package flatjson;
 
 import org.junit.Test;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -200,6 +202,17 @@ public class JsonTest {
         assertTrue(nested.isObject());
         Map<String, JsonValue> nestedValues = nested.asObject();
         assertEquals(23, nestedValues.get("foo").asLong());
+    }
+
+    @Test public void parseArrayOfObjects() {
+        JsonValue value = Json.parse("[{\"foo\": 23, \"bar\": 44}, {\"foo\": 11, \"bar\": 64}]");
+        assertTrue(value.isArray());
+        for (JsonValue v : value.asArray()) {
+            assertTrue(v.isObject());
+            Set<String> keys = v.asObject().keySet();
+            assertTrue(keys.contains("foo"));
+            assertTrue(keys.contains("bar"));
+        }
     }
 
     @Test public void parseZero() {
