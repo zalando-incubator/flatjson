@@ -335,7 +335,7 @@ public class Json {
         return Token.values()[getElement(element, 0)];
     }
 
-    void setToken(int element, Token token) {
+    private void setToken(int element, Token token) {
         setElement(element, 0, token.ordinal());
     }
 
@@ -343,7 +343,7 @@ public class Json {
         return getElement(element, 1);
     }
 
-    void setFrom(int element, int from) {
+    private void setFrom(int element, int from) {
         setElement(element, 1, from);
     }
 
@@ -351,7 +351,7 @@ public class Json {
         return getElement(element, 2);
     }
 
-    void setTo(int element, int to) {
+    private void setTo(int element, int to) {
         setElement(element, 2, to);
     }
 
@@ -359,7 +359,7 @@ public class Json {
         return getElement(element, 3);
     }
 
-    void setNested(int element, int nested) {
+    private void setNested(int element, int nested) {
         setElement(element, 3, nested);
     }
 
@@ -369,19 +369,6 @@ public class Json {
 
     String getRawString(int element) {
         return raw.substring(getFrom(element) + 1, getTo(element));
-    }
-
-    JsonValue createValue(int element) {
-        Token token = getToken(element);
-        if (token == Token.ARRAY) {
-            return new JsonValue.Array(this, element);
-        } else if (token == Token.OBJECT) {
-            return new JsonValue.Object(this, element);
-        } else if (token == Token.STRING) {
-            return new JsonValue.Strng(this, element);
-        } else {
-            return new JsonValue(this, element);
-        }
     }
 
     private int getElement(int element, int offset) {
@@ -443,7 +430,7 @@ public class Json {
         }
         state = state.consume(last, raw.charAt(last), ' ');
         if (state != END) throw new ParseException("unbalanced json");
-        return createValue(0);
+        return JsonValue.create(this, 0);
     }
 
     public static JsonValue parse(String raw) {

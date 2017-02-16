@@ -28,7 +28,7 @@ public class JsonValue {
             int e = element + 1;
             while (e <= element + json.getNested(element)) {
                 String key = JsonValue.decodeString(json.getRawString(e));
-                result.put(key, json.createValue(e + 1));
+                result.put(key, create(json, e + 1));
                 e += json.getNested(e + 1) + 2;
             }
             return result;
@@ -58,7 +58,7 @@ public class JsonValue {
             List<JsonValue> result = new ArrayList<>();
             int e = element + 1;
             while (e <= element + json.getNested(element)) {
-                result.add(json.createValue(e));
+                result.add(create(json, e));
                 e += json.getNested(e) + 1;
             }
             return result;
@@ -153,7 +153,20 @@ public class JsonValue {
         return json.getRaw(element);
     }
 
-    public static String decodeString(String raw) {
+    public static JsonValue create(Json json, int element) {
+        Json.Token token = json.getToken(element);
+        if (token == Json.Token.ARRAY) {
+            return new Array(json, element);
+        } else if (token == Json.Token.OBJECT) {
+            return new Object(json, element);
+        } else if (token == Json.Token.STRING) {
+            return new Strng(json, element);
+        } else {
+            return new JsonValue(json, element);
+        }
+    }
+
+    static String decodeString(String raw) {
         StringBuilder result = new StringBuilder(raw.length());
         int i = 0;
         while (i < raw.length()) {
