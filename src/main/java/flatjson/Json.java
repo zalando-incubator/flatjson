@@ -377,6 +377,8 @@ public class Json {
             return new JsonArray(this, element);
         } else if (token == Token.OBJECT) {
             return new JsonObject(this, element);
+        } else if (token == Token.STRING) {
+            return new JsonString(this, element);
         } else {
             return new JsonValue(this, element);
         }

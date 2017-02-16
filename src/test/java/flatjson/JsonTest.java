@@ -106,6 +106,14 @@ public class JsonTest {
         assertTrue(values.get("foo").asBoolean());
     }
 
+    @Test public void parseObjectWithEscapedKey() {
+        JsonValue value = Json.parse("{\"\\noo\\b\": true }");
+        assertTrue(value.isObject());
+        Map<String, JsonValue> values = value.asObject();
+        assertEquals(1, values.size());
+        assertTrue(values.containsKey("\noo\b"));
+    }
+
     @Test public void parseNestedObject() {
         JsonValue value = Json.parse("{\"nested\": {\"foo\": 23}, \"bar\": false }");
         assertTrue(value.isObject());

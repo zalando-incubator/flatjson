@@ -5,6 +5,40 @@ import java.util.Map;
 
 public class JsonValue {
 
+    public static String decodeString(String raw) {
+        StringBuffer result = new StringBuffer(raw.length());
+        int i = 0;
+        while (i < raw.length()) {
+            if (raw.charAt(i) == '\\') {
+                i++;
+                if (raw.charAt(i) == '"') {
+                    result.append('"');
+                } else if (raw.charAt(i) == '\\') {
+                    result.append('\\');
+                } else if (raw.charAt(i) == '/') {
+                    result.append('/');
+                } else if (raw.charAt(i) == 'b') {
+                    result.append('\b');
+                } else if (raw.charAt(i) == 'f') {
+                    result.append('\f');
+                } else if (raw.charAt(i) == 'n') {
+                    result.append('\n');
+                } else if (raw.charAt(i) == 'r') {
+                    result.append('\r');
+                } else if (raw.charAt(i) == 't') {
+                    result.append('\t');
+                } else if (raw.charAt(i) == 'u') {
+                    result.append(Character.toChars(Integer.parseInt(raw.substring(i+1, i+5), 16)));
+                    i += 4;
+                }
+            } else {
+                result.append(raw.charAt(i));
+            }
+            i++;
+        }
+        return result.toString();
+    }
+
     protected final Json json;
     protected final int element;
 
@@ -26,7 +60,7 @@ public class JsonValue {
     }
 
     public boolean isString() {
-        return hasToken(Json.Token.STRING);
+        return false;
     }
 
     public boolean isArray() {
@@ -53,8 +87,7 @@ public class JsonValue {
     }
 
     public String asString() {
-        if (!isString()) throw new IllegalStateException("not a string");
-        return json.getRawString(element); // todo: convert escaped chars
+        throw new IllegalStateException("not a string");
     }
 
     public List<JsonValue> asArray() {

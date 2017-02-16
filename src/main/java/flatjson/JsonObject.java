@@ -28,7 +28,7 @@ public class JsonObject extends JsonValue {
         Map<String, JsonValue> result = new HashMap<>();
         int e = element + 1;
         while (e <= element + json.getNested(element)) {
-            String key = json.getRawString(e);
+            String key = JsonValue.decodeString(json.getRawString(e));
             result.put(key, json.createValue(e + 1));
             e += json.getNested(e + 1) + 2;
         }
