@@ -69,4 +69,7 @@ public class JsonValue {
         return json.getToken(element) == token;
     }
 
+    @Override public String toString() {
+        return json.getRaw(element);
+    }
 }

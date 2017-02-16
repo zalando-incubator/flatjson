@@ -14,6 +14,10 @@ public class Main {
 //        String input = "0.33e+4";
         JsonValue value = Json.parse(input);
 //        System.out.println(value.asDouble());
+        for (JsonValue jv : value.asObject().values()) {
+            System.out.println(jv);
+            System.out.println();
+        }
     }
 
 }
