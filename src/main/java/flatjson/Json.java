@@ -374,11 +374,11 @@ public class Json {
     JsonValue createValue(int element) {
         Token token = getToken(element);
         if (token == Token.ARRAY) {
-            return new JsonArray(this, element);
+            return new JsonValue.Array(this, element);
         } else if (token == Token.OBJECT) {
-            return new JsonObject(this, element);
+            return new JsonValue.Object(this, element);
         } else if (token == Token.STRING) {
-            return new JsonString(this, element);
+            return new JsonValue.Strng(this, element);
         } else {
             return new JsonValue(this, element);
         }
