@@ -65,12 +65,12 @@ public abstract class Benchmark {
 
     private void collectGarbage() {
         System.gc();
-        try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+        try { Thread.sleep(5000); } catch (InterruptedException ignored) {}
     }
 
     public static void main(String[] args) throws IOException {
-        int warmupRuns = 10_000;
-        int runs = 20_000;
+        int warmupRuns = 20_000;
+        int runs = 100_000;
         new FlatJsonBenchmark().execute(warmupRuns, runs);
         new SimpleJsonBenchmark().execute(warmupRuns, runs);
     }

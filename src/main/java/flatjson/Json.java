@@ -2,7 +2,6 @@ package flatjson;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 public class Json {
 
@@ -306,29 +305,68 @@ public class Json {
         }
     };
 
-    // todo: replace with array
-    private class Frame {
-        final Token token;
-        final int element;
-
-        Frame(Token token, int element) {
-            this.token = token;
-            this.element = element;
-        }
-    }
-
-    private static final int BLOCK_SIZE = 4 * 1024; // 16 KB
+    private static final int ELEMENTS_BLOCK_SIZE = 4 * 1024; // 16 KB
+    private static final int FRAMES_BLOCK_SIZE = 2 * 256; // 2 KB
 
     private final String raw;
-    private final Stack<Frame> stack;
     private final List<int[]> elements;
     private int elementCount;
+    private final List<int[]> frames;
+    private int currentFrame;
 
     private Json(String raw) {
         this.raw = raw;
-        this.stack = new Stack<>();
         this.elements = new ArrayList<>();
         this.elementCount = 0;
+        this.frames = new ArrayList<>();
+        this.currentFrame = -1;
+    }
+
+    private JsonValue parse() {
+        State state = VALUE;
+        int last = raw.length() - 1;
+        for (int i = 0; i < last; i++) {
+            state = state.consume(i, raw.charAt(i), raw.charAt(i + 1));
+        }
+        state = state.consume(last, raw.charAt(last), ' ');
+        if (state != END) throw new ParseException("unbalanced json");
+        return JsonValue.create(this, 0);
+    }
+
+    private State beginElement(int index, Token token) {
+//        System.out.println("BEGIN " + elementCount + " " + token);
+        if (token != Token.OBJECT_VALUE) {
+            setToken(elementCount, token);
+            setFrom(elementCount, index);
+            elementCount++;
+        }
+        stackPush(token, elementCount - 1);
+        if (token == Token.NULL) return NULL_1;
+        if (token == Token.TRUE) return TRUE_1;
+        if (token == Token.FALSE) return FALSE_1;
+        if (token == Token.ARRAY) return ARRAY_START;
+        if (token == Token.OBJECT) return OBJECT_START;
+        if (token == Token.OBJECT_VALUE) return VALUE;
+        if (token == Token.STRING) return STRING;
+        if (token == Token.NUMBER) return NUMBER_START;
+        throw new ParseException("illegal state: " + token);
+    }
+
+    private State endElement(int index, Token token) {
+//        System.out.println("END " + token);
+        if (token != stackPeekToken()) throw new ParseException(token);
+        int element = stackPeekElement();
+        setTo(element, index);
+        setNested(element, elementCount - element - 1);
+        stackPop();
+        if (stackEmpty()) return END;
+        if (Token.ARRAY == stackPeekToken()) return ARRAY_NEXT;
+        if (Token.OBJECT == stackPeekToken()) return OBJECT_COLON;
+        if (Token.OBJECT_VALUE == stackPeekToken()) {
+            stackPop();
+            return OBJECT_NEXT;
+        }
+        throw new ParseException("illegal state: " + token);
     }
 
     Token getToken(int element) {
@@ -372,65 +410,55 @@ public class Json {
     }
 
     private int getElement(int element, int offset) {
-        int major = (element * 4 + offset) / BLOCK_SIZE;
-        int minor = (element * 4 + offset) % BLOCK_SIZE;
+        int major = (element * 4 + offset) / ELEMENTS_BLOCK_SIZE;
+        int minor = (element * 4 + offset) % ELEMENTS_BLOCK_SIZE;
         return elements.get(major)[minor];
     }
 
     private void setElement(int element, int offset, int value) {
-        int major = (element * 4 + offset) / BLOCK_SIZE;
-        int minor = (element * 4 + offset) % BLOCK_SIZE;
+        int major = (element * 4 + offset) / ELEMENTS_BLOCK_SIZE;
+        int minor = (element * 4 + offset) % ELEMENTS_BLOCK_SIZE;
         if (major == elements.size()) {
-//            System.out.println("EXTEND elements " + elements.size());
-            elements.add(new int[BLOCK_SIZE]);
+            elements.add(new int[ELEMENTS_BLOCK_SIZE]);
         }
         elements.get(major)[minor] = value;
     }
 
-    private State beginElement(int index, Token token) {
-//        System.out.println("BEGIN " + elementCount + " " + token);
-        if (token != Token.OBJECT_VALUE) {
-            setToken(elementCount, token);
-            setFrom(elementCount, index);
-            elementCount++;
-        }
-        stack.add(new Frame(token, elementCount - 1));
-        if (token == Token.NULL) return NULL_1;
-        if (token == Token.TRUE) return TRUE_1;
-        if (token == Token.FALSE) return FALSE_1;
-        if (token == Token.ARRAY) return ARRAY_START;
-        if (token == Token.OBJECT) return OBJECT_START;
-        if (token == Token.OBJECT_VALUE) return VALUE;
-        if (token == Token.STRING) return STRING;
-        if (token == Token.NUMBER) return NUMBER_START;
-        throw new ParseException("illegal state: " + token);
+    private void stackPush(Token token, int element) {
+        currentFrame++;
+        setFrame(currentFrame, 0, token.ordinal());
+        setFrame(currentFrame, 1, element);
     }
 
-    private State endElement(int index, Token token) {
-//        System.out.println("END " + token);
-        Frame top = stack.pop();
-        if (top.token != token) throw new ParseException(token);
-        setTo(top.element, index);
-        setNested(top.element, elementCount - top.element - 1);
-        if (stack.empty()) return END;
-        if (Token.ARRAY == stack.peek().token) return ARRAY_NEXT;
-        if (Token.OBJECT == stack.peek().token) return OBJECT_COLON;
-        if (Token.OBJECT_VALUE == stack.peek().token) {
-            stack.pop();
-            return OBJECT_NEXT;
-        }
-        throw new ParseException("illegal state: " + token);
+    private Token stackPeekToken() {
+        return Token.values()[getFrame(currentFrame, 0)];
     }
 
-    private JsonValue parse() {
-        State state = VALUE;
-        int last = raw.length() - 1;
-        for (int i = 0; i < last; i++) {
-            state = state.consume(i, raw.charAt(i), raw.charAt(i + 1));
+    private int stackPeekElement() {
+        return getFrame(currentFrame, 1);
+    }
+
+    private void stackPop() {
+        currentFrame--;
+    }
+
+    private boolean stackEmpty() {
+        return currentFrame < 0;
+    }
+
+    private int getFrame(int frame, int offset) {
+        int major = (frame * 2 + offset) / FRAMES_BLOCK_SIZE;
+        int minor = (frame * 2 + offset) % FRAMES_BLOCK_SIZE;
+        return frames.get(major)[minor];
+    }
+
+    private void setFrame(int frame, int offset, int value) {
+        int major = (frame * 2 + offset) / FRAMES_BLOCK_SIZE;
+        int minor = (frame * 2 + offset) % FRAMES_BLOCK_SIZE;
+        if (major == frames.size()) {
+            frames.add(new int[FRAMES_BLOCK_SIZE]);
         }
-        state = state.consume(last, raw.charAt(last), ' ');
-        if (state != END) throw new ParseException("unbalanced json");
-        return JsonValue.create(this, 0);
+        frames.get(major)[minor] = value;
     }
 
     public static JsonValue parse(String raw) {
@@ -438,5 +466,4 @@ public class Json {
         if (raw.isEmpty()) throw new ParseException("cannot parse empty string");
         return new Json(raw).parse();
     }
-
 }
