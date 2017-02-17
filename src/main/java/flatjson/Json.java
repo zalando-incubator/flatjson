@@ -360,9 +360,10 @@ public class Json {
         setNested(element, elementCount - element - 1);
         stackPop();
         if (stackEmpty()) return END;
-        if (Token.ARRAY == stackPeekToken()) return ARRAY_NEXT;
-        if (Token.OBJECT == stackPeekToken()) return OBJECT_COLON;
-        if (Token.OBJECT_VALUE == stackPeekToken()) {
+        Token topToken = stackPeekToken();
+        if (Token.ARRAY == topToken) return ARRAY_NEXT;
+        if (Token.OBJECT == topToken) return OBJECT_COLON;
+        if (Token.OBJECT_VALUE == topToken) {
             stackPop();
             return OBJECT_NEXT;
         }

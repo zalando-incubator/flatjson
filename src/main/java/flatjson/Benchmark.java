@@ -9,7 +9,7 @@ public abstract class Benchmark {
 
     public static class FlatJsonBenchmark extends Benchmark {
         @Override protected String process(String input) {
-            return Json.parse(new String(input))
+            return Json.parse(input)
                     .asObject().get("TVUN8QNVHW")
                     .asObject().get("D0jukTjAmn")
                     .asArray().get(5)
@@ -32,9 +32,9 @@ public abstract class Benchmark {
         System.out.println(getClass().getName());
         String input = new String(Files.readAllBytes(Paths.get("test/sample.json")));
         warmup(input, warmupRuns);
-        double duration = benchmark(input, runs);
+        double time = benchmark(input, runs);
         System.out.println();
-        System.out.println(String.format("duration: %3.3f ms", duration));
+        System.out.println(String.format("time: %3.3f ms", time));
     }
 
     protected abstract String process(String input);
