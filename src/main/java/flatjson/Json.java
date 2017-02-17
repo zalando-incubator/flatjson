@@ -381,14 +381,14 @@ public class Json {
         int major = (element * 4 + offset) / BLOCK_SIZE;
         int minor = (element * 4 + offset) % BLOCK_SIZE;
         if (major == elements.size()) {
-            System.out.println("EXTEND elements " + elements.size());
+//            System.out.println("EXTEND elements " + elements.size());
             elements.add(new int[BLOCK_SIZE]);
         }
         elements.get(major)[minor] = value;
     }
 
     private State beginElement(int index, Token token) {
-        System.out.println("BEGIN " + elementCount + " " + token);
+//        System.out.println("BEGIN " + elementCount + " " + token);
         if (token != Token.OBJECT_VALUE) {
             setToken(elementCount, token);
             setFrom(elementCount, index);
@@ -407,7 +407,7 @@ public class Json {
     }
 
     private State endElement(int index, Token token) {
-        System.out.println("END " + token);
+//        System.out.println("END " + token);
         Frame top = stack.pop();
         if (top.token != token) throw new ParseException(token);
         setTo(top.element, index);

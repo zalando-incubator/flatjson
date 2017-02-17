@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'application'
 
 version = '0.1'
-mainClassName = 'flatjson.Main'
+mainClassName = 'flatjson.Benchmark'
 
 repositories {
   mavenCentral()
@@ -10,6 +10,8 @@ repositories {
 
 dependencies {
   testCompile 'junit:junit:4.11'
+
+  compile 'com.eclipsesource.minimal-json:minimal-json:0.9.4'
 }
 
 
