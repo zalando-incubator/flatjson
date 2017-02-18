@@ -323,14 +323,42 @@ public class Json {
     }
 
     private JsonValue parse() {
-        State state = VALUE;
-        int last = raw.length() - 1;
-        for (int i = 0; i < last; i++) {
-            state = state.consume(i, raw.charAt(i), raw.charAt(i + 1));
+        try {
+            int index = skipWhitespace(parseValue(0));
+            System.out.println("last index: " + index);
+            if (index != raw.length()) throw new ParseException("unbalanced json");
+            return JsonValue.create(this, 0);
+        } catch (IndexOutOfBoundsException e) {
+            throw new ParseException("unbalanced json");
         }
-        state = state.consume(last, raw.charAt(last), ' ');
-        if (state != END) throw new ParseException("unbalanced json");
-        return JsonValue.create(this, 0);
+    }
+
+    private int parseValue(int i) {
+        i = skipWhitespace(i);
+        if (raw.charAt(i) == 'n') {
+            return parseNull(i);
+        }
+        throw new ParseException(i);
+    }
+
+    private int parseNull(int i) {
+        if (raw.substring(i, i+4).equals("null")) {
+            setToken(elementCount, Token.NULL);
+            setFrom(elementCount, i);
+            setTo(elementCount, i+3);
+            setNested(elementCount, 0);
+            return i+4;
+        }
+        throw new ParseException(i);
+    }
+
+    private int skipWhitespace(int i) {
+        while (i < raw.length()) {
+            char c = raw.charAt(i);
+            if (c != ' ' && c != '\t' && c != '\n' && c != '\r') return i;
+            i++;
+        }
+        return i;
     }
 
     private State beginElement(int index, Token token) {

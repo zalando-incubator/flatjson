@@ -14,4 +14,8 @@ public class ParseException extends RuntimeException {
         super("illegal char: '" + c + "'");
     }
 
+    public ParseException(int i) {
+        super("illegal char at position: " + i);
+    }
+
 }
