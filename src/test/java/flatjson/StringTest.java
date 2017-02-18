@@ -6,18 +6,18 @@ import static org.junit.Assert.*;
 
 public class StringTest {
 
-//    @Test public void parseEmptyString() {
-//        JsonValue value = Json.parse("  \"\"  ");
-//        assertTrue(value.isString());
-//        assertEquals("", value.asString());
-//    }
-//
-//    @Test public void parseString() {
-//        JsonValue value = Json.parse("\"hello\"");
-//        assertTrue(value.isString());
-//        assertEquals("hello", value.asString());
-//    }
-//
+    @Test public void parseEmptyString() {
+        JsonValue value = Json.parse("  \"\"  ");
+        assertTrue(value.isString());
+        assertEquals("", value.asString());
+    }
+
+    @Test public void parseString() {
+        JsonValue value = Json.parse("\"hello\"");
+        assertTrue(value.isString());
+        assertEquals("hello", value.asString());
+    }
+
 //    @Test public void parseStringWithEscapedQuote() {
 //        JsonValue value = Json.parse("\"hello \\\"quoted\\\" world\"");
 //        assertEquals("hello \"quoted\" world", value.asString());
@@ -48,13 +48,13 @@ public class StringTest {
 //        assertEquals("hello \n world", value.asString());
 //    }
 //
-//    @Test public void parseStringWithUnescapedNewline() {
-//        try {
-//            Json.parse("\"hello \n world\"");
-//            fail("should raise ParseException");
-//        } catch (ParseException expected) {}
-//    }
-//
+    @Test public void parseStringWithUnescapedNewline() {
+        try {
+            Json.parse("\"hello \n world\"");
+            fail("should raise ParseException");
+        } catch (ParseException expected) {}
+    }
+
 //    @Test public void parseStringWithEscapedCarriageReturn() {
 //        JsonValue value = Json.parse("\"hello \\r world\"");
 //        assertEquals("hello \r world", value.asString());
@@ -77,11 +77,11 @@ public class StringTest {
 //        } catch (ParseException expected) {}
 //    }
 //
-//    @Test public void parseStringWithControlChar() {
-//        try {
-//            Json.parse("\"hello \u0000 world\"");
-//            fail("should raise ParseException");
-//        } catch (ParseException expected) {}
-//    }
+    @Test public void parseStringWithControlChar() {
+        try {
+            Json.parse("\"hello \u0000 world\"");
+            fail("should raise ParseException");
+        } catch (ParseException expected) {}
+    }
 
 }

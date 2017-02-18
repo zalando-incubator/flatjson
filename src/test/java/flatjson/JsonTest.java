@@ -90,22 +90,24 @@ public class JsonTest {
 //        assertEquals(3.141, values.get(2).asDouble(), 0);
 //    }
 //
-//    @Test public void parseEmptyObject() {
-//        JsonValue value = Json.parse("{}");
-//        assertTrue(value.isObject());
-//        Map<String, JsonValue> values = value.asObject();
-//        assertEquals(0, values.size());
-//    }
-//
-//    @Test public void parseObject() {
-//        JsonValue value = Json.parse("{\"foo\": true }");
-//        assertTrue(value.isObject());
-//        Map<String, JsonValue> values = value.asObject();
-//        assertEquals(1, values.size());
-//        assertTrue(values.containsKey("foo"));
-//        assertTrue(values.get("foo").asBoolean());
-//    }
-//
+    @Test public void parseEmptyObject() {
+        JsonValue value = Json.parse("{}");
+        assertTrue(value.isObject());
+        Map<String, JsonValue> values = value.asObject();
+        assertEquals(0, values.size());
+    }
+
+    @Test public void parseObject() {
+        JsonValue value = Json.parse("{\"foo\": true ,\n   \"bar\": false   }");
+        assertTrue(value.isObject());
+        Map<String, JsonValue> values = value.asObject();
+        assertEquals(2, values.size());
+        assertTrue(values.containsKey("foo"));
+        assertTrue(values.get("foo").asBoolean());
+        assertTrue(values.containsKey("bar"));
+        assertFalse(values.get("bar").asBoolean());
+    }
+
 //    @Test public void parseObjectWithEscapedKey() {
 //        JsonValue value = Json.parse("{\"\\noo\\b\": true }");
 //        assertTrue(value.isObject());

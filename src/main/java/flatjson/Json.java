@@ -335,16 +335,39 @@ public class Json {
 
     private int parseValue(int i) {
         i = skipWhitespace(i);
-        if (readChar(i) == 'n') {
+        char c = readChar(i);
+        if (c == 'n') {
             return parseNull(i);
-        } else if (readChar(i) == 't') {
+        } else if (c == 't') {
             return parseTrue(i);
-        } else if (readChar(i) == 'f') {
+        } else if (c == 'f') {
             return parseFalse(i);
-        } else if (readChar(i) == '[') {
+        } else if (c == '"') {
+            return parseString(i);
+        } else if (c == '[') {
             return parseArray(i);
+        } else if (c == '{') {
+            return parseObject(i);
         }
         throw new ParseException(i);
+    }
+
+    private int parseString(int i) {
+        int from = i++;
+        while (true) {
+            char c = readChar(i);
+            if (c == '"') {
+                setToken(elementCount, Token.STRING);
+                setFrom(elementCount, from);
+                setTo(elementCount, i);
+                setNested(elementCount, 0);
+                elementCount++;
+                return i+1;
+            } else if (c < 32) {
+                throw new ParseException("illegal control char: " + (int)c);
+            }
+            i++;
+        }
     }
 
     private int parseArray(int i) {
@@ -359,10 +382,28 @@ public class Json {
                 setNested(element, count);
                 return i+1;
             }
-            if (count > 0) {
-                if (readChar(i) == ',') i = skipWhitespace(i+1);
-                else throw new ParseException(i);
+            if ((count > 0) && (expectChar(i, ','))) i = skipWhitespace(i+1);
+            i = parseValue(i);
+            count++;
+        }
+    }
+
+    private int parseObject(int i) {
+        int count = 0;
+        int element = elementCount++;
+        setToken(element, Token.OBJECT);
+        setFrom(element, i++);
+        while (true) {
+            i = skipWhitespace(i);
+            if (readChar(i) == '}') {
+                setTo(element, i);
+                setNested(element, count * 2);
+                return i+1;
             }
+            if ((count > 0) && (expectChar(i, ','))) i = skipWhitespace(i + 1);
+            if (expectChar(i, '"')) i = parseString(i);
+            i = skipWhitespace(i);
+            if (expectChar(i, ':')) i = skipWhitespace(i+1);
             i = parseValue(i);
             count++;
         }
@@ -412,6 +453,12 @@ public class Json {
         }
         return i;
     }
+
+    private boolean expectChar(int i, char c) {
+        if (readChar(i) != c) throw new ParseException("expected char '" + c + "' at pos " + i);
+        return true;
+    }
+
 
     private char readChar(int i) {
         char c = raw.charAt(i);
