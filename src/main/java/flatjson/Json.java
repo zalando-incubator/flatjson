@@ -36,7 +36,7 @@ public class Json {
         if (raw.isEmpty()) throw new ParseException("cannot parse empty string");
         try {
             int index = skipWhitespace(parseValue(0));
-            System.out.println("last index: " + index);
+//            System.out.println("last index: " + index);
             if (index != raw.length()) throw new ParseException("unbalanced json");
             return JsonValue.create(this, 0);
         } catch (IndexOutOfBoundsException e) {
@@ -47,22 +47,26 @@ public class Json {
     private int parseValue(int i) {
         i = skipWhitespace(i);
         char c = readChar(i);
-        if (c == 'n') {
-            return parseNull(i);
-        } else if (c == 't') {
-            return parseTrue(i);
-        } else if (c == 'f') {
-            return parseFalse(i);
-        } else if (c == '"') {
-            return parseString(i);
-        } else if (c == '[') {
-            return parseArray(i);
-        } else if (c == '{') {
-            return parseObject(i);
-        } else if (c == '-' || (c >= '0' && c <= '9')) {
-            return parseNumber(i);
+        switch (c) {
+            case 'n': return parseNull(i);
+            case 't': return parseTrue(i);
+            case 'f': return parseFalse(i);
+            case '"': return parseString(i);
+            case '[': return parseArray(i);
+            case '{': return parseObject(i);
+            case '-':
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9': return parseNumber(i);
+            default: throw new ParseException(i);
         }
-        throw new ParseException(i);
     }
 
     private int parseNumber(int i) {
@@ -143,17 +147,16 @@ public class Json {
 
     private int parseArray(int i) {
         int count = 0;
-        int element = this.element++;
-        setToken(element, Token.ARRAY);
-        setFrom(element, i++);
+        int e = element;
+        createElement(Token.ARRAY, i);
+        i++;
         while (true) {
             i = skipWhitespace(i);
-            if (readChar(i) == ']') {
-                setTo(element, i);
-                setNested(element, count);
-                return i+1;
+            if (readChar(i) == ']') return closeElement(e, i, count);
+            if (count > 0) {
+                expectChar(i, ',');
+                i = skipWhitespace(i + 1);
             }
-            if ((count > 0) && (expectChar(i, ','))) i = skipWhitespace(i+1);
             i = parseValue(i);
             count++;
         }
@@ -161,63 +164,57 @@ public class Json {
 
     private int parseObject(int i) {
         int count = 0;
-        int element = this.element++;
-        setToken(element, Token.OBJECT);
-        setFrom(element, i++);
+        int e = element;
+        createElement(Token.OBJECT, i);
+        i++;
         while (true) {
             i = skipWhitespace(i);
-            if (readChar(i) == '}') {
-                setTo(element, i);
-                setNested(element, count * 2);
-                return i+1;
+            if (readChar(i) == '}') return closeElement(e, i, element - e);
+            if (count > 0) {
+                expectChar(i, ',');
+                i = skipWhitespace(i + 1);
             }
-            if ((count > 0) && (expectChar(i, ','))) i = skipWhitespace(i + 1);
-            if (expectChar(i, '"')) i = parseString(i);
+            expectChar(i, '"');
+            i = parseString(i);
             i = skipWhitespace(i);
-            if (expectChar(i, ':')) i = skipWhitespace(i+1);
+            expectChar(i, ':');
+            i = skipWhitespace(i+1);
             i = parseValue(i);
             count++;
         }
     }
 
     private int parseNull(int i) {
-        if (raw.substring(i, i+4).equals("null")) {
-            return createElement(Token.NULL, i, i+3, 0);
-        }
+        if (raw.substring(i, i+4).equals("null")) return createElement(Token.NULL, i, i+3, 0);
         throw new ParseException(i);
     }
 
     private int parseTrue(int i) {
-        if (raw.substring(i, i+4).equals("true")) {
-            return createElement(Token.TRUE, i, i+3, 0);
-        }
+        if (raw.substring(i, i+4).equals("true")) return createElement(Token.TRUE, i, i+3, 0);
         throw new ParseException(i);
     }
 
     private int parseFalse(int i) {
-        if (raw.substring(i, i+5).equals("false")) {
-            return createElement(Token.FALSE, i, i+4, 0);
-        }
+        if (raw.substring(i, i+5).equals("false")) return createElement(Token.FALSE, i, i+4, 0);
         throw new ParseException(i);
     }
 
     private int skipWhitespace(int i) {
         while (i < raw.length()) {
             char c = readChar(i);
-            if (c != ' ' && c != '\t' && c != '\n' && c != '\r') return i;
+            if (c != ' ' && c != '\t' && c != '\n' && c != '\r') break;
             i++;
         }
         return i;
     }
 
-    private boolean expectChar(int i, char c) {
+    private void expectChar(int i, char c) {
         if (readChar(i) != c) throw new ParseException("expected char '" + c + "' at pos " + i);
-        return true;
     }
 
     private char readChar(int i) {
         char c = raw.charAt(i);
-        System.out.println("read: " + c);
+//        System.out.println("read: " + c);
         return c;
     }
 
@@ -233,32 +230,16 @@ public class Json {
         return Token.values()[getElement(element, 0)];
     }
 
-    private void setToken(int element, Token token) {
-        setElement(element, 0, token.ordinal());
-    }
-
     int getFrom(int element) {
         return getElement(element, 1);
-    }
-
-    private void setFrom(int element, int from) {
-        setElement(element, 1, from);
     }
 
     int getTo(int element) {
         return getElement(element, 2);
     }
 
-    private void setTo(int element, int to) {
-        setElement(element, 2, to);
-    }
-
     int getNested(int element) {
         return getElement(element, 3);
-    }
-
-    private void setNested(int element, int nested) {
-        setElement(element, 3, nested);
     }
 
     String getRaw(int element) {
@@ -275,16 +256,12 @@ public class Json {
         return elements.get(major)[minor];
     }
 
-    private void setElement(int element, int offset, int value) {
-        int major = (element * 4 + offset) / BLOCK_SIZE;
-        int minor = (element * 4 + offset) % BLOCK_SIZE;
-        if (major == elements.size()) {
-            elements.add(new int[BLOCK_SIZE]);
-        }
-        elements.get(major)[minor] = value;
+    private int createElement(Token token, int from) {
+        return createElement(token, from, 0, 0);
     }
 
     private int createElement(Token token, int from, int to, int nested) {
+        System.out.println("create: " + element + " " + token);
         int major = (element * 4) / BLOCK_SIZE;
         int minor = (element * 4) % BLOCK_SIZE;
         if (major == elements.size()) {
@@ -295,7 +272,18 @@ public class Json {
         block[minor + 1] = from;
         block[minor + 2] = to;
         block[minor + 3] = nested;
-        this.element++;
+        element++;
         return to+1;
     }
+
+    private int closeElement(int element, int to, int nested) {
+        System.out.println("close: " + element + " (" + nested + ")");
+        int major = (element * 4) / BLOCK_SIZE;
+        int minor = (element * 4) % BLOCK_SIZE;
+        int[] block = elements.get(major);
+        block[minor + 2] = to;
+        block[minor + 3] = nested;
+        return to+1;
+    }
+
 }

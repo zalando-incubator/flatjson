@@ -80,16 +80,16 @@ public class JsonTest {
         assertFalse(values.get(1).asBoolean());
     }
 
-//    @Test public void parseNumberArray() {
-//        JsonValue value = Json.parse("[23,42e8,3.141]");
-//        assertTrue(value.isArray());
-//        List<JsonValue> values = value.asArray();
-//        assertEquals(3, values.size());
-//        assertEquals(23, values.get(0).asLong());
-//        assertEquals(42e8, values.get(1).asDouble(), 0);
-//        assertEquals(3.141, values.get(2).asDouble(), 0);
-//    }
-//
+    @Test public void parseNumberArray() {
+        JsonValue value = Json.parse("[23,42e8,3.141]");
+        assertTrue(value.isArray());
+        List<JsonValue> values = value.asArray();
+        assertEquals(3, values.size());
+        assertEquals(23, values.get(0).asLong());
+        assertEquals(42e8, values.get(1).asDouble(), 0);
+        assertEquals(3.141, values.get(2).asDouble(), 0);
+    }
+
     @Test public void parseEmptyObject() {
         JsonValue value = Json.parse("{}");
         assertTrue(value.isObject());
@@ -108,34 +108,34 @@ public class JsonTest {
         assertFalse(values.get("bar").asBoolean());
     }
 
-//    @Test public void parseObjectWithEscapedKey() {
-//        JsonValue value = Json.parse("{\"\\noo\\b\": true }");
-//        assertTrue(value.isObject());
-//        Map<String, JsonValue> values = value.asObject();
-//        assertEquals(1, values.size());
-//        assertTrue(values.containsKey("\noo\b"));
-//    }
-//
-//    @Test public void parseNestedObject() {
-//        JsonValue value = Json.parse("{\"nested\": {\"foo\": 23}, \"bar\": false }");
-//        assertTrue(value.isObject());
-//        Map<String, JsonValue> values = value.asObject();
-//        assertEquals(2, values.size());
-//        JsonValue nested = values.get("nested");
-//        assertTrue(nested.isObject());
-//        Map<String, JsonValue> nestedValues = nested.asObject();
-//        assertEquals(23, nestedValues.get("foo").asLong());
-//    }
-//
-//    @Test public void parseArrayOfObjects() {
-//        JsonValue value = Json.parse("[{\"foo\": 23, \"bar\": 44}, {\"foo\": 11, \"bar\": 64}]");
-//        assertTrue(value.isArray());
-//        for (JsonValue v : value.asArray()) {
-//            assertTrue(v.isObject());
-//            Set<String> keys = v.asObject().keySet();
-//            assertTrue(keys.contains("foo"));
-//            assertTrue(keys.contains("bar"));
-//        }
-//    }
+    @Test public void parseObjectWithEscapedKey() {
+        JsonValue value = Json.parse("{\"\\noo\\b\": true }");
+        assertTrue(value.isObject());
+        Map<String, JsonValue> values = value.asObject();
+        assertEquals(1, values.size());
+        assertTrue(values.containsKey("\noo\b"));
+    }
+
+    @Test public void parseNestedObject() {
+        JsonValue value = Json.parse("{\"nested\": {\"foo\": 23 }, \"bar\": false , \"baz\": -1 }");
+        assertTrue(value.isObject());
+        Map<String, JsonValue> values = value.asObject();
+        assertEquals(3, values.size());
+        JsonValue nested = values.get("nested");
+        assertTrue(nested.isObject());
+        Map<String, JsonValue> nestedValues = nested.asObject();
+        assertEquals(23, nestedValues.get("foo").asLong());
+    }
+
+    @Test public void parseArrayOfObjects() {
+        JsonValue value = Json.parse("[{\"foo\": 23, \"bar\": 44}, {\"foo\": 11, \"bar\": 64}]");
+        assertTrue(value.isArray());
+        for (JsonValue v : value.asArray()) {
+            assertTrue(v.isObject());
+            Set<String> keys = v.asObject().keySet();
+            assertTrue(keys.contains("foo"));
+            assertTrue(keys.contains("bar"));
+        }
+    }
 
 }
