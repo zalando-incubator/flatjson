@@ -74,6 +74,16 @@ public class Json {
                 return createElement(Token.STRING, from, i, 0);
             } else if (c < 32) {
                 throw new ParseException("illegal control char: " + (int)c);
+            } else if (c == '\\') {
+                c = readChar(i + 1);
+                if (c == '"' || c == '/' || c == '\\' || c == 'b' || c == 'f' || c == 'n' || c == 'r' || c == 't') {
+                    i++;
+                } else if (c == 'u') {
+                    expectHex(raw.substring(i + 2, i + 6));
+                    i = i + 5;
+                } else {
+                    throw new ParseException("illegal escape char: " + c);
+                }
             }
             i++;
         }
@@ -153,11 +163,18 @@ public class Json {
         return true;
     }
 
-
     private char readChar(int i) {
         char c = raw.charAt(i);
         System.out.println("read: " + c);
         return c;
+    }
+
+    private void expectHex(String hexcode) {
+        try {
+            Integer.parseInt(hexcode, 16);
+        } catch (NumberFormatException e) {
+            throw new ParseException("invalid hex: " + hexcode);
+        }
     }
 
     Token getToken(int element) {
