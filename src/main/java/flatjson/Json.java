@@ -19,9 +19,6 @@ public class Json {
         OBJECT
     }
 
-    private static final char[] HEX_CHARS = "0123456789abcdefABCDEF".toCharArray();
-    private static final char[] ESCAPED_CHARS = "\"\\/bfnrt".toCharArray();
-
     private static final int BLOCK_SIZE = 4 * 1024; // 16 KB
 
     private final String raw;
@@ -62,8 +59,63 @@ public class Json {
             return parseArray(i);
         } else if (c == '{') {
             return parseObject(i);
+        } else if (c == '-' || (c >= '0' && c <= '9')) {
+            return parseNumber(i);
         }
         throw new ParseException(i);
+    }
+
+    private int parseNumber(int i) {
+        int from = i;
+        boolean minus = false;
+        boolean leadingZero = false;
+        boolean dot = false;
+        boolean exponent = false;
+        while (i < raw.length()) {
+            char c = readChar(i);
+            if (c == '-') {
+                if (i > from) throw new ParseException(c);
+                minus = true;
+            } else if (c == 'e' || c == 'E') {
+                if (exponent) {
+                    throw new ParseException("multiple exponents");
+                } else {
+                    leadingZero = false;
+                    exponent = true;
+                    c = readChar(i+1);
+                    if (c == '-' || c == '+') {
+                        c = readChar(i + 2);
+                        if (c >= '0' && c <= '9') {
+                            i += 2;
+                        } else {
+                            throw new ParseException("invalid exponent");
+                        }
+                    } else if (c >= '0' && c <= '9') {
+                        i++;
+                    } else {
+                        throw new ParseException("invalid exponent");
+                    }
+                }
+            } else if (c == '.') {
+                if (dot) {
+                    throw new ParseException("multiple dots");
+                } else if (i == from || (minus && (i == from + 1))) {
+                    throw new ParseException("missing digit before dot");
+                } else {
+                    leadingZero = false;
+                    dot = true;
+                }
+            } else if (c == '0') {
+                if (i == from) leadingZero = true;
+            } else if (c >= '1' && c <= '9') {
+                if (leadingZero) throw new ParseException("leading zero");
+            } else {
+                break;
+            }
+            i++;
+        }
+        if (minus && from == i - 1) throw new ParseException("isolated minus");
+        return createElement(Token.NUMBER, from, i - 1, 0);
     }
 
     private int parseString(int i) {
@@ -246,5 +298,4 @@ public class Json {
         this.element++;
         return to+1;
     }
-
 }
