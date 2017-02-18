@@ -335,10 +335,37 @@ public class Json {
 
     private int parseValue(int i) {
         i = skipWhitespace(i);
-        if (raw.charAt(i) == 'n') {
+        if (readChar(i) == 'n') {
             return parseNull(i);
+        } else if (readChar(i) == 't') {
+            return parseTrue(i);
+        } else if (readChar(i) == 'f') {
+            return parseFalse(i);
+        } else if (readChar(i) == '[') {
+            return parseArray(i);
         }
         throw new ParseException(i);
+    }
+
+    private int parseArray(int i) {
+        int count = 0;
+        int element = elementCount++;
+        setToken(element, Token.ARRAY);
+        setFrom(element, i++);
+        while (true) {
+            i = skipWhitespace(i);
+            if (readChar(i) == ']') {
+                setTo(element, i);
+                setNested(element, count);
+                return i+1;
+            }
+            if (count > 0) {
+                if (readChar(i) == ',') i = skipWhitespace(i+1);
+                else throw new ParseException(i);
+            }
+            i = parseValue(i);
+            count++;
+        }
     }
 
     private int parseNull(int i) {
@@ -347,18 +374,49 @@ public class Json {
             setFrom(elementCount, i);
             setTo(elementCount, i+3);
             setNested(elementCount, 0);
+            elementCount++;
             return i+4;
+        }
+        throw new ParseException(i);
+    }
+
+    private int parseTrue(int i) {
+        if (raw.substring(i, i+4).equals("true")) {
+            setToken(elementCount, Token.TRUE);
+            setFrom(elementCount, i);
+            setTo(elementCount, i+3);
+            setNested(elementCount, 0);
+            elementCount++;
+            return i+4;
+        }
+        throw new ParseException(i);
+    }
+
+    private int parseFalse(int i) {
+        if (raw.substring(i, i+5).equals("false")) {
+            setToken(elementCount, Token.FALSE);
+            setFrom(elementCount, i);
+            setTo(elementCount, i+4);
+            setNested(elementCount, 0);
+            elementCount++;
+            return i+5;
         }
         throw new ParseException(i);
     }
 
     private int skipWhitespace(int i) {
         while (i < raw.length()) {
-            char c = raw.charAt(i);
+            char c = readChar(i);
             if (c != ' ' && c != '\t' && c != '\n' && c != '\r') return i;
             i++;
         }
         return i;
+    }
+
+    private char readChar(int i) {
+        char c = raw.charAt(i);
+        System.out.println("read: " + c);
+        return c;
     }
 
     private State beginElement(int index, Token token) {

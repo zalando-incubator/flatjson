@@ -26,60 +26,60 @@ public class JsonTest {
         } catch (ParseException expected) {}
     }
 
-//    @Test public void parseTrue() {
-//        JsonValue value = Json.parse("true");
-//        assertTrue(value.isBoolean());
-//        assertTrue(value.asBoolean());
-//    }
-//
-//    @Test public void parseFalse() {
-//        JsonValue value = Json.parse("false");
-//        assertTrue(value.isBoolean());
-//        assertFalse(value.asBoolean());
-//    }
-//
-//    @Test public void parseEmptyArray() {
-//        JsonValue value = Json.parse("[ ]");
-//        assertTrue(value.isArray());
-//        assertEquals(0, value.asArray().size());
-//    }
-//
-//    @Test public void parseBrokenArray() {
-//        try {
-//            Json.parse("[ ,]");
-//            fail("should raise ParseException");
-//        } catch (ParseException expected) {}
-//    }
-//
-//    @Test public void parseOpenArray() {
-//        try {
-//            Json.parse("[ null,");
-//            fail("should raise ParseException");
-//        } catch (ParseException expected) {}
-//    }
-//
-//    @Test public void parseNestedArray() {
-//        JsonValue value = Json.parse("[ [42, 23]]");
-//        assertTrue(value.isArray());
-//        List<JsonValue> values = value.asArray();
-//        assertEquals(1, values.size());
-//        JsonValue nested = values.get(0);
-//        assertTrue(nested.isArray());
-//        List<JsonValue> nestedValues = nested.asArray();
-//        assertEquals(2, nestedValues.size());
-//        assertEquals(42, nestedValues.get(0).asLong());
-//        assertEquals(23, nestedValues.get(1).asLong());
-//    }
-//
-//    @Test public void parseBooleanArray() {
-//        JsonValue value = Json.parse("[ true,false ]");
-//        assertTrue(value.isArray());
-//        List<JsonValue> values = value.asArray();
-//        assertEquals(2, values.size());
-//        assertTrue(values.get(0).asBoolean());
-//        assertFalse(values.get(1).asBoolean());
-//    }
-//
+    @Test public void parseTrue() {
+        JsonValue value = Json.parse("true");
+        assertTrue(value.isBoolean());
+        assertTrue(value.asBoolean());
+    }
+
+    @Test public void parseFalse() {
+        JsonValue value = Json.parse("false");
+        assertTrue(value.isBoolean());
+        assertFalse(value.asBoolean());
+    }
+
+    @Test public void parseEmptyArray() {
+        JsonValue value = Json.parse("[ ]");
+        assertTrue(value.isArray());
+        assertEquals(0, value.asArray().size());
+    }
+
+    @Test public void parseBrokenArray() {
+        try {
+            Json.parse("[ ,]");
+            fail("should raise ParseException");
+        } catch (ParseException expected) {}
+    }
+
+    @Test public void parseOpenArray() {
+        try {
+            Json.parse("[ null,");
+            fail("should raise ParseException");
+        } catch (ParseException expected) {}
+    }
+
+    @Test public void parseNestedArray() {
+        JsonValue value = Json.parse("[ [null, null] ]");
+        assertTrue(value.isArray());
+        List<JsonValue> values = value.asArray();
+        assertEquals(1, values.size());
+        JsonValue nested = values.get(0);
+        assertTrue(nested.isArray());
+        List<JsonValue> nestedValues = nested.asArray();
+        assertEquals(2, nestedValues.size());
+        assertTrue(nestedValues.get(0).isNull());
+        assertTrue(nestedValues.get(1).isNull());
+    }
+
+    @Test public void parseBooleanArray() {
+        JsonValue value = Json.parse("[ true,false ]");
+        assertTrue(value.isArray());
+        List<JsonValue> values = value.asArray();
+        assertEquals(2, values.size());
+        assertTrue(values.get(0).asBoolean());
+        assertFalse(values.get(1).asBoolean());
+    }
+
 //    @Test public void parseNumberArray() {
 //        JsonValue value = Json.parse("[23,42e8,3.141]");
 //        assertTrue(value.isArray());
