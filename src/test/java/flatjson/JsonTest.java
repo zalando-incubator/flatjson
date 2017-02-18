@@ -2,7 +2,6 @@ package flatjson;
 
 import org.junit.Test;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,6 +11,27 @@ import static org.junit.Assert.*;
 public class JsonTest {
 
     @Test public void parseNull() {
+        try {
+            Json.parse(null);
+            fail("should raise ParseException");
+        } catch (ParseException expected) {}
+    }
+
+    @Test public void parseEmpty() {
+        try {
+            Json.parse("");
+            fail("should raise ParseException");
+        } catch (ParseException expected) {}
+    }
+
+    @Test public void parseWhitespace() {
+        try {
+            Json.parse("  \r\n  \t ");
+            fail("should raise ParseException");
+        } catch (ParseException expected) {}
+    }
+
+    @Test public void parseJsonNull() {
         assertTrue(Json.parse("null").isNull());
     }
 

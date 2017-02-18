@@ -6,6 +6,13 @@ import static org.junit.Assert.*;
 
 public class StringTest {
 
+    @Test public void parseOpenString() {
+        try {
+            Json.parse("\"hello");
+            fail("should raise ParseException");
+        } catch (ParseException expected) {}
+    }
+
     @Test public void parseEmptyString() {
         JsonValue value = Json.parse("  \"\"  ");
         assertTrue(value.isString());

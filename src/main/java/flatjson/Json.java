@@ -5,10 +5,6 @@ import java.util.List;
 
 public class Json {
 
-    public static JsonValue parse(String raw) {
-        return new Json(raw).parse();
-    }
-
     enum Token {
         NULL,
         TRUE,
@@ -19,25 +15,32 @@ public class Json {
         OBJECT
     }
 
+    public static JsonValue parse(String raw) {
+        return new Json(raw).parse();
+    }
+
     private static final int BLOCK_SIZE = 4 * 1024; // 16 KB
 
+    private static final int TOKEN = 0;
+    private static final int FROM = 1;
+    private static final int TO = 2;
+    private static final int NESTED = 3;
+
     private final String raw;
-    private final List<int[]> elements;
+    private final List<int[]> blocks;
     private int element;
 
     private Json(String raw) {
         this.raw = raw;
-        this.elements = new ArrayList<>();
+        this.blocks = new ArrayList<>();
         this.element = 0;
     }
 
     private JsonValue parse() {
-        if (raw == null) throw new ParseException("cannot parse null");
-        if (raw.isEmpty()) throw new ParseException("cannot parse empty string");
         try {
+            if (raw == null) throw new ParseException("cannot parse null");
             int index = skipWhitespace(parseValue(0));
-//            System.out.println("last index: " + index);
-            if (index != raw.length()) throw new ParseException("unbalanced json");
+            if (index != raw.length()) throw new ParseException("malformed json");
             return JsonValue.create(this, 0);
         } catch (IndexOutOfBoundsException e) {
             throw new ParseException("unbalanced json");
@@ -46,25 +49,17 @@ public class Json {
 
     private int parseValue(int i) {
         i = skipWhitespace(i);
-        char c = readChar(i);
+        char c = raw.charAt(i);
         switch (c) {
-            case 'n': return parseNull(i);
+            case '"': return parseString(i);
+            case '{': return parseObject(i);
+            case '[': return parseArray(i);
+            case '0': case '1': case '2': case '3':
+            case '4': case '5': case '6': case '7':
+            case '8': case '9': case '-': return parseNumber(i);
             case 't': return parseTrue(i);
             case 'f': return parseFalse(i);
-            case '"': return parseString(i);
-            case '[': return parseArray(i);
-            case '{': return parseObject(i);
-            case '-':
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9': return parseNumber(i);
+            case 'n': return parseNull(i);
             default: throw new ParseException(i);
         }
     }
@@ -76,7 +71,7 @@ public class Json {
         boolean dot = false;
         boolean exponent = false;
         while (i < raw.length()) {
-            char c = readChar(i);
+            char c = raw.charAt(i);
             if (c == '-') {
                 if (i > from) throw new ParseException(c);
                 minus = true;
@@ -86,9 +81,9 @@ public class Json {
                 } else {
                     leadingZero = false;
                     exponent = true;
-                    c = readChar(i+1);
+                    c = raw.charAt(i + 1);
                     if (c == '-' || c == '+') {
-                        c = readChar(i + 2);
+                        c = raw.charAt(i + 2);
                         if (c >= '0' && c <= '9') {
                             i += 2;
                         } else {
@@ -104,7 +99,7 @@ public class Json {
                 if (dot) {
                     throw new ParseException("multiple dots");
                 } else if (i == from || (minus && (i == from + 1))) {
-                    throw new ParseException("missing digit before dot");
+                    throw new ParseException("no digit before dot");
                 } else {
                     leadingZero = false;
                     dot = true;
@@ -125,13 +120,13 @@ public class Json {
     private int parseString(int i) {
         int from = i++;
         while (true) {
-            char c = readChar(i);
+            char c = raw.charAt(i);
             if (c == '"') {
                 return createElement(Token.STRING, from, i, 0);
             } else if (c < 32) {
                 throw new ParseException("illegal control char: " + (int)c);
             } else if (c == '\\') {
-                c = readChar(i + 1);
+                c = raw.charAt(i + 1);
                 if (c == '"' || c == '/' || c == '\\' || c == 'b' || c == 'f' || c == 'n' || c == 'r' || c == 't') {
                     i++;
                 } else if (c == 'u') {
@@ -152,7 +147,7 @@ public class Json {
         i++;
         while (true) {
             i = skipWhitespace(i);
-            if (readChar(i) == ']') return closeElement(e, i, count);
+            if (raw.charAt(i) == ']') return closeElement(e, i, element - e - 1);
             if (count > 0) {
                 expectChar(i, ',');
                 i = skipWhitespace(i + 1);
@@ -169,7 +164,7 @@ public class Json {
         i++;
         while (true) {
             i = skipWhitespace(i);
-            if (readChar(i) == '}') return closeElement(e, i, element - e);
+            if (raw.charAt(i) == '}') return closeElement(e, i, element - e - 1);
             if (count > 0) {
                 expectChar(i, ',');
                 i = skipWhitespace(i + 1);
@@ -201,7 +196,7 @@ public class Json {
 
     private int skipWhitespace(int i) {
         while (i < raw.length()) {
-            char c = readChar(i);
+            char c = raw.charAt(i);
             if (c != ' ' && c != '\t' && c != '\n' && c != '\r') break;
             i++;
         }
@@ -209,13 +204,7 @@ public class Json {
     }
 
     private void expectChar(int i, char c) {
-        if (readChar(i) != c) throw new ParseException("expected char '" + c + "' at pos " + i);
-    }
-
-    private char readChar(int i) {
-        char c = raw.charAt(i);
-//        System.out.println("read: " + c);
-        return c;
+        if (raw.charAt(i) != c) throw new ParseException("expected char '" + c + "' at pos " + i);
     }
 
     private void expectHex(String hexcode) {
@@ -227,63 +216,57 @@ public class Json {
     }
 
     Token getToken(int element) {
-        return Token.values()[getElement(element, 0)];
-    }
-
-    int getFrom(int element) {
-        return getElement(element, 1);
-    }
-
-    int getTo(int element) {
-        return getElement(element, 2);
+        return Token.values()[getComponent(element, TOKEN)];
     }
 
     int getNested(int element) {
-        return getElement(element, 3);
+        return getComponent(element, NESTED);
     }
 
     String getRaw(int element) {
-        return raw.substring(getFrom(element), getTo(element) + 1);
+        return raw.substring(getComponent(element, FROM), getComponent(element, TO) + 1);
     }
 
     String getRawString(int element) {
-        return raw.substring(getFrom(element) + 1, getTo(element));
+        return raw.substring(getComponent(element, FROM) + 1, getComponent(element, TO));
     }
 
-    private int getElement(int element, int offset) {
-        int major = (element * 4 + offset) / BLOCK_SIZE;
-        int minor = (element * 4 + offset) % BLOCK_SIZE;
-        return elements.get(major)[minor];
+    private int getComponent(int element, int offset) {
+        return getBlock(element)[getBlockIndex(element, offset)];
     }
 
     private int createElement(Token token, int from) {
-        return createElement(token, from, 0, 0);
+        return createElement(token, from, -1, -1);
     }
 
     private int createElement(Token token, int from, int to, int nested) {
-        System.out.println("create: " + element + " " + token);
-        int major = (element * 4) / BLOCK_SIZE;
-        int minor = (element * 4) % BLOCK_SIZE;
-        if (major == elements.size()) {
-            elements.add(new int[BLOCK_SIZE]);
+//        System.out.println("create: " + element + " " + token);
+        int currentBlock = (element * 4) / BLOCK_SIZE;
+        if (currentBlock == blocks.size()) {
+            blocks.add(new int[BLOCK_SIZE]);
         }
-        int[] block = elements.get(major);
-        block[minor] = token.ordinal();
-        block[minor + 1] = from;
-        block[minor + 2] = to;
-        block[minor + 3] = nested;
+        int[] block = blocks.get(currentBlock);
+        block[getBlockIndex(element, TOKEN)] = token.ordinal();
+        block[getBlockIndex(element, FROM)] = from;
+        block[getBlockIndex(element, TO)] = to;
+        block[getBlockIndex(element, NESTED)] = nested;
         element++;
         return to+1;
     }
 
     private int closeElement(int element, int to, int nested) {
-        System.out.println("close: " + element + " (" + nested + ")");
-        int major = (element * 4) / BLOCK_SIZE;
-        int minor = (element * 4) % BLOCK_SIZE;
-        int[] block = elements.get(major);
-        block[minor + 2] = to;
-        block[minor + 3] = nested;
+//        System.out.println("close: " + element + " (" + nested + ")");
+        int[] block = getBlock(element);
+        block[getBlockIndex(element, TO)] = to;
+        block[getBlockIndex(element, NESTED)] = nested;
         return to+1;
     }
 
+    private int getBlockIndex(int element, int offset) {
+        return (element * 4) % BLOCK_SIZE + offset;
+    }
+
+    private int[] getBlock(int element) {
+        return blocks.get((element * 4) / BLOCK_SIZE);
+    }
 }
