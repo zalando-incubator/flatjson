@@ -2,18 +2,18 @@ package flatjson;
 
 import java.util.*;
 
+import static flatjson.Json.Token;
+import static flatjson.Json.Token.*;
+
 public class JsonValue {
 
     public static JsonValue create(Json json, int element) {
-        Json.Token token = json.getToken(element);
-        if (token == Json.Token.ARRAY) {
-            return new Array(json, element);
-        } else if (token == Json.Token.OBJECT) {
-            return new Object(json, element);
-        } else if (token == Json.Token.STRING || token == Json.Token.STRING_ESCAPED) {
-            return new Strng(json, element);
-        } else {
-            return new JsonValue(json, element);
+        switch (json.getToken(element)) {
+            case ARRAY: return new Array(json, element);
+            case OBJECT: return new Object(json, element);
+            case STRING_ESCAPED:
+            case STRING: return new Strng(json, element);
+            default: return new JsonValue(json, element);
         }
     }
 
@@ -108,15 +108,15 @@ public class JsonValue {
     }
 
     public boolean isNull() {
-        return hasToken(Json.Token.NULL);
+        return hasToken(NULL);
     }
 
     public boolean isBoolean() {
-        return hasToken(Json.Token.TRUE) || hasToken(Json.Token.FALSE);
+        return hasToken(TRUE) || hasToken(FALSE);
     }
 
     public boolean isNumber() {
-        return hasToken(Json.Token.NUMBER);
+        return hasToken(NUMBER);
     }
 
     public boolean isString() {
@@ -158,7 +158,7 @@ public class JsonValue {
         throw new IllegalStateException("not an object");
     }
 
-    protected boolean hasToken(Json.Token token) {
+    protected boolean hasToken(Token token) {
         return json.getToken(element) == token;
     }
 
