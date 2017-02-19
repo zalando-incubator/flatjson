@@ -77,34 +77,24 @@ public class Json {
                 if (i > from) throw new ParseException(c);
                 minus = true;
             } else if (c == 'e' || c == 'E') {
-                if (exponent) {
-                    throw new ParseException("multiple exponents");
+                if (exponent) throw new ParseException("double exponents");
+                leadingZero = false;
+                exponent = true;
+                c = raw.charAt(i+1);
+                if (c == '-' || c == '+') {
+                    c = raw.charAt(i+2);
+                    if (c < '0' || c > '9') throw new ParseException("invalid exponent");
+                    i += 2;
+                } else if (c >= '0' && c <= '9') {
+                    i++;
                 } else {
-                    leadingZero = false;
-                    exponent = true;
-                    c = raw.charAt(i + 1);
-                    if (c == '-' || c == '+') {
-                        c = raw.charAt(i + 2);
-                        if (c >= '0' && c <= '9') {
-                            i += 2;
-                        } else {
-                            throw new ParseException("invalid exponent");
-                        }
-                    } else if (c >= '0' && c <= '9') {
-                        i++;
-                    } else {
-                        throw new ParseException("invalid exponent");
-                    }
+                    throw new ParseException("invalid exponent");
                 }
             } else if (c == '.') {
-                if (dot) {
-                    throw new ParseException("multiple dots");
-                } else if (i == from || (minus && (i == from + 1))) {
-                    throw new ParseException("no digit before dot");
-                } else {
-                    leadingZero = false;
-                    dot = true;
-                }
+                if (dot) throw new ParseException("multiple dots");
+                if (i == from || (minus && (i == from + 1))) throw new ParseException("no digit before dot");
+                leadingZero = false;
+                dot = true;
             } else if (c == '0') {
                 if (i == from) leadingZero = true;
             } else if (c >= '1' && c <= '9') {
@@ -114,8 +104,8 @@ public class Json {
             }
             i++;
         }
-        if (minus && from == i - 1) throw new ParseException("isolated minus");
-        return createElement(Token.NUMBER, from, i - 1, 0);
+        if (minus && from == i-1) throw new ParseException("isolated minus");
+        return createElement(Token.NUMBER, from, i-1, 0);
     }
 
     private int parseString(int i) {
@@ -130,12 +120,12 @@ public class Json {
                 throw new ParseException("illegal control char: " + (int)c);
             } else if (c == '\\') {
                 escaped = true;
-                c = raw.charAt(i + 1);
+                c = raw.charAt(i+1);
                 if (c == '"' || c == '/' || c == '\\' || c == 'b' || c == 'f' || c == 'n' || c == 'r' || c == 't') {
                     i++;
                 } else if (c == 'u') {
-                    expectHex(raw.substring(i + 2, i + 6));
-                    i = i + 5;
+                    expectHex(raw.substring(i+2, i+6));
+                    i += 5;
                 } else {
                     throw new ParseException("illegal escape char: " + c);
                 }
@@ -154,7 +144,7 @@ public class Json {
             if (raw.charAt(i) == ']') return closeElement(e, i, element - e - 1);
             if (count > 0) {
                 expectChar(i, ',');
-                i = skipWhitespace(i + 1);
+                i = skipWhitespace(i+1);
             }
             i = parseValue(i);
             count++;
@@ -171,7 +161,7 @@ public class Json {
             if (raw.charAt(i) == '}') return closeElement(e, i, element - e - 1);
             if (count > 0) {
                 expectChar(i, ',');
-                i = skipWhitespace(i + 1);
+                i = skipWhitespace(i+1);
             }
             expectChar(i, '"');
             i = parseString(i);
@@ -184,18 +174,18 @@ public class Json {
     }
 
     private int parseNull(int i) {
-        if (raw.substring(i, i+4).equals("null")) return createElement(Token.NULL, i, i+3, 0);
-        throw new ParseException(i);
+        if (!raw.substring(i, i+4).equals("null")) throw new ParseException(i);
+        return createElement(Token.NULL, i, i+3, 0);
     }
 
     private int parseTrue(int i) {
-        if (raw.substring(i, i+4).equals("true")) return createElement(Token.TRUE, i, i+3, 0);
-        throw new ParseException(i);
+        if (!raw.substring(i, i+4).equals("true")) throw new ParseException(i);
+        return createElement(Token.TRUE, i, i+3, 0);
     }
 
     private int parseFalse(int i) {
-        if (raw.substring(i, i+5).equals("false")) return createElement(Token.FALSE, i, i+4, 0);
-        throw new ParseException(i);
+        if (!raw.substring(i, i+5).equals("false")) throw new ParseException(i);
+        return createElement(Token.FALSE, i, i+4, 0);
     }
 
     private int skipWhitespace(int i) {
@@ -281,25 +271,19 @@ public class Json {
         while (i < raw.length()) {
             if (raw.charAt(i) == '\\') {
                 i++;
-                if (raw.charAt(i) == '"') {
-                    result.append('"');
-                } else if (raw.charAt(i) == '\\') {
-                    result.append('\\');
-                } else if (raw.charAt(i) == '/') {
-                    result.append('/');
-                } else if (raw.charAt(i) == 'b') {
-                    result.append('\b');
-                } else if (raw.charAt(i) == 'f') {
-                    result.append('\f');
-                } else if (raw.charAt(i) == 'n') {
-                    result.append('\n');
-                } else if (raw.charAt(i) == 'r') {
-                    result.append('\r');
-                } else if (raw.charAt(i) == 't') {
-                    result.append('\t');
-                } else if (raw.charAt(i) == 'u') {
-                    result.append(Character.toChars(Integer.parseInt(raw.substring(i+1, i+5), 16)));
-                    i += 4;
+                switch (raw.charAt(i)) {
+                    case '\\': result.append('\\'); break;
+                    case '/': result.append('/'); break;
+                    case '"': result.append('"'); break;
+                    case 'b': result.append('\b'); break;
+                    case 'f': result.append('\f'); break;
+                    case 'n': result.append('\n'); break;
+                    case 'r': result.append('\r'); break;
+                    case 't': result.append('\t'); break;
+                    case 'u': {
+                        result.append(Character.toChars(Integer.parseInt(raw.substring(i+1, i+5), 16)));
+                        i += 4;
+                    }
                 }
             } else {
                 result.append(raw.charAt(i));
