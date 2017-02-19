@@ -4,6 +4,19 @@ import java.util.*;
 
 public class JsonValue {
 
+    public static JsonValue create(Json json, int element) {
+        Json.Token token = json.getToken(element);
+        if (token == Json.Token.ARRAY) {
+            return new Array(json, element);
+        } else if (token == Json.Token.OBJECT) {
+            return new Object(json, element);
+        } else if (token == Json.Token.STRING || token == Json.Token.STRING_ESCAPED) {
+            return new Strng(json, element);
+        } else {
+            return new JsonValue(json, element);
+        }
+    }
+
     public static class Object extends JsonValue {
 
         private Map<String, JsonValue> values;
@@ -27,7 +40,7 @@ public class JsonValue {
             Map<String, JsonValue> result = new HashMap<>();
             int e = element + 1;
             while (e <= element + json.getNested(element)) {
-                String key = JsonValue.decodeString(json.getRawString(e));
+                String key = json.getStringValue(e);
                 result.put(key, create(json, e + 1));
                 e += json.getNested(e + 1) + 2;
             }
@@ -79,7 +92,7 @@ public class JsonValue {
 
         @Override public String asString() {
             if (decoded == null) {
-                decoded = decodeString(json.getRawString(element));
+                decoded = json.getStringValue(element);
             }
             return decoded;
         }
@@ -152,52 +165,4 @@ public class JsonValue {
     @Override public String toString() {
         return json.getRaw(element);
     }
-
-    public static JsonValue create(Json json, int element) {
-        Json.Token token = json.getToken(element);
-        if (token == Json.Token.ARRAY) {
-            return new Array(json, element);
-        } else if (token == Json.Token.OBJECT) {
-            return new Object(json, element);
-        } else if (token == Json.Token.STRING) {
-            return new Strng(json, element);
-        } else {
-            return new JsonValue(json, element);
-        }
-    }
-
-    static String decodeString(String raw) {
-        StringBuilder result = new StringBuilder(raw.length());
-        int i = 0;
-        while (i < raw.length()) {
-            if (raw.charAt(i) == '\\') {
-                i++;
-                if (raw.charAt(i) == '"') {
-                    result.append('"');
-                } else if (raw.charAt(i) == '\\') {
-                    result.append('\\');
-                } else if (raw.charAt(i) == '/') {
-                    result.append('/');
-                } else if (raw.charAt(i) == 'b') {
-                    result.append('\b');
-                } else if (raw.charAt(i) == 'f') {
-                    result.append('\f');
-                } else if (raw.charAt(i) == 'n') {
-                    result.append('\n');
-                } else if (raw.charAt(i) == 'r') {
-                    result.append('\r');
-                } else if (raw.charAt(i) == 't') {
-                    result.append('\t');
-                } else if (raw.charAt(i) == 'u') {
-                    result.append(Character.toChars(Integer.parseInt(raw.substring(i+1, i+5), 16)));
-                    i += 4;
-                }
-            } else {
-                result.append(raw.charAt(i));
-            }
-            i++;
-        }
-        return result.toString();
-    }
-
 }

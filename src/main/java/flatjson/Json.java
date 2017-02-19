@@ -11,6 +11,7 @@ public class Json {
         FALSE,
         NUMBER,
         STRING,
+        STRING_ESCAPED,
         ARRAY,
         OBJECT
     }
@@ -118,14 +119,17 @@ public class Json {
     }
 
     private int parseString(int i) {
+        boolean escaped = false;
         int from = i++;
         while (true) {
             char c = raw.charAt(i);
             if (c == '"') {
-                return createElement(Token.STRING, from, i, 0);
+                Token token = escaped ? Token.STRING_ESCAPED : Token.STRING;
+                return createElement(token, from, i, 0);
             } else if (c < 32) {
                 throw new ParseException("illegal control char: " + (int)c);
             } else if (c == '\\') {
+                escaped = true;
                 c = raw.charAt(i + 1);
                 if (c == '"' || c == '/' || c == '\\' || c == 'b' || c == 'f' || c == 'n' || c == 'r' || c == 't') {
                     i++;
@@ -227,8 +231,9 @@ public class Json {
         return raw.substring(getComponent(element, FROM), getComponent(element, TO) + 1);
     }
 
-    String getRawString(int element) {
-        return raw.substring(getComponent(element, FROM) + 1, getComponent(element, TO));
+    String getStringValue(int element) {
+        String value = raw.substring(getComponent(element, FROM) + 1, getComponent(element, TO));
+        return (getToken(element) == Token.STRING_ESCAPED) ? unescape(value) : value;
     }
 
     private int getComponent(int element, int offset) {
@@ -268,5 +273,39 @@ public class Json {
 
     private int[] getBlock(int element) {
         return blocks.get((element * 4) / BLOCK_SIZE);
+    }
+
+    static String unescape(String raw) {
+        StringBuilder result = new StringBuilder(raw.length());
+        int i = 0;
+        while (i < raw.length()) {
+            if (raw.charAt(i) == '\\') {
+                i++;
+                if (raw.charAt(i) == '"') {
+                    result.append('"');
+                } else if (raw.charAt(i) == '\\') {
+                    result.append('\\');
+                } else if (raw.charAt(i) == '/') {
+                    result.append('/');
+                } else if (raw.charAt(i) == 'b') {
+                    result.append('\b');
+                } else if (raw.charAt(i) == 'f') {
+                    result.append('\f');
+                } else if (raw.charAt(i) == 'n') {
+                    result.append('\n');
+                } else if (raw.charAt(i) == 'r') {
+                    result.append('\r');
+                } else if (raw.charAt(i) == 't') {
+                    result.append('\t');
+                } else if (raw.charAt(i) == 'u') {
+                    result.append(Character.toChars(Integer.parseInt(raw.substring(i+1, i+5), 16)));
+                    i += 4;
+                }
+            } else {
+                result.append(raw.charAt(i));
+            }
+            i++;
+        }
+        return result.toString();
     }
 }
