@@ -104,12 +104,12 @@ public abstract class Benchmark {
     }
 
     public static void main(String[] args) throws IOException {
-        int warmupRuns = 20_000;
-        int runs = 100_000;
+        int warmupRuns = 50_000;
+        int runs = 500_000;
         for (int i = 0; i < 3; i++) {
             new BoonBenchmark().execute(warmupRuns, runs);
             new FlatJsonBenchmark().execute(warmupRuns, runs);
-            new SimpleJsonBenchmark().execute(warmupRuns, runs);
+//            new SimpleJsonBenchmark().execute(warmupRuns, runs);
         }
     }
 

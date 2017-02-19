@@ -17,6 +17,7 @@ public class Json {
     }
 
     public static JsonValue parse(String raw) {
+        if (raw == null) throw new ParseException("cannot parse null");
         return new Json(raw).parse();
     }
 
@@ -39,7 +40,6 @@ public class Json {
 
     private JsonValue parse() {
         try {
-            if (raw == null) throw new ParseException("cannot parse null");
             int index = skipWhitespace(parseValue(0));
             if (index != raw.length()) throw new ParseException("malformed json");
             return JsonValue.create(this, 0);
@@ -61,7 +61,7 @@ public class Json {
             case 't': return parseTrue(i);
             case 'f': return parseFalse(i);
             case 'n': return parseNull(i);
-            default: throw new ParseException("illegal char at pos " + i);
+            default: throw new ParseException("illegal char at pos: " + i);
         }
     }
 
@@ -227,7 +227,7 @@ public class Json {
     }
 
     private int getComponent(int element, int offset) {
-        return getBlock(element)[getBlockIndex(element, offset)];
+        return getBlock(element)[getBlockIndex(element) + offset];
     }
 
     private int createElement(Token token, int from) {
@@ -241,10 +241,11 @@ public class Json {
             blocks.add(new int[BLOCK_SIZE]);
         }
         int[] block = blocks.get(currentBlock);
-        block[getBlockIndex(element, TOKEN)] = token.ordinal();
-        block[getBlockIndex(element, FROM)] = from;
-        block[getBlockIndex(element, TO)] = to;
-        block[getBlockIndex(element, NESTED)] = nested;
+        int index = getBlockIndex(element);
+        block[index] = token.ordinal();
+        block[index + FROM] = from;
+        block[index + TO] = to;
+        block[index + NESTED] = nested;
         element++;
         return to+1;
     }
@@ -252,13 +253,14 @@ public class Json {
     private int closeElement(int element, int to, int nested) {
 //        System.out.println("close: " + element + " (" + nested + ")");
         int[] block = getBlock(element);
-        block[getBlockIndex(element, TO)] = to;
-        block[getBlockIndex(element, NESTED)] = nested;
+        int index = getBlockIndex(element);
+        block[index + TO] = to;
+        block[index + NESTED] = nested;
         return to+1;
     }
 
-    private int getBlockIndex(int element, int offset) {
-        return (element * 4) % BLOCK_SIZE + offset;
+    private int getBlockIndex(int element) {
+        return (element * 4) % BLOCK_SIZE;
     }
 
     private int[] getBlock(int element) {
