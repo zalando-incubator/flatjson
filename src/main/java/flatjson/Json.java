@@ -50,18 +50,18 @@ public class Json {
 
     private int parseValue(int i) {
         i = skipWhitespace(i);
-        char c = raw.charAt(i);
-        switch (c) {
+        switch (raw.charAt(i)) {
             case '"': return parseString(i);
             case '{': return parseObject(i);
             case '[': return parseArray(i);
-            case '0': case '1': case '2': case '3':
-            case '4': case '5': case '6': case '7':
-            case '8': case '9': case '-': return parseNumber(i);
+            case '0': case '1': case '2':
+            case '3': case '4': case '5':
+            case '6': case '7': case '8':
+            case '9': case '-': return parseNumber(i);
             case 't': return parseTrue(i);
             case 'f': return parseFalse(i);
             case 'n': return parseNull(i);
-            default: throw new ParseException(i);
+            default: throw new ParseException("illegal char at pos " + i);
         }
     }
 
@@ -74,7 +74,7 @@ public class Json {
         while (i < raw.length()) {
             char c = raw.charAt(i);
             if (c == '-') {
-                if (i > from) throw new ParseException(c);
+                if (i > from) throw new ParseException("minus inside number");
                 minus = true;
             } else if (c == 'e' || c == 'E') {
                 if (exponent) throw new ParseException("double exponents");
@@ -174,17 +174,17 @@ public class Json {
     }
 
     private int parseNull(int i) {
-        if (!raw.substring(i, i+4).equals("null")) throw new ParseException(i);
+        if (!raw.substring(i, i+4).equals("null")) throw new ParseException("broken null at pos " + i);
         return createElement(Token.NULL, i, i+3, 0);
     }
 
     private int parseTrue(int i) {
-        if (!raw.substring(i, i+4).equals("true")) throw new ParseException(i);
+        if (!raw.substring(i, i+4).equals("true")) throw new ParseException("broken true at pos " + i);
         return createElement(Token.TRUE, i, i+3, 0);
     }
 
     private int parseFalse(int i) {
-        if (!raw.substring(i, i+5).equals("false")) throw new ParseException(i);
+        if (!raw.substring(i, i+5).equals("false")) throw new ParseException("broken false at pos " + i);
         return createElement(Token.FALSE, i, i+4, 0);
     }
 
