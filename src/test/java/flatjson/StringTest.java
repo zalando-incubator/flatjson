@@ -6,11 +6,10 @@ import static org.junit.Assert.*;
 
 public class StringTest {
 
-    @Test public void parseOpenString() {
-        try {
-            Json.parse("\"hello");
-            fail("should raise ParseException");
-        } catch (ParseException expected) {}
+    @Test public void parseString() {
+        JsonValue value = Json.parse("\"hello\"");
+        assertTrue(value.isString());
+        assertEquals("hello", value.asString());
     }
 
     @Test public void parseEmptyString() {
@@ -19,10 +18,11 @@ public class StringTest {
         assertEquals("", value.asString());
     }
 
-    @Test public void parseString() {
-        JsonValue value = Json.parse("\"hello\"");
-        assertTrue(value.isString());
-        assertEquals("hello", value.asString());
+    @Test public void parseOpenString() {
+        try {
+            Json.parse("\"hello");
+            fail("should raise ParseException");
+        } catch (ParseException expected) {}
     }
 
     @Test public void parseStringWithEscapedQuote() {

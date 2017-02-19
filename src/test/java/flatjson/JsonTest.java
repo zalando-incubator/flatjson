@@ -64,9 +64,16 @@ public class JsonTest {
         assertEquals(0, value.asArray().size());
     }
 
-    @Test public void parseBrokenArray() {
+    @Test public void parseArrayWithLeadingComma() {
         try {
-            Json.parse("[ ,]");
+            Json.parse("[ , true]");
+            fail("should raise ParseException");
+        } catch (ParseException expected) {}
+    }
+
+    @Test public void parseArrayWithTrailingComma() {
+        try {
+            Json.parse("[ true,]");
             fail("should raise ParseException");
         } catch (ParseException expected) {}
     }
@@ -76,19 +83,6 @@ public class JsonTest {
             Json.parse("[ null,");
             fail("should raise ParseException");
         } catch (ParseException expected) {}
-    }
-
-    @Test public void parseNestedArray() {
-        JsonValue value = Json.parse("[ [null, null] ]");
-        assertTrue(value.isArray());
-        List<JsonValue> values = value.asArray();
-        assertEquals(1, values.size());
-        JsonValue nested = values.get(0);
-        assertTrue(nested.isArray());
-        List<JsonValue> nestedValues = nested.asArray();
-        assertEquals(2, nestedValues.size());
-        assertTrue(nestedValues.get(0).isNull());
-        assertTrue(nestedValues.get(1).isNull());
     }
 
     @Test public void parseBooleanArray() {
@@ -108,6 +102,19 @@ public class JsonTest {
         assertEquals(23, values.get(0).asLong());
         assertEquals(42e8, values.get(1).asDouble(), 0);
         assertEquals(3.141, values.get(2).asDouble(), 0);
+    }
+
+    @Test public void parseNestedArray() {
+        JsonValue value = Json.parse("[[[],[]]]");
+        assertTrue(value.isArray());
+        List<JsonValue> values = value.asArray();
+        assertEquals(1, values.size());
+        JsonValue nested = values.get(0);
+        assertTrue(nested.isArray());
+        List<JsonValue> nestedValues = nested.asArray();
+        assertEquals(2, nestedValues.size());
+        assertTrue(nestedValues.get(0).isArray());
+        assertTrue(nestedValues.get(1).isArray());
     }
 
     @Test public void parseEmptyObject() {
@@ -150,7 +157,9 @@ public class JsonTest {
     @Test public void parseArrayOfObjects() {
         JsonValue value = Json.parse("[{\"foo\": 23, \"bar\": 44}, {\"foo\": 11, \"bar\": 64}]");
         assertTrue(value.isArray());
-        for (JsonValue v : value.asArray()) {
+        List<JsonValue> values = value.asArray();
+        assertEquals(2, values.size());
+        for (JsonValue v : values) {
             assertTrue(v.isObject());
             Set<String> keys = v.asObject().keySet();
             assertTrue(keys.contains("foo"));

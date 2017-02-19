@@ -80,7 +80,7 @@ public class JsonValue {
 
     public static class Strng extends JsonValue {
 
-        private String decoded;
+        private String value;
 
         Strng(Json json, int element) {
             super(json, element);
@@ -91,10 +91,10 @@ public class JsonValue {
         }
 
         @Override public String asString() {
-            if (decoded == null) {
-                decoded = json.getStringValue(element);
+            if (value == null) {
+                value = json.getStringValue(element);
             }
-            return decoded;
+            return value;
         }
 
     }
