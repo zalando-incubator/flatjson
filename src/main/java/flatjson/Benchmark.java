@@ -44,17 +44,16 @@ public abstract class Benchmark {
         }
     }
 
+    // inspired by jmh
     private static class Blackhole {
 
         private int tlr = (int) System.nanoTime();
         private int tlrMask = 1;
-        private Object obj1;
 
         public final void consume(Object obj) {
             int tlr = (this.tlr = (this.tlr * 1664525 + 1013904223));
             if ((tlr & tlrMask) == 0) {
-                // SHOULD ALMOST NEVER HAPPEN IN MEASUREMENT
-                this.obj1 = obj;
+                this.tlr = obj.hashCode() ^ (int) System.nanoTime();
                 this.tlrMask = (this.tlrMask << 1) + 1;
             }
         }
