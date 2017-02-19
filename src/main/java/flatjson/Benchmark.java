@@ -1,8 +1,13 @@
 package flatjson;
 
+import org.boon.json.JsonFactory;
+import org.boon.json.ObjectMapper;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
 
 
 public abstract class Benchmark {
@@ -27,6 +32,36 @@ public abstract class Benchmark {
         }
     }
 
+    public static class BoonBenchmark extends Benchmark {
+
+        private static final ObjectMapper mapper = JsonFactory.create();
+
+        @Override protected String process(String input) {
+            Map one = mapper.readValue(input, Map.class);
+            Map two = (Map) one.get("TVUN8QNVHW");
+            List three = (List) two.get("D0jukTjAmn");
+            return mapper.writeValueAsString(three.get(5));
+        }
+    }
+
+    private static class Blackhole {
+
+        private int tlr = (int) System.nanoTime();
+        private int tlrMask = 1;
+        private Object obj1;
+
+        public final void consume(Object obj) {
+            int tlr = (this.tlr = (this.tlr * 1664525 + 1013904223));
+            if ((tlr & tlrMask) == 0) {
+                // SHOULD ALMOST NEVER HAPPEN IN MEASUREMENT
+                this.obj1 = obj;
+                this.tlrMask = (this.tlrMask << 1) + 1;
+            }
+        }
+    }
+
+    private Blackhole blackhole = new Blackhole();
+
     public void execute(int warmupRuns, int runs) throws IOException {
         System.out.println("-----------------------------------------------------------");
         System.out.println(getClass().getName());
@@ -35,6 +70,7 @@ public abstract class Benchmark {
         double time = benchmark(input, runs);
         System.out.println();
         System.out.println(String.format("time: %3.3f ms", time));
+        collectGarbage();
     }
 
     protected abstract String process(String input);
@@ -42,10 +78,10 @@ public abstract class Benchmark {
     private void warmup(String input, int runs) {
         System.out.print("warmup ");
         for (int i = 1; i <= runs; i++) {
-            process(input);
+            blackhole.consume(process(input));
             showProgress(i);
         }
-        System.out.println(process(input));
+//        System.out.println(process(input));
         collectGarbage();
     }
 
@@ -53,7 +89,7 @@ public abstract class Benchmark {
         System.out.print("benchmark ");
         long start = System.nanoTime();
         for (int i = 1; i <= runs; i++) {
-            process(input);
+            blackhole.consume(process(input));
             showProgress(i);
         }
         return (System.nanoTime() - start) / 1_000_000.0 / runs;
@@ -65,14 +101,17 @@ public abstract class Benchmark {
 
     private void collectGarbage() {
         System.gc();
-        try { Thread.sleep(5000); } catch (InterruptedException ignored) {}
+        try { Thread.sleep(3000); } catch (InterruptedException ignored) {}
     }
 
     public static void main(String[] args) throws IOException {
         int warmupRuns = 20_000;
         int runs = 100_000;
-        new FlatJsonBenchmark().execute(warmupRuns, runs);
-        new SimpleJsonBenchmark().execute(warmupRuns, runs);
+        for (int i = 0; i < 3; i++) {
+            new BoonBenchmark().execute(warmupRuns, runs);
+            new FlatJsonBenchmark().execute(warmupRuns, runs);
+            new SimpleJsonBenchmark().execute(warmupRuns, runs);
+        }
     }
 
 }
