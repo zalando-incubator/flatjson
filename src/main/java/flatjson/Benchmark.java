@@ -1,5 +1,6 @@
 package flatjson;
 
+import com.google.gson.Gson;
 import org.boon.json.JsonFactory;
 import org.boon.json.ObjectMapper;
 
@@ -33,7 +34,6 @@ public abstract class Benchmark {
     }
 
     public static class BoonBenchmark extends Benchmark {
-
         private static final ObjectMapper mapper = JsonFactory.create();
 
         @Override protected String process(String input) {
@@ -41,6 +41,17 @@ public abstract class Benchmark {
             Map two = (Map) one.get("TVUN8QNVHW");
             List three = (List) two.get("D0jukTjAmn");
             return mapper.writeValueAsString(three.get(5));
+        }
+    }
+
+    public static class GsonBenchmark extends Benchmark {
+        private static final Gson gson = new Gson();
+
+        @Override protected String process(String input) {
+            Map one = gson.fromJson(input, Map.class);
+            Map two = (Map) one.get("TVUN8QNVHW");
+            List three = (List) two.get("D0jukTjAmn");
+            return gson.toJson(three.get(5));
         }
     }
 
@@ -80,7 +91,7 @@ public abstract class Benchmark {
             blackhole.consume(process(input));
             showProgress(i);
         }
-//        System.out.println(process(input));
+        System.out.println(process(input));
         collectGarbage();
     }
 
@@ -104,10 +115,11 @@ public abstract class Benchmark {
     }
 
     public static void main(String[] args) throws IOException {
-        int warmupRuns = 50_000;
-        int runs = 500_000;
+        int warmupRuns = 20_000;
+        int runs = 100_000;
         for (int i = 0; i < 3; i++) {
-            new BoonBenchmark().execute(warmupRuns, runs);
+            new GsonBenchmark().execute(warmupRuns, runs);
+//            new BoonBenchmark().execute(warmupRuns, runs);
             new FlatJsonBenchmark().execute(warmupRuns, runs);
 //            new SimpleJsonBenchmark().execute(warmupRuns, runs);
         }
