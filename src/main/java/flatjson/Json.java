@@ -124,7 +124,10 @@ public class Json {
                 if (c == '"' || c == '/' || c == '\\' || c == 'b' || c == 'f' || c == 'n' || c == 'r' || c == 't') {
                     i++;
                 } else if (c == 'u') {
-                    expectHex(raw.substring(i+2, i+6));
+                    expectHex(i+2);
+                    expectHex(i+3);
+                    expectHex(i+4);
+                    expectHex(i+5);
                     i += 5;
                 } else {
                     throw new ParseException("illegal escape char: " + c);
@@ -174,17 +177,24 @@ public class Json {
     }
 
     private int parseNull(int i) {
-        if (!raw.substring(i, i+4).equals("null")) throw new ParseException("broken null at pos " + i);
+        expectChar(i+1, 'u');
+        expectChar(i+2, 'l');
+        expectChar(i+3, 'l');
         return createElement(Token.NULL, i, i+3, 0);
     }
 
     private int parseTrue(int i) {
-        if (!raw.substring(i, i+4).equals("true")) throw new ParseException("broken true at pos " + i);
+        expectChar(i+1, 'r');
+        expectChar(i+2, 'u');
+        expectChar(i+3, 'e');
         return createElement(Token.TRUE, i, i+3, 0);
     }
 
     private int parseFalse(int i) {
-        if (!raw.substring(i, i+5).equals("false")) throw new ParseException("broken false at pos " + i);
+        expectChar(i+1, 'a');
+        expectChar(i+2, 'l');
+        expectChar(i+3, 's');
+        expectChar(i+4, 'e');
         return createElement(Token.FALSE, i, i+4, 0);
     }
 
@@ -201,12 +211,10 @@ public class Json {
         if (raw.charAt(i) != c) throw new ParseException("expected char '" + c + "' at pos " + i);
     }
 
-    private void expectHex(String hexcode) {
-        try {
-            Integer.parseInt(hexcode, 16);
-        } catch (NumberFormatException e) {
-            throw new ParseException("invalid hex: " + hexcode);
-        }
+    private void expectHex(int i) {
+        char c = raw.charAt(i);
+        if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')) return;
+        throw new ParseException("invalid hex char at pos " + i);
     }
 
     Token getToken(int element) {
