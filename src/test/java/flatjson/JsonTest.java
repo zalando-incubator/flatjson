@@ -10,25 +10,19 @@ import static org.junit.Assert.*;
 
 public class JsonTest {
 
-    @Test public void parseNull() {
-        try {
-            Json.parse(null);
-            fail("should raise ParseException");
-        } catch (ParseException expected) {}
+    @Test(expected = ParseException.class)
+    public void parseNull() {
+        Json.parse(null);
     }
 
-    @Test public void parseEmpty() {
-        try {
-            Json.parse("");
-            fail("should raise ParseException");
-        } catch (ParseException expected) {}
+    @Test(expected = ParseException.class)
+    public void parseEmpty() {
+        Json.parse("");
     }
 
-    @Test public void parseWhitespace() {
-        try {
-            Json.parse("  \r\n  \t ");
-            fail("should raise ParseException");
-        } catch (ParseException expected) {}
+    @Test(expected = ParseException.class)
+    public void parseWhitespace() {
+        Json.parse("  \r\n  \t ");
     }
 
     @Test public void parseJsonNull() {
@@ -39,11 +33,9 @@ public class JsonTest {
         assertTrue(Json.parse("   \r\n null \t").isNull());
     }
 
-    @Test public void parseBrokenNull() {
-        try {
-            Json.parse("nul");
-            fail("should raise ParseException");
-        } catch (ParseException expected) {}
+    @Test(expected = ParseException.class)
+    public void parseBrokenNull() {
+        Json.parse("nul");
     }
 
     @Test public void parseTrue() {
@@ -64,25 +56,19 @@ public class JsonTest {
         assertEquals(0, value.asArray().size());
     }
 
-    @Test public void parseArrayWithLeadingComma() {
-        try {
-            Json.parse("[ , true]");
-            fail("should raise ParseException");
-        } catch (ParseException expected) {}
+    @Test(expected = ParseException.class)
+    public void parseArrayWithLeadingComma() {
+        Json.parse("[ , true]");
     }
 
-    @Test public void parseArrayWithTrailingComma() {
-        try {
-            Json.parse("[ true,]");
-            fail("should raise ParseException");
-        } catch (ParseException expected) {}
+    @Test(expected = ParseException.class)
+    public void parseArrayWithTrailingComma() {
+        Json.parse("[ true,]");
     }
 
-    @Test public void parseOpenArray() {
-        try {
-            Json.parse("[ null,");
-            fail("should raise ParseException");
-        } catch (ParseException expected) {}
+    @Test(expected = ParseException.class)
+    public void parseOpenArray() {
+        Json.parse("[ null,");
     }
 
     @Test public void parseBooleanArray() {
