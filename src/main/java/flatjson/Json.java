@@ -4,7 +4,7 @@ import java.util.*;
 
 import static flatjson.Token.*;
 
-public class Json {
+public abstract class Json {
 
     public static Json parse(String raw) {
         if (raw == null) throw new ParseException("cannot parse null");
@@ -17,7 +17,7 @@ public class Json {
             case OBJECT: return new Object(overlay, element);
             case STRING_ESCAPED:
             case STRING: return new Strng(overlay, element);
-            default: return new Json(overlay, element);
+            default: return new Value(overlay, element);
         }
     }
 
@@ -48,9 +48,9 @@ public class Json {
         }
     }
 
-    static class Object extends Json {
+    static class Object extends Value {
 
-        private Map<String, Json> values;
+        private Map<String, Json> map;
 
         Object(Overlay overlay, int element) {
             super(overlay, element);
@@ -61,11 +61,11 @@ public class Json {
         }
 
         @Override public Map<String, Json> asObject() {
-            if (values == null) values = createValues();
-            return values;
+            if (map == null) map = createMap();
+            return map;
         }
 
-        private Map<String, Json> createValues() {
+        private Map<String, Json> createMap() {
             Map<String, Json> result = new JsonMap<>();
             int e = element + 1;
             while (e <= element + overlay.getNested(element)) {
@@ -77,9 +77,9 @@ public class Json {
         }
     }
 
-    static class Array extends Json {
+    static class Array extends Value {
 
-        private List<Json> values;
+        private List<Json> array;
 
         Array(Overlay overlay, int element) {
             super(overlay, element);
@@ -90,11 +90,11 @@ public class Json {
         }
 
         @Override public List<Json> asArray() {
-            if (values == null) values = createValues();
-            return values;
+            if (array == null) array = createArray();
+            return array;
         }
 
-        private List<Json> createValues() {
+        private List<Json> createArray() {
             List<Json> result = new ArrayList<>();
             int e = element + 1;
             while (e <= element + overlay.getNested(element)) {
@@ -105,9 +105,9 @@ public class Json {
         }
     }
 
-    static class Strng extends Json {
+    static class Strng extends Value {
 
-        private String value;
+        private String string;
 
         Strng(Overlay overlay, int element) {
             super(overlay, element);
@@ -118,32 +118,68 @@ public class Json {
         }
 
         @Override public String asString() {
-            if (value == null) {
-                value = overlay.getStringValue(element);
-            }
-            return value;
+            if (string == null) string = overlay.getStringValue(element);
+            return string;
         }
 
     }
 
-    protected final Overlay overlay;
-    protected final int element;
+    static class Value extends Json {
 
-    Json(Overlay overlay, int element) {
-        this.overlay = overlay;
-        this.element = element;
+        protected final Overlay overlay;
+        protected final int element;
+
+        Value(Overlay overlay, int element) {
+            this.overlay = overlay;
+            this.element = element;
+        }
+
+        @Override public boolean isNull() {
+            return hasToken(NULL);
+        }
+
+        @Override public boolean isBoolean() {
+            return hasToken(TRUE) || hasToken(FALSE);
+        }
+
+        @Override public boolean isNumber() {
+            return hasToken(NUMBER);
+        }
+
+        @Override public boolean asBoolean() {
+            if (!isBoolean()) throw new IllegalStateException("not a boolean");
+            return Boolean.valueOf(overlay.getRaw(element));
+        }
+
+        @Override public long asLong() {
+            if (!isNumber()) throw new IllegalStateException("not a number");
+            return Long.valueOf(overlay.getRaw(element));
+        }
+
+        @Override public double asDouble() {
+            if (!isNumber()) throw new IllegalStateException("not a number");
+            return Double.valueOf(overlay.getRaw(element));
+        }
+
+        protected boolean hasToken(Token token) {
+            return overlay.getToken(element) == token;
+        }
+
+        @Override public String toString() {
+            return overlay.getRaw(element);
+        }
     }
 
     public boolean isNull() {
-        return hasToken(NULL);
+        return false;
     }
 
     public boolean isBoolean() {
-        return hasToken(TRUE) || hasToken(FALSE);
+        return false;
     }
 
     public boolean isNumber() {
-        return hasToken(NUMBER);
+        return false;
     }
 
     public boolean isString() {
@@ -159,18 +195,15 @@ public class Json {
     }
 
     public boolean asBoolean() {
-        if (!isBoolean()) throw new IllegalStateException("not a boolean");
-        return Boolean.valueOf(overlay.getRaw(element));
+        throw new IllegalStateException("not a boolean");
     }
 
     public long asLong() {
-        if (!isNumber()) throw new IllegalStateException("not a number");
-        return Long.valueOf(overlay.getRaw(element));
+        throw new IllegalStateException("not a number");
     }
 
     public double asDouble() {
-        if (!isNumber()) throw new IllegalStateException("not a number");
-        return Double.valueOf(overlay.getRaw(element));
+        throw new IllegalStateException("not a number");
     }
 
     public String asString() {
@@ -185,11 +218,4 @@ public class Json {
         throw new IllegalStateException("not an object");
     }
 
-    protected boolean hasToken(Token token) {
-        return overlay.getToken(element) == token;
-    }
-
-    @Override public String toString() {
-        return overlay.getRaw(element);
-    }
 }
