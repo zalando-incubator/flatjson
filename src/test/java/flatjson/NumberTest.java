@@ -7,15 +7,15 @@ import static org.junit.Assert.*;
 public class NumberTest {
 
     @Test public void parseZero() {
-        JsonValue value = Json.parse("0");
-        assertTrue(value.isNumber());
-        assertEquals(0, value.asLong());
+        Json json = Json.parse("0");
+        assertTrue(json.isNumber());
+        assertEquals(0, json.asLong());
     }
 
     @Test public void parseZeroWithExponent() {
-        JsonValue value = Json.parse("0e-23");
-        assertTrue(value.isNumber());
-        assertEquals(0, value.asDouble(), 0);
+        Json json = Json.parse("0e-23");
+        assertTrue(json.isNumber());
+        assertEquals(0, json.asDouble(), 0);
     }
 
     @Test(expected = ParseException.class)
@@ -24,27 +24,27 @@ public class NumberTest {
     }
 
     @Test public void parseNegativeZero() {
-        JsonValue value = Json.parse("-0");
-        assertTrue(value.isNumber());
-        assertEquals(0, value.asLong());
+        Json json = Json.parse("-0");
+        assertTrue(json.isNumber());
+        assertEquals(0, json.asLong());
     }
 
     @Test public void parseNegativeZeroWithExponent() {
-        JsonValue value = Json.parse("-0e-2");
-        assertTrue(value.isNumber());
-        assertEquals(0, value.asDouble(), 0);
+        Json json = Json.parse("-0e-2");
+        assertTrue(json.isNumber());
+        assertEquals(0, json.asDouble(), 0);
     }
 
     @Test public void parseSingleDigit() {
-        JsonValue value = Json.parse("3");
-        assertTrue(value.isNumber());
-        assertEquals(3, value.asLong());
+        Json json = Json.parse("3");
+        assertTrue(json.isNumber());
+        assertEquals(3, json.asLong());
     }
 
     @Test public void parseSingleDigitWithExponent() {
-        JsonValue value = Json.parse("3e+7");
-        assertTrue(value.isNumber());
-        assertEquals(3e+7, value.asDouble(), 0);
+        Json json = Json.parse("3e+7");
+        assertTrue(json.isNumber());
+        assertEquals(3e+7, json.asDouble(), 0);
     }
 
     @Test(expected = ParseException.class)
@@ -53,57 +53,57 @@ public class NumberTest {
     }
 
     @Test public void parseNumber() {
-        JsonValue value = Json.parse("123");
-        assertTrue(value.isNumber());
-        assertEquals(123, value.asLong());
+        Json json = Json.parse("123");
+        assertTrue(json.isNumber());
+        assertEquals(123, json.asLong());
     }
 
     @Test public void parseLongNumber() {
-        JsonValue value = Json.parse("100000000000000023");
-        assertTrue(value.isNumber());
-        assertEquals(100000000000000023L, value.asLong());
+        Json json = Json.parse("100000000000000023");
+        assertTrue(json.isNumber());
+        assertEquals(100000000000000023L, json.asLong());
     }
 
     @Test public void parseNegativeNumber() {
-        JsonValue value = Json.parse("-23");
-        assertTrue(value.isNumber());
-        assertEquals(-23, value.asLong());
+        Json json = Json.parse("-23");
+        assertTrue(json.isNumber());
+        assertEquals(-23, json.asLong());
     }
 
     @Test public void parseNegativeNumberWithExponent() {
-        JsonValue value = Json.parse("-2e-2");
-        assertTrue(value.isNumber());
-        assertEquals(-2e-2, value.asDouble(), 0);
+        Json json = Json.parse("-2e-2");
+        assertTrue(json.isNumber());
+        assertEquals(-2e-2, json.asDouble(), 0);
     }
 
     @Test public void parseNegativeLongNumber() {
-        JsonValue value = Json.parse("-234567898765432");
-        assertTrue(value.isNumber());
-        assertEquals(-234567898765432L, value.asLong());
+        Json json = Json.parse("-234567898765432");
+        assertTrue(json.isNumber());
+        assertEquals(-234567898765432L, json.asLong());
     }
 
     @Test public void parseNumberWithExponent() {
-        JsonValue value = Json.parse("33e12");
-        assertTrue(value.isNumber());
-        assertEquals(33e12, value.asDouble(), 0);
+        Json json = Json.parse("33e12");
+        assertTrue(json.isNumber());
+        assertEquals(33e12, json.asDouble(), 0);
     }
 
     @Test public void parseNumberWithExponentUppercase() {
-        JsonValue value = Json.parse("33E12");
-        assertTrue(value.isNumber());
-        assertEquals(33e12, value.asDouble(), 0);
+        Json json = Json.parse("33E12");
+        assertTrue(json.isNumber());
+        assertEquals(33e12, json.asDouble(), 0);
     }
 
     @Test public void parseNumberWithExponentPlus() {
-        JsonValue value = Json.parse("33E+12");
-        assertTrue(value.isNumber());
-        assertEquals(33e12, value.asDouble(), 0);
+        Json json = Json.parse("33E+12");
+        assertTrue(json.isNumber());
+        assertEquals(33e12, json.asDouble(), 0);
     }
 
     @Test public void parseNumberWithExponentMinus() {
-        JsonValue value = Json.parse("33E-12");
-        assertTrue(value.isNumber());
-        assertEquals(33e-12, value.asDouble(), 0);
+        Json json = Json.parse("33E-12");
+        assertTrue(json.isNumber());
+        assertEquals(33e-12, json.asDouble(), 0);
     }
 
     @Test(expected = ParseException.class)
@@ -127,33 +127,33 @@ public class NumberTest {
     }
 
     @Test public void parseFloat() {
-        JsonValue value = Json.parse("3.141");
-        assertTrue(value.isNumber());
-        assertEquals(3.141, value.asDouble(), 0);
+        Json json = Json.parse("3.141");
+        assertTrue(json.isNumber());
+        assertEquals(3.141, json.asDouble(), 0);
     }
 
     @Test public void parseNegativeFloat() {
-        JsonValue value = Json.parse("-3.141");
-        assertTrue(value.isNumber());
-        assertEquals(-3.141, value.asDouble(), 0);
+        Json json = Json.parse("-3.141");
+        assertTrue(json.isNumber());
+        assertEquals(-3.141, json.asDouble(), 0);
     }
 
     @Test public void parseFloatWithExponent() {
-        JsonValue value = Json.parse("-3.141e+4");
-        assertTrue(value.isNumber());
-        assertEquals(-3.141e4, value.asDouble(), 0);
+        Json json = Json.parse("-3.141e+4");
+        assertTrue(json.isNumber());
+        assertEquals(-3.141e4, json.asDouble(), 0);
     }
 
     @Test public void parseFloatWithLeadingZero() {
-        JsonValue value = Json.parse("0.33333333");
-        assertTrue(value.isNumber());
-        assertEquals(0.33333333, value.asDouble(), 0);
+        Json json = Json.parse("0.33333333");
+        assertTrue(json.isNumber());
+        assertEquals(0.33333333, json.asDouble(), 0);
     }
 
     @Test public void parseFloatWithLeadingZeroAndExponent() {
-        JsonValue value = Json.parse("0.333e4");
-        assertTrue(value.isNumber());
-        assertEquals(0.333e4, value.asDouble(), 0);
+        Json json = Json.parse("0.333e4");
+        assertTrue(json.isNumber());
+        assertEquals(0.333e4, json.asDouble(), 0);
     }
 
     @Test(expected = ParseException.class)

@@ -3,7 +3,7 @@ apply plugin: 'application'
 
 version = '0.1'
 //mainClassName = 'flatjson.Benchmark'
-mainClassName = 'flatjson.Hello'
+mainClassName = 'flatjson.Main'
 
 repositories {
   mavenCentral()

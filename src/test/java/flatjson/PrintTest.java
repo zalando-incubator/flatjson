@@ -7,12 +7,12 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class JsonValueTest {
+public class PrintTest {
 
     @Test public void printObjectWithEscapedKey() {
-        JsonValue value = Json.parse("{\"\\noo\\b\": true }");
-        assertTrue(value.isObject());
-        Map<String, JsonValue> object = value.asObject();
+        Json json = Json.parse("{\"\\noo\\b\": true }");
+        assertTrue(json.isObject());
+        Map<String, Json> object = json.asObject();
         assertEquals("{\"\\noo\\b\":true}", object.toString());
     }
 }

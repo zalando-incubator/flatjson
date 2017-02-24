@@ -7,15 +7,15 @@ import static org.junit.Assert.*;
 public class StringTest {
 
     @Test public void parseString() {
-        JsonValue value = Json.parse("\"hello\"");
-        assertTrue(value.isString());
-        assertEquals("hello", value.asString());
+        Json json = Json.parse("\"hello\"");
+        assertTrue(json.isString());
+        assertEquals("hello", json.asString());
     }
 
     @Test public void parseEmptyString() {
-        JsonValue value = Json.parse("  \"\"  ");
-        assertTrue(value.isString());
-        assertEquals("", value.asString());
+        Json json = Json.parse("  \"\"  ");
+        assertTrue(json.isString());
+        assertEquals("", json.asString());
     }
 
     @Test public void parseOpenString() {
@@ -26,33 +26,33 @@ public class StringTest {
     }
 
     @Test public void parseStringWithEscapedQuote() {
-        JsonValue value = Json.parse("\"hello \\\"quoted\\\" world\"");
-        assertEquals("hello \"quoted\" world", value.asString());
+        Json json = Json.parse("\"hello \\\"quoted\\\" world\"");
+        assertEquals("hello \"quoted\" world", json.asString());
     }
 
     @Test public void parseStringWithEscapedBackslash() {
-        JsonValue value = Json.parse("\"hello \\\\ world\"");
-        assertEquals("hello \\ world", value.asString());
+        Json json = Json.parse("\"hello \\\\ world\"");
+        assertEquals("hello \\ world", json.asString());
     }
 
     @Test public void parseStringWithEscapedSlash() {
-        JsonValue value = Json.parse("\"hello \\/ world\"");
-        assertEquals("hello / world", value.asString());
+        Json json = Json.parse("\"hello \\/ world\"");
+        assertEquals("hello / world", json.asString());
     }
 
     @Test public void parseStringWithEscapedBackspace() {
-        JsonValue value = Json.parse("\"hello \\b world\"");
-        assertEquals("hello \b world", value.asString());
+        Json json = Json.parse("\"hello \\b world\"");
+        assertEquals("hello \b world", json.asString());
     }
 
     @Test public void parseStringWithEscapedFormfeed() {
-        JsonValue value = Json.parse("\"hello \\f world\"");
-        assertEquals("hello \f world", value.asString());
+        Json json = Json.parse("\"hello \\f world\"");
+        assertEquals("hello \f world", json.asString());
     }
 
     @Test public void parseStringWithEscapedNewline() {
-        JsonValue value = Json.parse("\"hello \\n world\"");
-        assertEquals("hello \n world", value.asString());
+        Json json = Json.parse("\"hello \\n world\"");
+        assertEquals("hello \n world", json.asString());
     }
 
     @Test public void parseStringWithUnescapedNewline() {
@@ -63,18 +63,18 @@ public class StringTest {
     }
 
     @Test public void parseStringWithEscapedCarriageReturn() {
-        JsonValue value = Json.parse("\"hello \\r world\"");
-        assertEquals("hello \r world", value.asString());
+        Json json = Json.parse("\"hello \\r world\"");
+        assertEquals("hello \r world", json.asString());
     }
 
     @Test public void parseStringWithEscapedTab() {
-        JsonValue value = Json.parse("\"hello \\t world\"");
-        assertEquals("hello \t world", value.asString());
+        Json json = Json.parse("\"hello \\t world\"");
+        assertEquals("hello \t world", json.asString());
     }
 
     @Test public void parseStringWithEscapedUnicode() {
-        JsonValue value = Json.parse("\"hello \\u2ebf world\"");
-        assertEquals("hello \u2ebf world", value.asString());
+        Json json = Json.parse("\"hello \\u2ebf world\"");
+        assertEquals("hello \u2ebf world", json.asString());
     }
 
     @Test public void parseStringWithBrokenUnicode() {
