@@ -17,6 +17,33 @@ public class JsonValue {
         }
     }
 
+    public static class JsonList<E> extends ArrayList<E> {
+        @Override public String toString() {
+            StringBuilder result = new StringBuilder("[");
+            for (int i = 0; i < size(); i++) {
+                if (i > 0) result.append(",");
+                result.append(get(i).toString());
+            }
+            result.append("]");
+            return result.toString();
+        }
+    }
+
+    public static class JsonMap<K,V> extends LinkedHashMap<K,V> {
+        @Override public String toString() {
+            StringBuilder result = new StringBuilder("{");
+            int count = 0;
+            for (Map.Entry entry : entrySet()) {
+                if (count > 0) result.append(",");
+                String key = Json.escape((String) entry.getKey());
+                result.append(String.format("\"%s\":%s", key, entry.getValue()));
+                count++;
+            }
+            result.append("}");
+            return result.toString();
+        }
+    }
+
     public static class Object extends JsonValue {
 
         private Map<String, JsonValue> values;
@@ -30,14 +57,12 @@ public class JsonValue {
         }
 
         @Override public Map<String, JsonValue> asObject() {
-            if (values == null) {
-                values = Collections.unmodifiableMap(createValues());
-            }
+            if (values == null) values = createValues();
             return values;
         }
 
         private Map<String, JsonValue> createValues() {
-            Map<String, JsonValue> result = new HashMap<>();
+            Map<String, JsonValue> result = new JsonMap<>();
             int e = element + 1;
             while (e <= element + json.getNested(element)) {
                 String key = json.getStringValue(e);
@@ -61,9 +86,7 @@ public class JsonValue {
         }
 
         @Override public List<JsonValue> asArray() {
-            if (values == null) {
-                values = Collections.unmodifiableList(createValues());
-            }
+            if (values == null) values = createValues();
             return values;
         }
 
