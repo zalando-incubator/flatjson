@@ -20,7 +20,7 @@ public abstract class Json {
     }
 
     public static Json string(String string) {
-        return new LiteralString(string);
+        return (string == null) ? new LiteralNull() : new LiteralString(string);
     }
 
     static Json create(Overlay overlay, int element) {
@@ -53,6 +53,18 @@ public abstract class Json {
             return "\"" + StringCodec.escape(string) + "\"";
         }
     }
+
+    static class LiteralNull extends Json {
+
+        public boolean isNull() {
+            return true;
+        }
+
+        @Override public String toString() {
+            return "null";
+        }
+    }
+
 
     static class Object extends Value {
 

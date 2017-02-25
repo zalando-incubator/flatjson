@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class BuilderTest {
@@ -32,6 +33,13 @@ public class BuilderTest {
         assertTrue(json.isString());
         assertEquals("hello \n world", json.asString());
         assertEquals("\"hello \\n world\"", json.toString());
+    }
+
+    @Test public void createJsonNullString() {
+        Json json = Json.string(null);
+        assertTrue(json.isNull());
+        assertFalse(json.isString());
+        assertEquals("null", json.toString());
     }
 
 }
