@@ -11,6 +11,14 @@ public abstract class Json {
         return new Overlay(raw).parse();
     }
 
+    public static Map<String, Json> object() {
+        return new JsonMap<>();
+    }
+
+    public static List<Json> array() {
+        return new JsonList<>();
+    }
+
     static Json create(Overlay overlay, int element) {
         switch (overlay.getToken(element)) {
             case ARRAY: return new Array(overlay, element);
@@ -18,33 +26,6 @@ public abstract class Json {
             case STRING_ESCAPED:
             case STRING: return new Strng(overlay, element);
             default: return new Value(overlay, element);
-        }
-    }
-
-    static class JsonList<E> extends ArrayList<E> {
-        @Override public String toString() {
-            StringBuilder result = new StringBuilder("[");
-            for (int i = 0; i < size(); i++) {
-                if (i > 0) result.append(",");
-                result.append(get(i).toString());
-            }
-            result.append("]");
-            return result.toString();
-        }
-    }
-
-    static class JsonMap<K,V> extends LinkedHashMap<K,V> {
-        @Override public String toString() {
-            StringBuilder result = new StringBuilder("{");
-            int count = 0;
-            for (Map.Entry entry : entrySet()) {
-                if (count > 0) result.append(",");
-                String key = StringCodec.escape((String) entry.getKey());
-                result.append(String.format("\"%s\":%s", key, entry.getValue()));
-                count++;
-            }
-            result.append("}");
-            return result.toString();
         }
     }
 
