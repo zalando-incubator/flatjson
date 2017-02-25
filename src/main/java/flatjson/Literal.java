@@ -2,7 +2,7 @@ package flatjson;
 
 public class Literal extends Json {
 
-    static class Null extends Json {
+    static class Null extends Literal {
 
         @Override public boolean isNull() {
             return true;
@@ -13,7 +13,7 @@ public class Literal extends Json {
         }
     }
 
-    static class Boolean extends Json {
+    static class Boolean extends Literal {
 
         private final boolean value;
 
@@ -63,7 +63,7 @@ public class Literal extends Json {
         }
     }
 
-    static class Strng extends Json {
+    static class Strng extends Literal {
 
         private final String string;
 
