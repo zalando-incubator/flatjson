@@ -23,6 +23,18 @@ public abstract class Json {
         return (string == null) ? new LiteralNull() : new LiteralString(string);
     }
 
+    public static Json bool(boolean value) {
+        return new LiteralBoolean(value);
+    }
+
+    public static Json number(long value) {
+        return new LiteralNumber(value);
+    }
+
+    public static Json number(double value) {
+        return new LiteralNumber(value);
+    }
+
     static Json create(Overlay overlay, int element) {
         switch (overlay.getToken(element)) {
             case ARRAY: return new Array(overlay, element);
@@ -30,6 +42,57 @@ public abstract class Json {
             case STRING_ESCAPED:
             case STRING: return new Strng(overlay, element);
             default: return new Value(overlay, element);
+        }
+    }
+
+    static class LiteralNumber extends Json {
+
+        private final String value;
+
+        LiteralNumber(long value) {
+            this.value = Long.toString(value);
+        }
+
+        LiteralNumber(double value) {
+            this.value = Double.toString(value);
+        }
+
+        @Override public boolean isNumber() {
+            return true;
+        }
+
+        @Override public long asLong() {
+            return Long.valueOf(value);
+        }
+
+        @Override public double asDouble() {
+            return Double.valueOf(value);
+        }
+
+        @Override public String toString() {
+            return value;
+        }
+    }
+
+    static class LiteralBoolean extends Json {
+
+        private final boolean value;
+
+        LiteralBoolean(boolean value) {
+            this.value = value;
+        }
+
+        public boolean isBoolean() {
+            return true;
+        }
+
+        public boolean asBoolean() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return Boolean.toString(value);
         }
     }
 

@@ -42,4 +42,32 @@ public class BuilderTest {
         assertEquals("null", json.toString());
     }
 
+    @Test public void createJsonTrue() {
+        Json json = Json.bool(true);
+        assertTrue(json.isBoolean());
+        assertTrue(json.asBoolean());
+        assertEquals("true", json.toString());
+    }
+
+    @Test public void createJsonFalse() {
+        Json json = Json.bool(false);
+        assertTrue(json.isBoolean());
+        assertFalse(json.asBoolean());
+        assertEquals("false", json.toString());
+    }
+
+    @Test public void createJsonLong() {
+        Json json = Json.number(10);
+        assertTrue(json.isNumber());
+        assertEquals(10, json.asLong());
+        assertEquals("10", json.toString());
+    }
+
+    @Test public void createJsonDouble() {
+        Json json = Json.number(3.141);
+        assertTrue(json.isNumber());
+        assertEquals(3.141, json.asDouble(), 0.001);
+        assertEquals("3.141", json.toString());
+    }
+
 }
