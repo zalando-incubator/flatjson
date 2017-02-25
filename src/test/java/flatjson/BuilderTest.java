@@ -11,14 +11,10 @@ import static org.junit.Assert.assertTrue;
 
 public class BuilderTest {
 
-    @Test public void createJsonObject() {
-        Map<String, Json> object = Json.object();
-        assertEquals("{}", object.toString());
-    }
-
-    @Test public void createJsonArray() {
-        List<Json> array = Json.array();
-        assertEquals("[]", array.toString());
+    @Test public void createJsonNull() {
+        Json json = Json.nil();
+        assertTrue(json.isNull());
+        assertEquals("null", json.toString());
     }
 
     @Test public void createJsonString() {
@@ -68,6 +64,16 @@ public class BuilderTest {
         assertTrue(json.isNumber());
         assertEquals(3.141, json.asDouble(), 0.001);
         assertEquals("3.141", json.toString());
+    }
+
+    @Test public void createJsonObject() {
+        Map<String, Json> object = Json.object();
+        assertEquals("{}", object.toString());
+    }
+
+    @Test public void createJsonArray() {
+        List<Json> array = Json.array();
+        assertEquals("[]", array.toString());
     }
 
 }

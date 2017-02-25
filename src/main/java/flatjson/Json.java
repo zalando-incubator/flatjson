@@ -11,28 +11,32 @@ public abstract class Json {
         return new Overlay(raw).parse();
     }
 
+    public static Json nil() {
+        return new Literal.Null();
+    }
+
+    public static Json bool(boolean value) {
+        return new Literal.Boolean(value);
+    }
+
+    public static Json number(long value) {
+        return new Literal.Number(value);
+    }
+
+    public static Json number(double value) {
+        return new Literal.Number(value);
+    }
+
+    public static Json string(String string) {
+        return (string == null) ? new Literal.Null() : new Literal.Strng(string);
+    }
+
     public static Map<String, Json> object() {
         return new JsonMap<>();
     }
 
     public static List<Json> array() {
         return new JsonList<>();
-    }
-
-    public static Json string(String string) {
-        return (string == null) ? new LiteralNull() : new LiteralString(string);
-    }
-
-    public static Json bool(boolean value) {
-        return new LiteralBoolean(value);
-    }
-
-    public static Json number(long value) {
-        return new LiteralNumber(value);
-    }
-
-    public static Json number(double value) {
-        return new LiteralNumber(value);
     }
 
     static Json create(Overlay overlay, int element) {
@@ -44,90 +48,6 @@ public abstract class Json {
             default: return new Value(overlay, element);
         }
     }
-
-    static class LiteralNumber extends Json {
-
-        private final String value;
-
-        LiteralNumber(long value) {
-            this.value = Long.toString(value);
-        }
-
-        LiteralNumber(double value) {
-            this.value = Double.toString(value);
-        }
-
-        @Override public boolean isNumber() {
-            return true;
-        }
-
-        @Override public long asLong() {
-            return Long.valueOf(value);
-        }
-
-        @Override public double asDouble() {
-            return Double.valueOf(value);
-        }
-
-        @Override public String toString() {
-            return value;
-        }
-    }
-
-    static class LiteralBoolean extends Json {
-
-        private final boolean value;
-
-        LiteralBoolean(boolean value) {
-            this.value = value;
-        }
-
-        public boolean isBoolean() {
-            return true;
-        }
-
-        public boolean asBoolean() {
-            return value;
-        }
-
-        @Override
-        public String toString() {
-            return Boolean.toString(value);
-        }
-    }
-
-    static class LiteralString extends Json {
-
-        private final String string;
-
-        LiteralString(String string) {
-            this.string = string;
-        }
-
-        public boolean isString() {
-            return true;
-        }
-
-        public String asString() {
-            return string;
-        }
-
-        @Override public String toString() {
-            return "\"" + StringCodec.escape(string) + "\"";
-        }
-    }
-
-    static class LiteralNull extends Json {
-
-        public boolean isNull() {
-            return true;
-        }
-
-        @Override public String toString() {
-            return "null";
-        }
-    }
-
 
     static class Object extends Value {
 
@@ -229,7 +149,7 @@ public abstract class Json {
 
         @Override public boolean asBoolean() {
             if (!isBoolean()) throw new IllegalStateException("not a boolean");
-            return Boolean.valueOf(overlay.getRaw(element));
+            return java.lang.Boolean.valueOf(overlay.getRaw(element));
         }
 
         @Override public long asLong() {
