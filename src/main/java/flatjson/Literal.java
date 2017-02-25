@@ -1,6 +1,6 @@
 package flatjson;
 
-public class Literal extends Json {
+class Literal extends Json {
 
     static class Null extends Literal {
 
@@ -13,11 +13,11 @@ public class Literal extends Json {
         }
     }
 
-    static class Boolean extends Literal {
+    static class Bool extends Literal {
 
         private final boolean value;
 
-        Boolean(boolean value) {
+        Bool(boolean value) {
             this.value = value;
         }
 
@@ -30,7 +30,7 @@ public class Literal extends Json {
         }
 
         @Override public String toString() {
-            return java.lang.Boolean.toString(value);
+            return Boolean.toString(value);
         }
     }
 
