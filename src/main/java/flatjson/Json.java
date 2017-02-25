@@ -19,6 +19,10 @@ public abstract class Json {
         return new JsonList<>();
     }
 
+    public static Json string(String string) {
+        return new LiteralString(string);
+    }
+
     static Json create(Overlay overlay, int element) {
         switch (overlay.getToken(element)) {
             case ARRAY: return new Array(overlay, element);
@@ -26,6 +30,27 @@ public abstract class Json {
             case STRING_ESCAPED:
             case STRING: return new Strng(overlay, element);
             default: return new Value(overlay, element);
+        }
+    }
+
+    static class LiteralString extends Json {
+
+        private final String string;
+
+        LiteralString(String string) {
+            this.string = string;
+        }
+
+        public boolean isString() {
+            return true;
+        }
+
+        public String asString() {
+            return string;
+        }
+
+        @Override public String toString() {
+            return "\"" + StringCodec.escape(string) + "\"";
         }
     }
 
