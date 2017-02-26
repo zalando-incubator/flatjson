@@ -8,7 +8,53 @@ import static flatjson.Token.*;
 
 class Parsed extends Json {
 
-    static class Strng extends Parsed {
+    static class Value extends Parsed {
+
+        protected final Overlay overlay;
+        protected final int element;
+
+        Value(Overlay overlay, int element) {
+            this.overlay = overlay;
+            this.element = element;
+        }
+
+        protected boolean hasToken(Token token) {
+            return overlay.getToken(element) == token;
+        }
+
+        @Override public boolean isNull() {
+            return hasToken(NULL);
+        }
+
+        @Override public boolean isBoolean() {
+            return hasToken(TRUE) || hasToken(FALSE);
+        }
+
+        @Override public boolean isNumber() {
+            return hasToken(NUMBER);
+        }
+
+        @Override public boolean asBoolean() {
+            if (!isBoolean()) throw new IllegalStateException("not a boolean");
+            return Boolean.valueOf(overlay.getRaw(element));
+        }
+
+        @Override public long asLong() {
+            if (!isNumber()) throw new IllegalStateException("not a number");
+            return Long.valueOf(overlay.getRaw(element));
+        }
+
+        @Override public double asDouble() {
+            if (!isNumber()) throw new IllegalStateException("not a number");
+            return Double.valueOf(overlay.getRaw(element));
+        }
+
+        @Override public String toString() {
+            return overlay.getRaw(element);
+        }
+    }
+
+    static class Strng extends Value {
 
         private String string;
 
@@ -27,7 +73,7 @@ class Parsed extends Json {
 
     }
 
-    static class Array extends Parsed {
+    static class Array extends Value {
 
         private List<Json> array;
 
@@ -55,7 +101,7 @@ class Parsed extends Json {
         }
     }
 
-    static class Object extends Parsed {
+    static class Object extends Value {
 
         private Map<String, Json> map;
 
@@ -83,48 +129,4 @@ class Parsed extends Json {
             return result;
         }
     }
-
-    protected final Overlay overlay;
-    protected final int element;
-
-    Parsed(Overlay overlay, int element) {
-        this.overlay = overlay;
-        this.element = element;
-    }
-
-    protected boolean hasToken(Token token) {
-        return overlay.getToken(element) == token;
-    }
-
-    @Override public boolean isNull() {
-        return hasToken(NULL);
-    }
-
-    @Override public boolean isBoolean() {
-        return hasToken(TRUE) || hasToken(FALSE);
-    }
-
-    @Override public boolean isNumber() {
-        return hasToken(NUMBER);
-    }
-
-    @Override public boolean asBoolean() {
-        if (!isBoolean()) throw new IllegalStateException("not a boolean");
-        return Boolean.valueOf(overlay.getRaw(element));
-    }
-
-    @Override public long asLong() {
-        if (!isNumber()) throw new IllegalStateException("not a number");
-        return Long.valueOf(overlay.getRaw(element));
-    }
-
-    @Override public double asDouble() {
-        if (!isNumber()) throw new IllegalStateException("not a number");
-        return Double.valueOf(overlay.getRaw(element));
-    }
-
-    @Override public String toString() {
-        return overlay.getRaw(element);
-    }
-
 }

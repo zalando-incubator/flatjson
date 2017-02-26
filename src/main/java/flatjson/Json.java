@@ -42,7 +42,7 @@ public class Json {
             case OBJECT: return new Parsed.Object(overlay, element);
             case STRING_ESCAPED:
             case STRING: return new Parsed.Strng(overlay, element);
-            default: return new Parsed(overlay, element);
+            default: return new Parsed.Value(overlay, element);
         }
     }
 
