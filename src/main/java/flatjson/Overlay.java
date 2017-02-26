@@ -3,11 +3,13 @@ package flatjson;
 import java.util.ArrayList;
 import java.util.List;
 
+import static flatjson.Json.Type.*;
+
 class Overlay {
 
     private static final int BLOCK_SIZE = 4 * 1024; // 16 KB
 
-    private static final int TOKEN = 0;
+    private static final int TYPE = 0;
     private static final int FROM = 1;
     private static final int TO = 2;
     private static final int NESTED = 3;
@@ -23,7 +25,24 @@ class Overlay {
         parse();
     }
 
-    void parse() {
+    Json.Type getType(int element) {
+        return Json.Type.values()[getComponent(element, TYPE)];
+    }
+
+    int getNested(int element) {
+        return getComponent(element, NESTED);
+    }
+
+    String getJson(int element) {
+        return raw.substring(getComponent(element, FROM), getComponent(element, TO) + 1);
+    }
+
+    String getUnescapedString(int element) {
+        String value = raw.substring(getComponent(element, FROM) + 1, getComponent(element, TO));
+        return (getType(element) == STRING_ESCAPED) ? StringCodec.unescape(value) : value;
+    }
+
+    private void parse() {
         if (raw == null) throw new ParseException("cannot parse null");
         try {
             int last = skipWhitespace(parseValue(0));
@@ -90,7 +109,7 @@ class Overlay {
             i++;
         }
         if (minus && from == i-1) throw new ParseException("isolated minus");
-        return createElement(Token.NUMBER, from, i-1, 0);
+        return createElement(NUMBER, from, i-1, 0);
     }
 
     private int parseString(int i) {
@@ -99,8 +118,8 @@ class Overlay {
         while (true) {
             char c = raw.charAt(i);
             if (c == '"') {
-                Token token = escaped ? Token.STRING_ESCAPED : Token.STRING;
-                return createElement(token, from, i, 0);
+                Json.Type type = escaped ? STRING_ESCAPED : STRING;
+                return createElement(type, from, i, 0);
             } else if (c < 32) {
                 throw new ParseException("illegal control char: " + (int)c);
             } else if (c == '\\') {
@@ -125,7 +144,7 @@ class Overlay {
     private int parseArray(int i) {
         int count = 0;
         int e = element;
-        createElement(Token.ARRAY, i);
+        createElement(ARRAY, i);
         i++;
         while (true) {
             i = skipWhitespace(i);
@@ -142,7 +161,7 @@ class Overlay {
     private int parseObject(int i) {
         int count = 0;
         int e = element;
-        createElement(Token.OBJECT, i);
+        createElement(OBJECT, i);
         i++;
         while (true) {
             i = skipWhitespace(i);
@@ -165,14 +184,14 @@ class Overlay {
         expectChar(i+1, 'u');
         expectChar(i+2, 'l');
         expectChar(i+3, 'l');
-        return createElement(Token.NULL, i, i+3, 0);
+        return createElement(NULL, i, i+3, 0);
     }
 
     private int parseTrue(int i) {
         expectChar(i+1, 'r');
         expectChar(i+2, 'u');
         expectChar(i+3, 'e');
-        return createElement(Token.TRUE, i, i+3, 0);
+        return createElement(TRUE, i, i+3, 0);
     }
 
     private int parseFalse(int i) {
@@ -180,7 +199,7 @@ class Overlay {
         expectChar(i+2, 'l');
         expectChar(i+3, 's');
         expectChar(i+4, 'e');
-        return createElement(Token.FALSE, i, i+4, 0);
+        return createElement(FALSE, i, i+4, 0);
     }
 
     private int skipWhitespace(int i) {
@@ -202,39 +221,22 @@ class Overlay {
         throw new ParseException("invalid hex char at pos " + i);
     }
 
-    Token getToken(int element) {
-        return Token.values()[getComponent(element, TOKEN)];
-    }
-
-    int getNested(int element) {
-        return getComponent(element, NESTED);
-    }
-
-    String getRaw(int element) {
-        return raw.substring(getComponent(element, FROM), getComponent(element, TO) + 1);
-    }
-
-    String getStringValue(int element) {
-        String value = raw.substring(getComponent(element, FROM) + 1, getComponent(element, TO));
-        return (getToken(element) == Token.STRING_ESCAPED) ? StringCodec.unescape(value) : value;
-    }
-
     private int getComponent(int element, int offset) {
         return getBlock(element)[getBlockIndex(element) + offset];
     }
 
-    private int createElement(Token token, int from) {
-        return createElement(token, from, -1, -1);
+    private int createElement(Json.Type type, int from) {
+        return createElement(type, from, -1, -1);
     }
 
-    private int createElement(Token token, int from, int to, int nested) {
+    private int createElement(Json.Type type, int from, int to, int nested) {
         int currentBlock = (element * 4) / BLOCK_SIZE;
         if (currentBlock == blocks.size()) {
             blocks.add(new int[BLOCK_SIZE]);
         }
         int[] block = blocks.get(currentBlock);
         int index = getBlockIndex(element);
-        block[index] = token.ordinal();
+        block[index] = type.ordinal();
         block[index + FROM] = from;
         block[index + TO] = to;
         block[index + NESTED] = nested;

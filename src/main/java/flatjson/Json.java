@@ -4,8 +4,19 @@ import java.util.*;
 
 public class Json {
 
+    enum Type {
+        NULL,
+        TRUE,
+        FALSE,
+        NUMBER,
+        STRING,
+        STRING_ESCAPED,
+        ARRAY,
+        OBJECT
+    }
+
     protected static Json create(Overlay overlay, int element) {
-        switch (overlay.getToken(element)) {
+        switch (overlay.getType(element)) {
             case TRUE:
             case FALSE: return new Parsed.Bool(overlay, element);
             case NUMBER: return new Parsed.Number(overlay, element);

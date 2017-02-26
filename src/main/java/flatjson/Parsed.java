@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static flatjson.Token.*;
+import static flatjson.Json.Type.*;
 
 class Parsed extends Json {
 
@@ -19,11 +19,11 @@ class Parsed extends Json {
         }
 
         @Override public boolean isNull() {
-            return overlay.getToken(element) == NULL;
+            return overlay.getType(element) == NULL;
         }
 
         @Override public String toString() {
-            return overlay.getRaw(element);
+            return overlay.getJson(element);
         }
     }
 
@@ -38,7 +38,7 @@ class Parsed extends Json {
         }
 
         @Override public boolean asBoolean() {
-            return Boolean.valueOf(overlay.getRaw(element));
+            return Boolean.valueOf(overlay.getJson(element));
         }
     }
 
@@ -53,11 +53,11 @@ class Parsed extends Json {
         }
 
         @Override public long asLong() {
-            return Long.valueOf(overlay.getRaw(element));
+            return Long.valueOf(overlay.getJson(element));
         }
 
         @Override public double asDouble() {
-            return Double.valueOf(overlay.getRaw(element));
+            return Double.valueOf(overlay.getJson(element));
         }
     }
 
@@ -74,7 +74,7 @@ class Parsed extends Json {
         }
 
         @Override public String asString() {
-            if (string == null) string = overlay.getStringValue(element);
+            if (string == null) string = overlay.getUnescapedString(element);
             return string;
         }
 
@@ -129,7 +129,7 @@ class Parsed extends Json {
             Map<String, Json> result = new JsonMap<>();
             int e = element + 1;
             while (e <= element + overlay.getNested(element)) {
-                String key = overlay.getStringValue(e);
+                String key = overlay.getUnescapedString(e);
                 result.put(key, create(overlay, e + 1));
                 e += overlay.getNested(e + 1) + 2;
             }
