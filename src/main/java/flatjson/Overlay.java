@@ -252,11 +252,11 @@ class Overlay {
         return to+1;
     }
 
-    private int getBlockIndex(int element) {
-        return (element * 4) % BLOCK_SIZE;
-    }
-
     private int[] getBlock(int element) {
         return blocks.get((element * 4) / BLOCK_SIZE);
+    }
+
+    private int getBlockIndex(int element) {
+        return (element * 4) % BLOCK_SIZE;
     }
 }

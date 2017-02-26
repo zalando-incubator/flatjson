@@ -80,7 +80,7 @@ class Literal extends Json {
         }
 
         @Override public String toString() {
-            return "\"" + StringCodec.escape(string) + "\"";
+            return String.format("\"%s\"", StringCodec.escape(string));
         }
     }
 

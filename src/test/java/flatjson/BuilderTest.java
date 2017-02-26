@@ -68,12 +68,15 @@ public class BuilderTest {
 
     @Test public void createJsonObject() {
         Map<String, Json> object = Json.object();
-        assertEquals("{}", object.toString());
+        object.put("hello", Json.string("world"));
+        assertEquals("{\"hello\":\"world\"}", object.toString());
     }
 
     @Test public void createJsonArray() {
         List<Json> array = Json.array();
-        assertEquals("[]", array.toString());
+        array.add(Json.string("hello"));
+        array.add(Json.number(42));
+        assertEquals("[\"hello\",42]", array.toString());
     }
 
 }

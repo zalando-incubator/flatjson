@@ -97,8 +97,12 @@ class Parsed extends Json {
             return array;
         }
 
+        @Override public String toString() {
+            return (array == null) ? super.toString() : array.toString();
+        }
+
         private List<Json> createArray() {
-            List<Json> result = new ArrayList<>();
+            List<Json> result = new JsonList<>();
             int e = element + 1;
             while (e <= element + overlay.getNested(element)) {
                 result.add(create(overlay, e));
@@ -123,6 +127,10 @@ class Parsed extends Json {
         @Override public Map<String, Json> asObject() {
             if (map == null) map = createMap();
             return map;
+        }
+
+        @Override public String toString() {
+            return (map == null) ? super.toString() : map.toString();
         }
 
         private Map<String, Json> createMap() {
