@@ -5,8 +5,7 @@ import java.util.*;
 public class Json {
 
     public static Json parse(String raw) {
-        if (raw == null) throw new ParseException("cannot parse null");
-        return new Overlay(raw).parse();
+        return create(new Overlay(raw), 0);
     }
 
     public static Json nil() {
@@ -37,7 +36,7 @@ public class Json {
         return new JsonList<>();
     }
 
-    static Json create(Overlay overlay, int element) {
+    protected static Json create(Overlay overlay, int element) {
         switch (overlay.getToken(element)) {
             case ARRAY: return new Parsed.Array(overlay, element);
             case OBJECT: return new Parsed.Object(overlay, element);

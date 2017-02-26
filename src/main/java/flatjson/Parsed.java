@@ -6,7 +6,7 @@ import java.util.Map;
 
 import static flatjson.Token.*;
 
-public class Parsed extends Json {
+class Parsed extends Json {
 
     static class Strng extends Parsed {
 

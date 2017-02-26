@@ -20,13 +20,14 @@ class Overlay {
         this.raw = raw;
         this.blocks = new ArrayList<>();
         this.element = 0;
+        parse();
     }
 
-    Json parse() {
+    void parse() {
+        if (raw == null) throw new ParseException("cannot parse null");
         try {
-            int index = skipWhitespace(parseValue(0));
-            if (index != raw.length()) throw new ParseException("malformed json");
-            return Json.create(this, 0);
+            int last = skipWhitespace(parseValue(0));
+            if (last != raw.length()) throw new ParseException("malformed json");
         } catch (IndexOutOfBoundsException e) {
             throw new ParseException("unbalanced json");
         }
