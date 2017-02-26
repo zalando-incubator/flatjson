@@ -18,39 +18,46 @@ class Parsed extends Json {
             this.element = element;
         }
 
-        protected boolean hasToken(Token token) {
-            return overlay.getToken(element) == token;
-        }
-
         @Override public boolean isNull() {
-            return hasToken(NULL);
-        }
-
-        @Override public boolean isBoolean() {
-            return hasToken(TRUE) || hasToken(FALSE);
-        }
-
-        @Override public boolean isNumber() {
-            return hasToken(NUMBER);
-        }
-
-        @Override public boolean asBoolean() {
-            if (!isBoolean()) throw new IllegalStateException("not a boolean");
-            return Boolean.valueOf(overlay.getRaw(element));
-        }
-
-        @Override public long asLong() {
-            if (!isNumber()) throw new IllegalStateException("not a number");
-            return Long.valueOf(overlay.getRaw(element));
-        }
-
-        @Override public double asDouble() {
-            if (!isNumber()) throw new IllegalStateException("not a number");
-            return Double.valueOf(overlay.getRaw(element));
+            return overlay.getToken(element) == NULL;
         }
 
         @Override public String toString() {
             return overlay.getRaw(element);
+        }
+    }
+
+    static class Bool extends Value {
+
+        Bool(Overlay overlay, int element) {
+            super(overlay, element);
+        }
+
+        @Override public boolean isBoolean() {
+            return true;
+        }
+
+        @Override public boolean asBoolean() {
+            return Boolean.valueOf(overlay.getRaw(element));
+        }
+    }
+
+    static class Number extends Value {
+
+        Number(Overlay overlay, int element) {
+            super(overlay, element);
+        }
+
+        @Override public boolean isNumber() {
+            return true;
+        }
+
+        @Override public long asLong() {
+            return Long.valueOf(overlay.getRaw(element));
+        }
+
+        @Override public double asDouble() {
+            return Double.valueOf(overlay.getRaw(element));
         }
     }
 
