@@ -2,11 +2,11 @@ package flatjson;
 
 class StringCodec {
 
-    static String escape(String raw) {
-        StringBuilder result = new StringBuilder(raw.length());
+    static String escape(String input) {
+        StringBuilder result = new StringBuilder(input.length());
         int i = 0;
-        while (i < raw.length()) {
-            char c = raw.charAt(i);
+        while (i < input.length()) {
+            char c = input.charAt(i);
             switch (c) {
                     case '\\': result.append("\\\\"); break;
                     case '"': result.append("\\\""); break;
@@ -26,13 +26,13 @@ class StringCodec {
         return result.toString();
     }
 
-    static String unescape(String raw) {
-        StringBuilder result = new StringBuilder(raw.length());
+    static String unescape(String input) {
+        StringBuilder result = new StringBuilder(input.length());
         int i = 0;
-        while (i < raw.length()) {
-            if (raw.charAt(i) == '\\') {
+        while (i < input.length()) {
+            if (input.charAt(i) == '\\') {
                 i++;
-                switch (raw.charAt(i)) {
+                switch (input.charAt(i)) {
                     case '\\': result.append('\\'); break;
                     case '/': result.append('/'); break;
                     case '"': result.append('"'); break;
@@ -42,12 +42,12 @@ class StringCodec {
                     case 'r': result.append('\r'); break;
                     case 't': result.append('\t'); break;
                     case 'u': {
-                        result.append(Character.toChars(Integer.parseInt(raw.substring(i+1, i+5), 16)));
+                        result.append(Character.toChars(Integer.parseInt(input.substring(i+1, i+5), 16)));
                         i += 4;
                     }
                 }
             } else {
-                result.append(raw.charAt(i));
+                result.append(input.charAt(i));
             }
             i++;
         }

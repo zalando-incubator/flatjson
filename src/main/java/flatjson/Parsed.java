@@ -1,10 +1,9 @@
 package flatjson;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static flatjson.Json.Type.*;
+import static flatjson.Json.Type.NULL;
 
 class Parsed extends Json {
 
