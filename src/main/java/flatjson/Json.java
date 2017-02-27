@@ -32,24 +32,20 @@ public class Json {
         return create(new Overlay(raw), 0);
     }
 
-    public static Json nil() {
-        return new Literal.Null();
-    }
-
-    public static Json bool(boolean value) {
+    public static Json value(boolean value) {
         return new Literal.Bool(value);
     }
 
-    public static Json number(long value) {
+    public static Json value(long value) {
         return new Literal.Number(value);
     }
 
-    public static Json number(double value) {
+    public static Json value(double value) {
         return new Literal.Number(value);
     }
 
-    public static Json string(String value) {
-        return (value == null) ? nil() : new Literal.Strng(value);
+    public static Json value(String value) {
+        return (value == null) ? new Literal.Null() : new Literal.Strng(value);
     }
 
     public static List<Json> array() {

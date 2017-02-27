@@ -28,7 +28,7 @@ public class PrintTest {
     @Test public void printModifiedObject() {
         Json json = Json.parse("{\"foo\":23}");
         Map<String, Json> object = json.asObject();
-        object.put("bar", Json.number(42));
+        object.put("bar", Json.value(42));
         assertEquals("{\"foo\":23,\"bar\":42}", json.toString());
     }
 
