@@ -1,4 +1,4 @@
-package flatjson;
+package org.zalando.flatjson;
 
 import java.io.IOException;
 import java.nio.file.Files;

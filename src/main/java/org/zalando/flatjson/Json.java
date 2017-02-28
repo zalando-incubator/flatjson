@@ -1,4 +1,4 @@
-package flatjson;
+package org.zalando.flatjson;
 
 import java.util.*;
 

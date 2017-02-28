@@ -1,4 +1,4 @@
-package flatjson;
+package org.zalando.flatjson;
 
 import org.junit.Test;
 
@@ -88,6 +88,16 @@ public class JsonTest {
         assertEquals(23, array.get(0).asLong());
         assertEquals(42e8, array.get(1).asDouble(), 0);
         assertEquals(3.141, array.get(2).asDouble(), 0);
+    }
+
+    @Test public void parseMixedArray() {
+        Json json = Json.parse("[42, true, \"hello\"]");
+        assertTrue(json.isArray());
+        List<Json> array = json.asArray();
+        assertEquals(3, array.size());
+        assertEquals(42, array.get(0).asLong());
+        assertEquals(true, array.get(1).asBoolean());
+        assertEquals("hello", array.get(2).asString());
     }
 
     @Test public void parseNestedArray() {

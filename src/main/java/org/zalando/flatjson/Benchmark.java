@@ -1,4 +1,4 @@
-package flatjson;
+package org.zalando.flatjson;
 
 import com.google.gson.Gson;
 import org.boon.json.JsonFactory;

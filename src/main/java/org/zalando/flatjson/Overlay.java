@@ -1,9 +1,7 @@
-package flatjson;
+package org.zalando.flatjson;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static flatjson.Json.Type.*;
 
 class Overlay {
 
@@ -39,7 +37,7 @@ class Overlay {
 
     String getUnescapedString(int element) {
         String value = raw.substring(getComponent(element, FROM) + 1, getComponent(element, TO));
-        return (getType(element) == STRING_ESCAPED) ? StringCodec.unescape(value) : value;
+        return (getType(element) == Json.Type.STRING_ESCAPED) ? StringCodec.unescape(value) : value;
     }
 
     private void parse() {
@@ -109,7 +107,7 @@ class Overlay {
             i++;
         }
         if (minus && from == i-1) throw new ParseException("isolated minus");
-        return createElement(NUMBER, from, i-1, 0);
+        return createElement(Json.Type.NUMBER, from, i-1, 0);
     }
 
     private int parseString(int i) {
@@ -118,7 +116,7 @@ class Overlay {
         while (true) {
             char c = raw.charAt(i);
             if (c == '"') {
-                Json.Type type = escaped ? STRING_ESCAPED : STRING;
+                Json.Type type = escaped ? Json.Type.STRING_ESCAPED : Json.Type.STRING;
                 return createElement(type, from, i, 0);
             } else if (c < 32) {
                 throw new ParseException("illegal control char: " + (int)c);
@@ -144,7 +142,7 @@ class Overlay {
     private int parseArray(int i) {
         int count = 0;
         int e = element;
-        createElement(ARRAY, i);
+        createElement(Json.Type.ARRAY, i);
         i++;
         while (true) {
             i = skipWhitespace(i);
@@ -161,7 +159,7 @@ class Overlay {
     private int parseObject(int i) {
         int count = 0;
         int e = element;
-        createElement(OBJECT, i);
+        createElement(Json.Type.OBJECT, i);
         i++;
         while (true) {
             i = skipWhitespace(i);
@@ -184,14 +182,14 @@ class Overlay {
         expectChar(i+1, 'u');
         expectChar(i+2, 'l');
         expectChar(i+3, 'l');
-        return createElement(NULL, i, i+3, 0);
+        return createElement(Json.Type.NULL, i, i+3, 0);
     }
 
     private int parseTrue(int i) {
         expectChar(i+1, 'r');
         expectChar(i+2, 'u');
         expectChar(i+3, 'e');
-        return createElement(TRUE, i, i+3, 0);
+        return createElement(Json.Type.TRUE, i, i+3, 0);
     }
 
     private int parseFalse(int i) {
@@ -199,7 +197,7 @@ class Overlay {
         expectChar(i+2, 'l');
         expectChar(i+3, 's');
         expectChar(i+4, 'e');
-        return createElement(FALSE, i, i+4, 0);
+        return createElement(Json.Type.FALSE, i, i+4, 0);
     }
 
     private int skipWhitespace(int i) {

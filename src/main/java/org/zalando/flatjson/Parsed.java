@@ -1,9 +1,7 @@
-package flatjson;
+package org.zalando.flatjson;
 
 import java.util.List;
 import java.util.Map;
-
-import static flatjson.Json.Type.NULL;
 
 class Parsed extends Json {
 
@@ -18,7 +16,7 @@ class Parsed extends Json {
         }
 
         @Override public boolean isNull() {
-            return overlay.getType(element) == NULL;
+            return overlay.getType(element) == Type.NULL;
         }
 
         @Override public String toString() {
