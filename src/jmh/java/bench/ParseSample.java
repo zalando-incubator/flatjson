@@ -3,6 +3,7 @@ package bench;
 import com.eclipsesource.json.JsonValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.google.gson.Gson;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
@@ -19,7 +20,7 @@ public class ParseSample {
 
     private String sample;
 
-    @Setup public void loadSample() throws IOException {
+    @Setup public void setup() throws IOException {
         sample = new String(Files.readAllBytes(Paths.get("test/sample.json")));
     }
 
@@ -34,5 +35,10 @@ public class ParseSample {
     @Benchmark public Map jackson() throws IOException {
         ObjectReader reader = new ObjectMapper().reader(Map.class);
         return reader.readValue(sample);
+    }
+
+    @Benchmark public Map gson() {
+        Gson gson = new Gson();
+        return gson.fromJson(sample, Map.class);
     }
 }
