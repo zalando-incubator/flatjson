@@ -29,6 +29,7 @@ dependencies {
 
   jmh 'org.openjdk.jmh:jmh-core:1.17.4'
   jmh 'com.eclipsesource.minimal-json:minimal-json:0.9.4'
+  jmh 'com.fasterxml.jackson.core:jackson-databind:2.2.3'
 }
 
 
