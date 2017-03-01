@@ -104,4 +104,13 @@ public class Json {
         throw new IllegalStateException("not an object");
     }
 
+    @Override public boolean equals(Object other) {
+        if (this == other) return true;
+        if (!(other instanceof Json)) return false;
+        return toString().equals(other.toString());
+    }
+
+    @Override public int hashCode() {
+        return toString().hashCode();
+    }
 }
