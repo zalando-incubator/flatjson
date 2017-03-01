@@ -28,6 +28,7 @@ dependencies {
   compile group: 'com.google.code.gson', name: 'gson', version: '2.8.0'
 
   jmh 'org.openjdk.jmh:jmh-core:1.17.4'
+  jmh 'com.eclipsesource.minimal-json:minimal-json:0.9.4'
 }
 
 

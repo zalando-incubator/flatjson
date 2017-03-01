@@ -1,5 +1,6 @@
 package bench;
 
+import com.eclipsesource.json.JsonValue;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
@@ -15,13 +16,15 @@ public class ParseSample {
 
     private String sample;
 
-    @Setup
-    public void loadSample() throws IOException {
+    @Setup public void loadSample() throws IOException {
         sample = new String(Files.readAllBytes(Paths.get("test/sample.json")));
     }
 
-    @Benchmark
-    public Json parse() {
+    @Benchmark public Json flatjson() {
         return Json.parse(sample);
+    }
+
+    @Benchmark public JsonValue minimaljson() {
+        return com.eclipsesource.json.Json.parse(sample);
     }
 }
