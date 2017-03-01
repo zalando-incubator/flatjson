@@ -23,14 +23,12 @@ buildscript {
 dependencies {
   testCompile 'junit:junit:4.11'
 
-  compile 'com.eclipsesource.minimal-json:minimal-json:0.9.4'
-  compile group: 'io.fastjson', name: 'boon', version: '0.34'
-  compile group: 'com.google.code.gson', name: 'gson', version: '2.8.0'
-
   jmh 'org.openjdk.jmh:jmh-core:1.17.4'
   jmh 'com.eclipsesource.minimal-json:minimal-json:0.9.4'
   jmh 'com.fasterxml.jackson.core:jackson-databind:2.2.3'
   jmh 'com.google.code.gson:gson:2.8.0'
+//  compile group: 'io.fastjson', name: 'boon', version: '0.34'
+
 }
 
 
