@@ -4,7 +4,6 @@ import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.infra.Blackhole;
 import org.zalando.flatjson.Json;
 
 import java.io.IOException;
@@ -22,7 +21,7 @@ public class ParseSample {
     }
 
     @Benchmark
-    public void parse(Blackhole blackhole) {
-        blackhole.consume(Json.parse(sample));
+    public Json parse() {
+        return Json.parse(sample);
     }
 }
