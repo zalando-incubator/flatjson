@@ -4,6 +4,7 @@ import com.eclipsesource.json.JsonValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.google.gson.Gson;
+import org.boon.json.JsonFactory;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
@@ -21,7 +22,7 @@ public class ParseSample {
     private String sample;
 
     @Setup public void setup() throws IOException {
-        sample = new String(Files.readAllBytes(Paths.get("test/sample.json")));
+        sample = new String(Files.readAllBytes(Paths.get("test/colors.json")));
     }
 
     @Benchmark public Json flatjson() {
@@ -40,5 +41,10 @@ public class ParseSample {
     @Benchmark public Map gson() {
         Gson gson = new Gson();
         return gson.fromJson(sample, Map.class);
+    }
+
+    @Benchmark public Map boon() {
+        org.boon.json.ObjectMapper mapper = JsonFactory.create();
+        return mapper.readValue(sample, Map.class);
     }
 }
