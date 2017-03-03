@@ -25,23 +25,23 @@ public class Parse {
         boon = org.boon.json.JsonFactory.create();
     }
 
-//    @Benchmark public org.zalando.flatjson.Json flatjson() {
-//        return org.zalando.flatjson.Json.parse(sample);
-//    }
-//
-//    @Benchmark public com.eclipsesource.json.JsonValue minimaljson() {
-//        return com.eclipsesource.json.Json.parse(sample);
-//    }
-//
-//    @Benchmark public Map jackson() throws IOException {
-//        return jackson.readValue(sample);
-//    }
-//
-//    @Benchmark public Map gson() {
-//        return gson.fromJson(sample, Map.class);
-//    }
-//
-//    @Benchmark public Map boon() {
-//        return boon.readValue(sample, Map.class);
-//    }
+    @Benchmark public org.zalando.flatjson.Json flatjson() {
+        return org.zalando.flatjson.Json.parse(sample);
+    }
+
+    @Benchmark public com.eclipsesource.json.JsonValue minimaljson() {
+        return com.eclipsesource.json.Json.parse(sample);
+    }
+
+    @Benchmark public Map jackson() throws IOException {
+        return jackson.readValue(sample);
+    }
+
+    @Benchmark public Map gson() {
+        return gson.fromJson(sample, Map.class);
+    }
+
+    @Benchmark public Map boon() {
+        return boon.readValue(sample, Map.class);
+    }
 }
