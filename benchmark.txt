@@ -1,0 +1,11 @@
+Benchmark                       Mode  Cnt     Score     Error  Units
+Parse.boon                     thrpt  200  4614.977 ±  33.311  ops/s
+Parse.flatjson                 thrpt  200  5173.732 ± 148.348  ops/s
+Parse.gson                     thrpt  200  1541.577 ±  55.846  ops/s
+Parse.jackson                  thrpt  200  2623.146 ±  28.547  ops/s
+Parse.minimaljson              thrpt  200  2326.436 ±  25.946  ops/s
+ParseAndSerialize.boon         thrpt  200   791.026 ±   5.319  ops/s
+ParseAndSerialize.flatjson     thrpt  200  3155.642 ±  69.894  ops/s
+ParseAndSerialize.gson         thrpt  200   666.177 ±   5.095  ops/s
+ParseAndSerialize.jackson      thrpt  200  1380.615 ±  10.736  ops/s
+ParseAndSerialize.minimaljson  thrpt  200  1036.312 ±  11.374  ops/s
