@@ -48,12 +48,12 @@ public class Json {
         return (value == null) ? new Literal.Null() : new Literal.Strng(value);
     }
 
-    public static List<Json> array() {
-        return new JsonList<>();
+    public static Json array() {
+        return new Literal.Array();
     }
 
-    public static Map<String, Json> object() {
-        return new JsonMap<>();
+    public static Json object() {
+        return new Literal.Object();
     }
 
     public boolean isNull() {

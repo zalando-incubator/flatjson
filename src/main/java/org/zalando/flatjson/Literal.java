@@ -1,5 +1,8 @@
 package org.zalando.flatjson;
 
+import java.util.List;
+import java.util.Map;
+
 class Literal extends Json {
 
     static class Null extends Literal {
@@ -84,4 +87,45 @@ class Literal extends Json {
         }
     }
 
+    static class Array extends Literal {
+
+        private final List<Json> list;
+
+        Array() {
+            this.list = new JsonList<>();
+        }
+
+        @Override public boolean isArray() {
+            return true;
+        }
+
+        @Override public List<Json> asArray() {
+            return list;
+        }
+
+        @Override public String toString() {
+            return list.toString();
+        }
+    }
+
+    static class Object extends Literal {
+
+        private final Map<String, Json> map;
+
+        Object() {
+            this.map = new JsonMap<>();
+        }
+
+        @Override public boolean isObject() {
+            return true;
+        }
+
+        @Override public Map<String, Json> asObject() {
+            return map;
+        }
+
+        @Override public String toString() {
+            return map.toString();
+        }
+    }
 }

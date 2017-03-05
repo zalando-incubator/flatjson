@@ -60,16 +60,30 @@ public class BuilderTest {
     }
 
     @Test public void createJsonObject() {
-        Map<String, Json> object = Json.object();
+        Json json = Json.object();
+        Map<String, Json> object = json.asObject();
         object.put("hello", Json.value("world"));
         assertEquals("{\"hello\":\"world\"}", object.toString());
     }
 
     @Test public void createJsonArray() {
-        List<Json> array = Json.array();
+        Json json = Json.array();
+        List<Json> array = json.asArray();
         array.add(Json.value("hello"));
         array.add(Json.value(42));
-        assertEquals("[\"hello\",42]", array.toString());
+        assertEquals("[\"hello\",42]", json.toString());
     }
 
+    @Test public void createNestedStructure() {
+        Json json = Json.array();
+        List<Json> array = json.asArray();
+        array.add(Json.value(true));
+        array.add(Json.object());
+        assertEquals("[true,{}]", json.toString());
+
+        Map<String, Json> object = array.get(1).asObject();
+        object.put("color", Json.value("blue"));
+        object.put("size", Json.value(39));
+        assertEquals("[true,{\"color\":\"blue\",\"size\":39}]", json.toString());
+    }
 }
