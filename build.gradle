@@ -3,7 +3,7 @@ apply plugin: 'application'
 apply plugin: 'me.champeau.gradle.jmh'
 
 version = '0.1'
-mainClassName = 'flatjson.Main'
+mainClassName = 'org.zalando.flatjson.Main'
 
 repositories {
   mavenCentral()
