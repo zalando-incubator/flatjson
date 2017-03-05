@@ -72,8 +72,4 @@ public class BuilderTest {
         assertEquals("[\"hello\",42]", array.toString());
     }
 
-    @Test public void compareNumbers() {
-        assertEquals(Json.value(23), Json.value(23));
-    }
-
 }
