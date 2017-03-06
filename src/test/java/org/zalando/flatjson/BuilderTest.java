@@ -92,5 +92,5 @@ public class BuilderTest {
         Json merged = Json.array(json, json);
         assertEquals("[[1,2,3],[1,2,3]]", merged.toString());
     }
-    
+
 }

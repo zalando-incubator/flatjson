@@ -30,33 +30,43 @@ flatjson is best suited for cases where the full json document is not used, only
 
 ### Usage
 
-ok, let's parse some json:
-
-```
+```java
 Json json = Json.parse("[42, true, \"hello\"]");
 ```
-this call returns a `Json` object. we can check what json entity it represents:
 
-```
+we can check which type of entity the `Json` object represents:
+
+```java
 json.isNumber(); // --> false
 json.isObject(); // --> false
 json.isArray(); // --> true
 ```
-aha, it's an array &mdash; so let's use it!
+for each `isFoo` method, there is a matching `asFoo` accessor.
+arrays are represented by lists of `Json` objects.
 
-```
+```java
 List<Json> array = json.asArray();
-```
-json arrays are represented by lists of `Json` objects.
-
-```
 array.size(); // --> 3
 array.get(0).asLong(); // --> 42
 array.get(1).asBoolean(); // --> true
 array.get(2).asString(); // --> "hello"
 ```
+this list is mutable and allows manipulation of the json DOM:
 
-TODO: describe builder methods
+```java
+array.add(Json.value(false));
+json.toString(); // --> [42, true, "hello", false]
+```
+there are builder methods for arrays and objects as well:
+
+```java
+Json test = Json.object();
+Map<String, Json> object = test.asObject();
+object.put("color", Json.value("blue"));
+object.put("size", Json.value(39));
+test.toString(); // --> {"color":"blue","size":39}
+
+```
 
 ### License
 
