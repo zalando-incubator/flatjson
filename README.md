@@ -55,7 +55,7 @@ this list is mutable and allows manipulation of the json DOM:
 
 ```java
 array.add(Json.value(false));
-json.toString(); // --> [42, true, "hello", false]
+json.toString(); // --> [42,true,"hello",false]
 ```
 there are builder methods for arrays and objects as well:
 
