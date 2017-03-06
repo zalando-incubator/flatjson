@@ -1,8 +1,17 @@
 package org.zalando.flatjson;
 
 import java.util.ArrayList;
+import java.util.List;
 
 class JsonList<E> extends ArrayList<E> {
+
+    public JsonList() {
+        super();
+    }
+
+    public JsonList(List<E> values) {
+        super(values);
+    }
 
     @Override public String toString() {
         StringBuilder result = new StringBuilder("[");

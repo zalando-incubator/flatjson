@@ -48,8 +48,8 @@ public class Json {
         return (value == null) ? new Literal.Null() : new Literal.Strng(value);
     }
 
-    public static Json array() {
-        return new Literal.Array();
+    public static Json array(Json... values) {
+        return new Literal.Array(Arrays.asList(values));
     }
 
     public static Json object() {

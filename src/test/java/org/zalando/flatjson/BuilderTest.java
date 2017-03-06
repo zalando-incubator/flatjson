@@ -86,4 +86,11 @@ public class BuilderTest {
         object.put("size", Json.value(39));
         assertEquals("[true,{\"color\":\"blue\",\"size\":39}]", json.toString());
     }
+
+    @Test public void mergeTrees() {
+        Json json = Json.parse("[1,2,3]");
+        Json merged = Json.array(json, json);
+        assertEquals("[[1,2,3],[1,2,3]]", merged.toString());
+    }
+    
 }

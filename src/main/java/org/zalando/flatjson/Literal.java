@@ -1,5 +1,6 @@
 package org.zalando.flatjson;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -91,8 +92,8 @@ class Literal extends Json {
 
         private final List<Json> list;
 
-        Array() {
-            this.list = new JsonList<>();
+        Array(List<Json> values) {
+            this.list = new JsonList<>(values);
         }
 
         @Override public boolean isArray() {
