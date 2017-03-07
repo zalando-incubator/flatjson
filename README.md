@@ -6,7 +6,7 @@ A fast [json](https://json.org) parser (and builder), written in java.
 
 ### Features
 
-* **memory-efficient** &mdash; allocates as few objects as possible
+* **efficient** &mdash; allocates as few objects as possible
 * **easy to use** &mdash; simple api, inspired by [minimal-json](https://github.com/ralfstx/minimal-json)
 * **fast** &mdash; like a bat out of hell!
 

@@ -5,7 +5,11 @@ import java.util.List;
 
 class Overlay {
 
-    private static final int BLOCK_SIZE = 4 * 1024; // 16 KB
+    static int calculateBlockSize(int rawChars) {
+        // make block size (in bytes) roughly equal to input size
+        // (max block size is 16 KB)
+        return 4 * Math.min(Math.max(rawChars / 16, 4), 1024);
+    }
 
     private static final int TYPE = 0;
     private static final int FROM = 1;
@@ -14,11 +18,14 @@ class Overlay {
 
     private final String raw;
     private final List<int[]> blocks;
+    private final int blockSize;
     private int element;
 
     Overlay(String raw) {
+        if (raw == null) throw new ParseException("cannot parse null");
         this.raw = raw;
         this.blocks = new ArrayList<>();
+        this.blockSize = calculateBlockSize(raw.length());
         this.element = 0;
         parse();
     }
@@ -41,7 +48,6 @@ class Overlay {
     }
 
     private void parse() {
-        if (raw == null) throw new ParseException("cannot parse null");
         try {
             int last = skipWhitespace(parseValue(0));
             if (last != raw.length()) throw new ParseException("malformed json");
@@ -228,9 +234,9 @@ class Overlay {
     }
 
     private int createElement(Json.Type type, int from, int to, int nested) {
-        int currentBlock = (element * 4) / BLOCK_SIZE;
+        int currentBlock = (element * 4) / blockSize;
         if (currentBlock == blocks.size()) {
-            blocks.add(new int[BLOCK_SIZE]);
+            blocks.add(new int[blockSize]);
         }
         int[] block = blocks.get(currentBlock);
         int index = getBlockIndex(element);
@@ -251,10 +257,10 @@ class Overlay {
     }
 
     private int[] getBlock(int element) {
-        return blocks.get((element * 4) / BLOCK_SIZE);
+        return blocks.get((element * 4) / blockSize);
     }
 
     private int getBlockIndex(int element) {
-        return (element * 4) % BLOCK_SIZE;
+        return (element * 4) % blockSize;
     }
 }
