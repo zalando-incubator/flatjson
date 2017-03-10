@@ -22,7 +22,7 @@ flatjson outperforms some popular json parsers (gson, jackson) by 2x to 3x, and 
 you can run this benchmark yourself with `gradle jmh`.
 
 
-### So, what's the secret?
+### So, what's the trick?
 
 flatjson does not build a parse tree, but just a parse index ("overlay"), which is stored in an integer array. json nodes are constructed on demand (= on first access). this way, thousands of objects allocations are saved.
 
@@ -55,18 +55,37 @@ this list is mutable and allows manipulation of the json DOM:
 
 ```java
 array.add(Json.value(false));
-json.toString(); // --> [42,true,"hello",false]
+json.toString(); // --> "[42,true,\"hello\",false]"
 ```
-there are builder methods for arrays and objects as well:
+you can also build objects from scratch:
 
 ```java
 Json test = Json.object();
 Map<String, Json> object = test.asObject();
 object.put("color", Json.value("blue"));
 object.put("size", Json.value(39));
-test.toString(); // --> {"color":"blue","size":39}
+test.toString(); // --> "{\"color\":\"blue\",\"size\":39}"
+```
+same with arrays:
+
+```java
+Json test = Json.array();
+List<Json> array = test.asArray();
+array.add(Json.value("hello"));
+array.add(Json.value(42));
+test.toString(); // --> "[\"hello\",42]"
 
 ```
+
+### Contributing
+
+contributions are welcome, especially 
+
+* finding any json parser that **beats** flatjson in the benchmarks, or
+* adding more unit tests.
+
+otherwise, i consider flatjson more or less feature complete, and will not easily be persuaded to merge in any pull requests for new features.
+
 
 ### License
 
