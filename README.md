@@ -29,13 +29,22 @@ flatjson does not build a parse tree, but just a parse index ("overlay"), which 
 
 flatjson is best suited for cases where the full json document is not used, only parts of it.
 
+
+### Installation
+
+flatjson is on Maven Central, simply add it as a gradle dependency:
+
+```
+compile 'org.zalando:flatjson:1.0'
+```
+
 ### Usage
 
 ```java
 Json json = Json.parse("[42, true, \"hello\"]");
 ```
 
-we can check which type of entity the `Json` object represents:
+we can check which type of entity the returned `Json` object represents:
 
 ```java
 json.isNumber(); // --> false
