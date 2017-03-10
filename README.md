@@ -2,8 +2,8 @@
 
 A fast [json](https://json.org) parser (and builder), written in java.
 
-![uyubi salt flats](flat.jpg "https://500px.com/photo/172664473/")
-*photo: yoann supertramp [CC-BY]*
+![uyubi salt flats](flat.jpg)
+*photo: [yoann supertramp](https://500px.com/photo/172664473/) [CC-BY]*
 
 ### Features
 
