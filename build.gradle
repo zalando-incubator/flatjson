@@ -1,4 +1,3 @@
-@groovy.transform.Field private java.lang.String flatjson
 apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'me.champeau.gradle.jmh'
@@ -6,8 +5,13 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'io.codearte.nexus-staging'
 
-version = '0.1'
+version = '1.0'
+group = 'org.zalando'
 mainClassName = 'org.zalando.flatjson.Main'
+
+// gradle uploadArchives
+// gradle closeAndPromoteRepository
+// (or close and promote manually on oss.sonatype.org)
 
 repositories {
   mavenCentral()
