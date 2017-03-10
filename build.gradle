@@ -1,6 +1,10 @@
+@groovy.transform.Field private java.lang.String flatjson
 apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'me.champeau.gradle.jmh'
+apply plugin: 'maven'
+apply plugin: 'signing'
+apply plugin: 'io.codearte.nexus-staging'
 
 version = '0.1'
 mainClassName = 'org.zalando.flatjson.Main'
@@ -14,9 +18,11 @@ buildscript {
     maven {
       url "https://plugins.gradle.org/m2/"
     }
+    mavenCentral()
   }
   dependencies {
     classpath 'me.champeau.gradle:jmh-gradle-plugin:0.3.1'
+    classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
   }
 }
 
@@ -28,7 +34,66 @@ dependencies {
   jmh 'com.fasterxml.jackson.core:jackson-databind:2.2.3'
   jmh 'com.google.code.gson:gson:2.8.0'
   jmh 'io.fastjson:boon:0.34'
-
 }
+
+task javadocJar(type: Jar) {
+  classifier = 'javadoc'
+  from javadoc
+}
+
+task sourcesJar(type: Jar) {
+  classifier = 'sources'
+  from sourceSets.main.allSource
+}
+
+artifacts {
+  archives javadocJar, sourcesJar
+}
+
+signing {
+  sign configurations.archives
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      pom.project {
+        name 'flatjson'
+        packaging 'jar'
+        artifactId 'flatjson'
+        description 'A fast JSON parser.'
+        url 'https://github.com/zalando-incubator/flatjson'
+
+        scm {
+          connection 'scm:git:https://github.com/zalando-incubator/flatjson.git'
+          developerConnection 'scm:git:https://github.com/zalando-incubator/flatjson.git'
+          url 'https://github.com/zalando-incubator/flatjson'
+        }
+
+        licenses {
+          license {
+            name 'MIT License'
+            url 'https://opensource.org/licenses/MIT'
+          }
+        }
+
+        developers {
+          developer {
+            id 'tlossen'
+            name 'Tim Lossen'
+            email 'tim@lossen.de'
+          }
+        }
+      }
+    }
+  }
+}
+
 
 
