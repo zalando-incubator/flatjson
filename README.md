@@ -1,12 +1,3 @@
-<style>
-	img + em {
-		margin-top: 0;
-		padding-top: 0;
-		text-align: right; 
-		font-size: 10px;
-	}
-</style>
-
 # flatjson
 
 A fast [json](https://json.org) parser (and builder), written in java.
