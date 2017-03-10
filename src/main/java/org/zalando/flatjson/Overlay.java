@@ -7,7 +7,7 @@ class Overlay {
 
     static int calculateBlockSize(int rawChars) {
         // make block size (in bytes) roughly equal to input size
-        // (max block size is 16 KB)
+        // (min block size is 64 B, max block size is 16 KB)
         return 4 * Math.min(Math.max(rawChars / 16, 4), 1024);
     }
 
