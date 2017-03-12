@@ -1,5 +1,7 @@
 package org.zalando.flatjson;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import java.util.*;
 
 public class Json {
@@ -102,6 +104,10 @@ public class Json {
 
     public Map<String, Json> asObject() {
         throw new IllegalStateException("not an object");
+    }
+
+    public void convert(Converter converter) {
+        throw new NotImplementedException();
     }
 
     @Override public boolean equals(Object other) {

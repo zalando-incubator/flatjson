@@ -19,6 +19,10 @@ class Parsed extends Json {
             return overlay.getType(element) == Type.NULL;
         }
 
+        @Override public void convert(Converter converter) {
+            if (isNull()) converter.handleNull();
+        }
+
         @Override public String toString() {
             return overlay.getJson(element);
         }
@@ -36,6 +40,10 @@ class Parsed extends Json {
 
         @Override public boolean asBoolean() {
             return Boolean.valueOf(overlay.getJson(element));
+        }
+
+        @Override public void convert(Converter converter) {
+            converter.handleBoolean(asBoolean());
         }
     }
 
@@ -56,6 +64,10 @@ class Parsed extends Json {
         @Override public double asDouble() {
             return Double.valueOf(overlay.getJson(element));
         }
+
+        @Override public void convert(Converter converter) {
+            converter.handleNumber(overlay.getJson(element));
+        }
     }
 
     static class Strng extends Value {
@@ -75,6 +87,10 @@ class Parsed extends Json {
             return string;
         }
 
+        @Override public void convert(Converter converter) {
+            if (string == null) string = overlay.getUnescapedString(element);
+            converter.handleString(string);
+        }
     }
 
     static class Array extends Value {
@@ -92,6 +108,13 @@ class Parsed extends Json {
         @Override public List<Json> asArray() {
             if (array == null) array = createArray();
             return array;
+        }
+
+        @Override public void convert(Converter converter) {
+            if (array == null) array = createArray();
+            converter.beginArray();
+            for (Json value : array) value.convert(converter);
+            converter.endArray();
         }
 
         @Override public String toString() {
@@ -124,6 +147,16 @@ class Parsed extends Json {
         @Override public Map<String, Json> asObject() {
             if (map == null) map = createMap();
             return map;
+        }
+
+        @Override public void convert(Converter converter) {
+            if (map == null) map = createMap();
+            converter.beginObject();
+            for (Map.Entry<String, Json> entry : map.entrySet()) {
+                converter.handleString(entry.getKey());
+                entry.getValue().convert(converter);
+            }
+            converter.endObject();
         }
 
         @Override public String toString() {
