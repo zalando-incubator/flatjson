@@ -111,6 +111,7 @@ class Parsed extends Json {
         }
 
         @Override public void convert(Converter converter) {
+            // todo: do not create array, walk index directly
             if (array == null) array = createArray();
             converter.beginArray();
             for (Json value : array) value.convert(converter);
@@ -150,6 +151,7 @@ class Parsed extends Json {
         }
 
         @Override public void convert(Converter converter) {
+            // todo: do not create map, walk index directly
             if (map == null) map = createMap();
             converter.beginObject();
             for (Map.Entry<String, Json> entry : map.entrySet()) {

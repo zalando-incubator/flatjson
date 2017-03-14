@@ -1,8 +1,8 @@
 package org.zalando.flatjson;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class Json {
 
@@ -107,7 +107,7 @@ public class Json {
     }
 
     public void convert(Converter converter) {
-        throw new NotImplementedException();
+        throw new IllegalStateException("not implemented");
     }
 
     @Override public boolean equals(Object other) {

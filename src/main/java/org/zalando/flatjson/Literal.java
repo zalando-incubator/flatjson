@@ -12,6 +12,10 @@ class Literal extends Json {
             return true;
         }
 
+        @Override public void convert(Converter converter) {
+            converter.handleNull();
+        }
+
         @Override public String toString() {
             return "null";
         }
@@ -33,6 +37,9 @@ class Literal extends Json {
             return value;
         }
 
+        @Override public void convert(Converter converter) {
+            converter.handleBoolean(value);
+        }
         @Override public String toString() {
             return Boolean.toString(value);
         }
@@ -62,6 +69,10 @@ class Literal extends Json {
             return Double.valueOf(value);
         }
 
+        @Override public void convert(Converter converter) {
+            converter.handleNumber(value);
+        }
+
         @Override public String toString() {
             return value;
         }
@@ -81,6 +92,10 @@ class Literal extends Json {
 
         @Override public String asString() {
             return string;
+        }
+
+        @Override public void convert(Converter converter) {
+            converter.handleString(string);
         }
 
         @Override public String toString() {
@@ -104,6 +119,12 @@ class Literal extends Json {
             return list;
         }
 
+        @Override public void convert(Converter converter) {
+            converter.beginArray();
+            for (Json value : list) value.convert(converter);
+            converter.endArray();
+        }
+
         @Override public String toString() {
             return list.toString();
         }
@@ -123,6 +144,15 @@ class Literal extends Json {
 
         @Override public Map<String, Json> asObject() {
             return map;
+        }
+
+        @Override public void convert(Converter converter) {
+            converter.beginObject();
+            for (Map.Entry<String, Json> entry : map.entrySet()) {
+                converter.handleString(entry.getKey());
+                entry.getValue().convert(converter);
+            }
+            converter.endObject();
         }
 
         @Override public String toString() {

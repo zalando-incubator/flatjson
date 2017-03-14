@@ -2,31 +2,33 @@ package org.zalando.flatjson;
 
 import java.util.Stack;
 
+
 public class PrettyPrinter implements Converter {
 
-    private enum Type { ARRAY, OBJECT }
+    private enum Type { TOP, ARRAY, OBJECT }
 
-    private class Mode {
+    private class Context {
         private Type type;
-        private int count;
+        private int count = 0;
 
-        Mode(Type type) {
+        Context(Type type) {
             this.type = type;
-            this.count = 0;
         }
     }
 
     private final StringBuilder builder;
-    private final Stack<Mode> mode;
+    private final Stack<Context> context;
+    private final String indent;
 
-    public PrettyPrinter() {
+    public PrettyPrinter(String indent) {
         builder = new StringBuilder();
-        mode = new Stack();
+        context = new Stack();
+        context.push(new Context(Type.TOP));
+        this.indent = indent;
     }
 
     @Override public void handleNull() {
-        String value = "null";
-        append(value);
+        append("null");
     }
 
     @Override public void handleBoolean(boolean value) {
@@ -43,49 +45,60 @@ public class PrettyPrinter implements Converter {
 
     @Override public void beginArray() {
         append("[");
-        mode.push(new Mode(Type.ARRAY));
+        context.push(new Context(Type.ARRAY));
     }
 
     @Override public void endArray() {
         if (current().type != Type.ARRAY) throw new IllegalStateException("not inside array");
-        mode.pop();
-        append("]");
+        if (current().count > 0) {
+            builder.append("\n");
+            for (int i = 2; i < context.size(); i++) builder.append(indent);
+        }
+        builder.append("]");
+        context.pop();
     }
 
     @Override public void beginObject() {
         append("{");
-        mode.push(new Mode(Type.OBJECT));
+        context.push(new Context(Type.OBJECT));
     }
 
     @Override public void endObject() {
         if (current().type != Type.OBJECT) throw new IllegalStateException("not inside object");
         if (current().count % 2 == 1) throw new IllegalStateException("unbalanced object");
-        mode.pop();
-        append("}");
+        if (current().count > 0) {
+            builder.append("\n");
+            for (int i = 2; i < context.size(); i++) builder.append(indent);
+        }
+        builder.append("}");
+        context.pop();
     }
 
     @Override public String toString() {
-        if (!mode.empty()) throw new IllegalStateException("unbalanced json");
+        if (context.size() > 1) throw new IllegalStateException("unbalanced json");
         return builder.toString();
     }
 
     private void append(String value) {
-        if (current().type == Type.ARRAY) {
-            if (current().count > 0) builder.append(",\n");
-            for (int i = 0; i < mode.size(); i++) builder.append("\t");
+        if (current().type == Type.TOP) {
+            if (current().count > 0) throw new IllegalStateException("multiple toplevel values");
+        } else if (current().type == Type.ARRAY) {
+            builder.append(current().count > 0 ? ",\n" : "\n");
+            for (int i = 1; i < context.size(); i++) builder.append(indent);
         } else if (current().type == Type.OBJECT) {
             if (current().count % 2 == 0) {
-                if (current().count > 0) builder.append(",\n");
-                for (int i = 0; i < mode.size(); i++) builder.append("\t");
+                builder.append(current().count > 0 ? ",\n" : "\n");
+                for (int i = 1; i < context.size(); i++) builder.append(indent);
             } else {
                 builder.append(": ");
             }
         }
         builder.append(value);
+        current().count++;
     }
 
-    private Mode current() {
-        return mode.peek();
+    private Context current() {
+        return context.peek();
     }
 
 }
