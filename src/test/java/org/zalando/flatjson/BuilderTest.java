@@ -12,7 +12,7 @@ import static org.junit.Assert.assertTrue;
 public class BuilderTest {
 
     @Test public void createJsonNull() {
-        Json json = Json.value(null);
+        Json json = Json.value((String)null);
         assertTrue(json.isNull());
         assertEquals("null", json.toString());
     }

@@ -7,9 +7,9 @@ import static org.junit.Assert.assertEquals;
 public class EqualityTest {
 
     @Test public void compareNull() {
-        assertEquals(Json.value(null), Json.value(null));
-        assertEquals(Json.value(null), Json.parse("null"));
-        assertEquals(Json.parse("null"), Json.value(null));
+        assertEquals(Json.value((String)null), Json.value((String)null));
+        assertEquals(Json.value((String)null), Json.parse("null"));
+        assertEquals(Json.parse("null"), Json.value((String)null));
         assertEquals(Json.parse("null"), Json.parse("null"));
     }
 

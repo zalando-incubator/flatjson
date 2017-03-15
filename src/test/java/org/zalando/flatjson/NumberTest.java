@@ -67,9 +67,9 @@ public class NumberTest {
     }
 
     @Test public void parseBigDecimal() {
-        Json json = Json.parse("123456789.123456789123456789");
+        Json json = Json.parse("3.141592653589793238462643383279502884197169399375105820974944592307816406286");
         assertTrue(json.isNumber());
-        assertEquals(new BigDecimal("123456789.123456789123456789"), json.asBigDecimal());
+        assertEquals(new BigDecimal("3.141592653589793238462643383279502884197169399375105820974944592307816406286"), json.asBigDecimal());
     }
 
     @Test public void parseNegativeNumber() {
