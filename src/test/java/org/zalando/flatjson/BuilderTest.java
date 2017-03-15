@@ -45,10 +45,17 @@ public class BuilderTest {
         assertEquals("10", json.toString());
     }
 
-    @Test public void createJsonDouble() {
+    @Test public void createJsonFloat() {
         Json json = Json.value(3.141);
         assertTrue(json.isNumber());
-        assertEquals(3.141, json.asDouble(), 0.001);
+        assertEquals(3.141, json.asFloat(), 0.001);
+        assertEquals("3.141", json.toString());
+    }
+
+    @Test public void createJsonDouble() {
+        Json json = Json.value(3.141D);
+        assertTrue(json.isNumber());
+        assertEquals(3.141D, json.asDouble(), 0.001);
         assertEquals("3.141", json.toString());
     }
 

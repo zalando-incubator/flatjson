@@ -59,6 +59,10 @@ class Literal extends Json {
             return Long.valueOf(value);
         }
 
+        @Override public float asFloat() {
+            return Float.valueOf(value);
+        }
+
         @Override public double asDouble() {
             return Double.valueOf(value);
         }

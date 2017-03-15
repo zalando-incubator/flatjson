@@ -45,6 +45,10 @@ public class Json {
         return new Literal.Number(Long.toString(value));
     }
 
+    public static Json value(float value) {
+        return new Literal.Number(Float.toString(value));
+    }
+
     public static Json value(double value) {
         return new Literal.Number(Double.toString(value));
     }
@@ -98,6 +102,10 @@ public class Json {
     }
 
     public long asLong() {
+        throw new IllegalStateException("not a number");
+    }
+
+    public float asFloat() {
         throw new IllegalStateException("not a number");
     }
 

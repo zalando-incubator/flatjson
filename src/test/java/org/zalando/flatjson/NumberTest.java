@@ -137,31 +137,31 @@ public class NumberTest {
     @Test public void parseFloat() {
         Json json = Json.parse("3.141");
         assertTrue(json.isNumber());
-        assertEquals(3.141, json.asDouble(), 0);
+        assertEquals(3.141, json.asFloat(), 0.001);
     }
 
     @Test public void parseNegativeFloat() {
         Json json = Json.parse("-3.141");
         assertTrue(json.isNumber());
-        assertEquals(-3.141, json.asDouble(), 0);
+        assertEquals(-3.141, json.asFloat(), 0.001);
     }
 
     @Test public void parseFloatWithExponent() {
         Json json = Json.parse("-3.141e+4");
         assertTrue(json.isNumber());
-        assertEquals(-3.141e4, json.asDouble(), 0);
+        assertEquals(-3.141e4, json.asFloat(), 0.001);
     }
 
     @Test public void parseFloatWithLeadingZero() {
         Json json = Json.parse("0.33333333");
         assertTrue(json.isNumber());
-        assertEquals(0.33333333, json.asDouble(), 0);
+        assertEquals(0.33333333, json.asFloat(), 0.001);
     }
 
     @Test public void parseFloatWithLeadingZeroAndExponent() {
         Json json = Json.parse("0.333e4");
         assertTrue(json.isNumber());
-        assertEquals(0.333e4, json.asDouble(), 0);
+        assertEquals(0.333e4, json.asFloat(), 0.001);
     }
 
     @Test(expected = ParseException.class)
