@@ -31,10 +31,17 @@ public class BuilderTest {
         assertEquals("false", json.toString());
     }
 
-    @Test public void createJsonLong() {
+    @Test public void createJsonInt() {
         Json json = Json.value(10);
         assertTrue(json.isNumber());
-        assertEquals(10, json.asLong());
+        assertEquals(10, json.asInt());
+        assertEquals("10", json.toString());
+    }
+
+    @Test public void createJsonLong() {
+        Json json = Json.value(10L);
+        assertTrue(json.isNumber());
+        assertEquals(10L, json.asLong());
         assertEquals("10", json.toString());
     }
 

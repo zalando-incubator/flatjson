@@ -54,13 +54,13 @@ public class NumberTest {
         Json.parse("023");
     }
 
-    @Test public void parseNumber() {
+    @Test public void parseInteger() {
         Json json = Json.parse("123");
         assertTrue(json.isNumber());
-        assertEquals(123, json.asLong());
+        assertEquals(123, json.asInt());
     }
 
-    @Test public void parseLongNumber() {
+    @Test public void parseLong() {
         Json json = Json.parse("100000000000000023");
         assertTrue(json.isNumber());
         assertEquals(100000000000000023L, json.asLong());

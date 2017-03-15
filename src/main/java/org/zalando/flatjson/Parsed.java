@@ -50,6 +50,10 @@ class Parsed extends Json {
             return true;
         }
 
+        @Override public int asInt() {
+            return Integer.valueOf(overlay.getJson(element));
+        }
+
         @Override public long asLong() {
             return Long.valueOf(overlay.getJson(element));
         }

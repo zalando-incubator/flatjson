@@ -37,6 +37,10 @@ public class Json {
         return new Literal.Bool(value);
     }
 
+    public static Json value(int value) {
+        return new Literal.Number(Integer.toString(value));
+    }
+
     public static Json value(long value) {
         return new Literal.Number(Long.toString(value));
     }
@@ -46,7 +50,7 @@ public class Json {
     }
 
     public static Json value(BigDecimal value) {
-        return new Literal.Number(value.toString());
+        return (value == null) ? new Literal.Null() : new Literal.Number(value.toString());
     }
 
     public static Json value(String value) {
@@ -87,6 +91,10 @@ public class Json {
 
     public boolean asBoolean() {
         throw new IllegalStateException("not a boolean");
+    }
+
+    public int asInt() {
+        throw new IllegalStateException("not a number");
     }
 
     public long asLong() {

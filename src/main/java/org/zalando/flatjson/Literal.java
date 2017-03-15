@@ -51,6 +51,10 @@ class Literal extends Json {
             return true;
         }
 
+        @Override public int asInt() {
+            return Integer.valueOf(value);
+        }
+
         @Override public long asLong() {
             return Long.valueOf(value);
         }
