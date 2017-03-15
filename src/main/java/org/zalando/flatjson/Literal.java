@@ -1,5 +1,6 @@
 package org.zalando.flatjson;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -42,12 +43,8 @@ class Literal extends Json {
 
         private final String value;
 
-        Number(long value) {
-            this.value = Long.toString(value);
-        }
-
-        Number(double value) {
-            this.value = Double.toString(value);
+        Number(String value) {
+            this.value = value;
         }
 
         @Override public boolean isNumber() {
@@ -60,6 +57,10 @@ class Literal extends Json {
 
         @Override public double asDouble() {
             return Double.valueOf(value);
+        }
+
+        @Override public BigDecimal asBigDecimal() {
+            return new BigDecimal(value);
         }
 
         @Override public String toString() {

@@ -2,6 +2,8 @@ package org.zalando.flatjson;
 
 import org.junit.Test;
 
+import java.math.BigDecimal;
+
 import static org.junit.Assert.*;
 
 public class NumberTest {
@@ -62,6 +64,12 @@ public class NumberTest {
         Json json = Json.parse("100000000000000023");
         assertTrue(json.isNumber());
         assertEquals(100000000000000023L, json.asLong());
+    }
+
+    @Test public void parseBigDecimal() {
+        Json json = Json.parse("123456789.123456789123456789");
+        assertTrue(json.isNumber());
+        assertEquals(new BigDecimal("123456789.123456789123456789"), json.asBigDecimal());
     }
 
     @Test public void parseNegativeNumber() {
