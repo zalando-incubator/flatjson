@@ -2,7 +2,6 @@ package org.zalando.flatjson;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
