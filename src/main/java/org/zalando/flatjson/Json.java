@@ -1,6 +1,7 @@
 package org.zalando.flatjson;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 
 public class Json {
@@ -51,6 +52,10 @@ public class Json {
 
     public static Json value(double value) {
         return new Literal.Number(Double.toString(value));
+    }
+
+    public static Json value(BigInteger value) {
+        return (value == null) ? new Literal.Null() : new Literal.Number(value.toString());
     }
 
     public static Json value(BigDecimal value) {
@@ -110,6 +115,10 @@ public class Json {
     }
 
     public double asDouble() {
+        throw new IllegalStateException("not a number");
+    }
+
+    public BigInteger asBigInteger() {
         throw new IllegalStateException("not a number");
     }
 

@@ -3,6 +3,7 @@ package org.zalando.flatjson;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import static org.junit.Assert.*;
 
@@ -70,6 +71,12 @@ public class NumberTest {
         Json json = Json.parse("3.141592653589793238462643383279502884197169399375105820974944592307816406286");
         assertTrue(json.isNumber());
         assertEquals(new BigDecimal("3.141592653589793238462643383279502884197169399375105820974944592307816406286"), json.asBigDecimal());
+    }
+
+    @Test public void parseBigInteger() {
+        Json json = Json.parse("141592653589793238462643383279502884197169399375105820974944592307816406286");
+        assertTrue(json.isNumber());
+        assertEquals(new BigInteger("141592653589793238462643383279502884197169399375105820974944592307816406286"), json.asBigInteger());
     }
 
     @Test public void parseNegativeNumber() {

@@ -1,6 +1,7 @@
 package org.zalando.flatjson;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
@@ -64,6 +65,10 @@ class Parsed extends Json {
 
         @Override public double asDouble() {
             return Double.valueOf(overlay.getJson(element));
+        }
+
+        @Override public BigInteger asBigInteger() {
+            return new BigInteger(overlay.getJson(element));
         }
 
         @Override public BigDecimal asBigDecimal() {
