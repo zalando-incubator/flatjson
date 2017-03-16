@@ -20,7 +20,7 @@ the following chart shows benchmark results for parsing a 72K sample file on my 
 
 flatjson outperforms some popular json parsers (gson, jackson) by 2x to 3x, and is even faster than boon (which is known to be pretty fast).
 
-you can run this benchmark yourself with `gradle jmh`.
+you can run this benchmark yourself with `./gradlew jmh`.
 
 
 ### So, what's the trick?
@@ -89,12 +89,14 @@ test.toString(); // --> "[\"hello\",42]"
 
 ### Contributing
 
-contributions are welcome, especially 
+contributions are welcome &mdash; especially 
 
-* finding any json parser that **beats** flatjson in the benchmarks, or
+* reporting bugs
+* running the benchmarks in different environments (AMD, Azure, AWS, Google Cloud ...) and sharing the [results](benchmarks.txt)
+* adding your favorite json parser to the benchmarks &mdash; can it beat flatjson?
 * adding more unit tests.
 
-otherwise, i consider flatjson more or less feature complete, and will not easily be persuaded to merge in any pull requests for new features.
+apart from the `converter` branch currently in the works, i consider flatjson feature complete, and will not easily be persuaded to merge in major new features.
 
 
 ### License

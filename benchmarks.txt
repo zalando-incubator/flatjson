@@ -1,0 +1,29 @@
+intel core i5 (2.7 ghz)
+--------------------------------------------------------------------
+Benchmark                       Mode  Cnt     Score     Error  Units
+Parse.boon                     thrpt  200  4614.977 ±  33.311  ops/s
+Parse.flatjson                 thrpt  200  5173.732 ± 148.348  ops/s
+Parse.gson                     thrpt  200  1541.577 ±  55.846  ops/s
+Parse.jackson                  thrpt  200  2623.146 ±  28.547  ops/s
+Parse.minimaljson              thrpt  200  2326.436 ±  25.946  ops/s
+ParseAndSerialize.boon         thrpt  200   791.026 ±   5.319  ops/s
+ParseAndSerialize.flatjson     thrpt  200  3155.642 ±  69.894  ops/s
+ParseAndSerialize.gson         thrpt  200   666.177 ±   5.095  ops/s
+ParseAndSerialize.jackson      thrpt  200  1380.615 ±  10.736  ops/s
+ParseAndSerialize.minimaljson  thrpt  200  1036.312 ±  11.374  ops/s
+
+
+cavium thunderx (2.0 ghz)
+------------------------------------------------------------------
+Benchmark                       Mode  Cnt    Score    Error  Units
+Parse.boon                     thrpt  200  973.262 ? 13.155  ops/s
+Parse.flatjson                 thrpt  200  780.731 ? 15.240  ops/s
+Parse.gson                     thrpt  200  320.650 ?  6.830  ops/s
+Parse.jackson                  thrpt  200  624.703 ?  8.284  ops/s
+Parse.minimaljson              thrpt  200  520.252 ?  5.885  ops/s
+ParseAndSerialize.boon         thrpt  200  230.330 ?  1.776  ops/s
+ParseAndSerialize.flatjson     thrpt  200  684.359 ? 11.908  ops/s
+ParseAndSerialize.gson         thrpt  200  205.890 ?  1.375  ops/s
+ParseAndSerialize.jackson      thrpt  200  400.174 ?  3.052  ops/s
+ParseAndSerialize.minimaljson  thrpt  200  321.177 ?  4.116  ops/s
+
