@@ -18,15 +18,17 @@ public class Json {
     }
 
     protected static Json create(Overlay overlay, int element) {
-        switch (overlay.getType(element)) {
+        Type type = overlay.getType(element);
+        switch (type) {
+            case NULL: return new Literal.Null();
             case TRUE:
-            case FALSE: return new Parsed.Bool(overlay, element);
-            case NUMBER: return new Parsed.Number(overlay, element);
+            case FALSE: return new Literal.Bool(Boolean.valueOf(overlay.getJson(element)));
+            case NUMBER: return new Literal.Number(overlay.getJson(element));
             case STRING_ESCAPED:
             case STRING: return new Parsed.Strng(overlay, element);
             case ARRAY: return new Parsed.Array(overlay, element);
             case OBJECT: return new Parsed.Object(overlay, element);
-            default: return new Parsed.Value(overlay, element);
+            default: throw new ParseException("unknown type: " + type);
         }
     }
 

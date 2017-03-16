@@ -1,82 +1,11 @@
 package org.zalando.flatjson;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
 class Parsed extends Json {
 
-    static class Value extends Parsed {
-
-        protected final Overlay overlay;
-        protected final int element;
-
-        Value(Overlay overlay, int element) {
-            this.overlay = overlay;
-            this.element = element;
-        }
-
-        @Override public boolean isNull() {
-            return overlay.getType(element) == Type.NULL;
-        }
-
-        @Override public String toString() {
-            return overlay.getJson(element);
-        }
-    }
-
-    static class Bool extends Value {
-
-        Bool(Overlay overlay, int element) {
-            super(overlay, element);
-        }
-
-        @Override public boolean isBoolean() {
-            return true;
-        }
-
-        @Override public boolean asBoolean() {
-            return Boolean.valueOf(overlay.getJson(element));
-        }
-    }
-
-    static class Number extends Value {
-
-        Number(Overlay overlay, int element) {
-            super(overlay, element);
-        }
-
-        @Override public boolean isNumber() {
-            return true;
-        }
-
-        @Override public int asInt() {
-            return Integer.valueOf(overlay.getJson(element));
-        }
-
-        @Override public long asLong() {
-            return Long.valueOf(overlay.getJson(element));
-        }
-
-        @Override public float asFloat() {
-            return Float.valueOf(overlay.getJson(element));
-        }
-
-        @Override public double asDouble() {
-            return Double.valueOf(overlay.getJson(element));
-        }
-
-        @Override public BigInteger asBigInteger() {
-            return new BigInteger(overlay.getJson(element));
-        }
-
-        @Override public BigDecimal asBigDecimal() {
-            return new BigDecimal(overlay.getJson(element));
-        }
-    }
-
-    static class Strng extends Value {
+    static class Strng extends Parsed {
 
         private String string;
 
@@ -92,10 +21,9 @@ class Parsed extends Json {
             if (string == null) string = overlay.getUnescapedString(element);
             return string;
         }
-
     }
 
-    static class Array extends Value {
+    static class Array extends Parsed {
 
         private List<Json> array;
 
@@ -127,7 +55,7 @@ class Parsed extends Json {
         }
     }
 
-    static class Object extends Value {
+    static class Object extends Parsed {
 
         private Map<String, Json> map;
 
@@ -158,5 +86,17 @@ class Parsed extends Json {
             }
             return result;
         }
+    }
+
+    protected final Overlay overlay;
+    protected final int element;
+
+    Parsed(Overlay overlay, int element) {
+        this.overlay = overlay;
+        this.element = element;
+    }
+
+    @Override public String toString() {
+        return overlay.getJson(element);
     }
 }
