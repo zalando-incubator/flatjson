@@ -5,6 +5,14 @@ A fast [json](https://json.org) parser (and builder), written in java.
 ![uyubi salt flats](flat.jpg)
 *photo: [yoann supertramp](https://500px.com/photo/172664473/) [CC-BY]*
 
+* [Features](#features)
+* [Performance](#performance)
+* [Installation](#installation)
+* [Usage](#usage)
+* [Contributing](#contributing)
+* [History](#history)
+* [License](#license)
+
 ### Features
 
 * **efficient** &mdash; allocates as few objects as possible
@@ -16,26 +24,31 @@ A fast [json](https://json.org) parser (and builder), written in java.
 
 the following chart shows benchmark results for parsing a 72K sample file on my macbook pro (2,7 ghz intel core i5).
 
-![benchmark chart](chart_parse.png)
+![benchmark chart](benchmark1.png)
 
 flatjson outperforms some popular json parsers (gson, jackson) by 2x to 3x, and is even faster than boon (which is known to be pretty fast).
 
-you can run this benchmark yourself with `./gradlew jmh`.
+normally, we want to do something with json, once we've parsed it. the second benchmark simulates an event processing use case: parse the event, process the data (= reverse an array which makes up the bulk of the json document), then serialize the result back to a string.
+
+![benchmark chart](benchmark2.png)
+
+as the graph shows, flatjson shines even more here.
+
+you can run these benchmark yourself with `./gradlew jmh` &mdash; a full run takes a bit over an hour.
 
 
-### So, what's the trick?
+#### So, what's the trick?
 
-flatjson does not build a parse tree, but just a parse index ("overlay"), which is stored in an integer array. json nodes are constructed on demand (= on first access). this way, thousands of objects allocations are saved.
+flatjson does not build a parse tree, just an index overlay, which is stored in an integer array. json nodes are constructed on demand (= on first access). this way, lots of objects allocations are saved.
 
-flatjson is best suited for cases where the full json document is not used, only parts of it.
-
+when serializing json, flatjson handles unchanged subtrees by copying substrings directly from input to output, bypassing actual serialization as much as possible.
 
 ### Installation
 
 flatjson is on Maven Central, simply add it as a gradle dependency:
 
 ```
-compile 'org.zalando:flatjson:1.0'
+compile 'org.zalando:flatjson:1.0.1'
 ```
 
 ### Usage
@@ -97,6 +110,14 @@ contributions are welcome &mdash; especially
 * adding more unit tests.
 
 apart from the `converter` branch currently in the works, i consider flatjson feature complete, and will not easily be persuaded to merge in major new features.
+
+### History
+
+##### 1.0.1 &mdash; 2017-03-17
+* support additional number types: `int`, `float`, `BigInteger`, `BigDecimal`
+
+##### 1.0 &mdash; 2017-03-10
+* initial public release
 
 
 ### License
