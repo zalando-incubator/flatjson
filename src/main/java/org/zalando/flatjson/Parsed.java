@@ -26,6 +26,43 @@ class Parsed extends Json {
         @Override public String toString() {
             return overlay.getJson(element);
         }
+
+        protected void convertArray(Converter converter, int element) {
+            converter.beginArray();
+            int e = element + 1;
+            while (e <= element + overlay.getNested(element)) {
+                convertValue(converter, e);
+                e += overlay.getNested(e) + 1;
+            }
+            converter.endArray();
+        }
+
+        protected void convertObject(Converter converter, int element) {
+            converter.beginObject();
+            int e = element + 1;
+            while (e <= element + overlay.getNested(element)) {
+                String key = overlay.getUnescapedString(e);
+                converter.handleString(key);
+                convertValue(converter, e + 1);
+                e += overlay.getNested(e + 1) + 2;
+            }
+            converter.endObject();
+        }
+
+        protected void convertValue(Converter converter, int element) {
+            Type type = overlay.getType(element);
+            switch (type) {
+                case NULL: converter.handleNull(); break;
+                case TRUE:
+                case FALSE: converter.handleBoolean(Boolean.valueOf(overlay.getJson(element))); break;
+                case NUMBER: converter.handleNumber(overlay.getJson(element)); break;
+                case STRING_ESCAPED:
+                case STRING: converter.handleString(overlay.getUnescapedString(element)); break;
+                case ARRAY: convertArray(converter, element); break;
+                case OBJECT: convertObject(converter, element); break;
+                default: throw new IllegalStateException("unknown type: " + type);
+            }
+        }
     }
 
     static class Bool extends Value {
@@ -111,11 +148,7 @@ class Parsed extends Json {
         }
 
         @Override public void convert(Converter converter) {
-            // todo: do not create array, walk index directly
-            if (array == null) array = createArray();
-            converter.beginArray();
-            for (Json value : array) value.convert(converter);
-            converter.endArray();
+            convertArray(converter, element);
         }
 
         @Override public String toString() {
@@ -151,14 +184,7 @@ class Parsed extends Json {
         }
 
         @Override public void convert(Converter converter) {
-            // todo: do not create map, walk index directly
-            if (map == null) map = createMap();
-            converter.beginObject();
-            for (Map.Entry<String, Json> entry : map.entrySet()) {
-                converter.handleString(entry.getKey());
-                entry.getValue().convert(converter);
-            }
-            converter.endObject();
+            convertObject(converter, element);
         }
 
         @Override public String toString() {
