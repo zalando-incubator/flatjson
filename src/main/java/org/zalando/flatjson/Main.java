@@ -1,12 +1,15 @@
 package org.zalando.flatjson;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        Json json = Json.parse("[1,2,3]");
-        PrettyPrinter pretty = new PrettyPrinter("\t");
+        String input = new String(Files.readAllBytes(Paths.get("test/colors.json")));
+        Json json = Json.parse(input);
+        PrettyPrinter pretty = new PrettyPrinter("  ");
         json.convert(pretty);
         System.out.println(pretty.toString());
     }
