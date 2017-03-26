@@ -9,9 +9,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         String input = new String(Files.readAllBytes(Paths.get("test/colors.json")));
         Json json = Json.parse(input);
-        PrettyPrinter pretty = new PrettyPrinter("  ");
-        json.convert(pretty);
-        System.out.println(pretty.toString());
+        System.out.println(PrettyPrinter.prettyPrint(json));
     }
 
 }
