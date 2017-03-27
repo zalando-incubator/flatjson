@@ -106,7 +106,7 @@ public class Json {
         throw new IllegalStateException("not an object");
     }
 
-    public void convert(Converter converter) {
+    public void accept(Visitor visitor) {
         throw new IllegalStateException("not implemented");
     }
 

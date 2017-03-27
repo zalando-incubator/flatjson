@@ -1,6 +1,6 @@
 package org.zalando.flatjson;
 
-public interface Converter {
+public interface Visitor {
 
     public void handleNull();
 

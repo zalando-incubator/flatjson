@@ -19,47 +19,47 @@ class Parsed extends Json {
             return overlay.getType(element) == Type.NULL;
         }
 
-        @Override public void convert(Converter converter) {
-            if (isNull()) converter.handleNull();
+        @Override public void accept(Visitor visitor) {
+            if (isNull()) visitor.handleNull();
         }
 
         @Override public String toString() {
             return overlay.getJson(element);
         }
 
-        protected void convertArray(Converter converter, int element) {
-            converter.beginArray();
+        protected void visitArray(Visitor visitor, int element) {
+            visitor.beginArray();
             int e = element + 1;
             while (e <= element + overlay.getNested(element)) {
-                convertValue(converter, e);
+                visitValue(visitor, e);
                 e += overlay.getNested(e) + 1;
             }
-            converter.endArray();
+            visitor.endArray();
         }
 
-        protected void convertObject(Converter converter, int element) {
-            converter.beginObject();
+        protected void visitObject(Visitor visitor, int element) {
+            visitor.beginObject();
             int e = element + 1;
             while (e <= element + overlay.getNested(element)) {
                 String key = overlay.getUnescapedString(e);
-                converter.handleString(key);
-                convertValue(converter, e + 1);
+                visitor.handleString(key);
+                visitValue(visitor, e + 1);
                 e += overlay.getNested(e + 1) + 2;
             }
-            converter.endObject();
+            visitor.endObject();
         }
 
-        protected void convertValue(Converter converter, int element) {
+        protected void visitValue(Visitor visitor, int element) {
             Type type = overlay.getType(element);
             switch (type) {
-                case NULL: converter.handleNull(); break;
-                case TRUE:
-                case FALSE: converter.handleBoolean(Boolean.valueOf(overlay.getJson(element))); break;
-                case NUMBER: converter.handleNumber(overlay.getJson(element)); break;
+                case NULL: visitor.handleNull(); break;
+                case TRUE: visitor.handleBoolean(true); break;
+                case FALSE: visitor.handleBoolean(false); break;
+                case NUMBER: visitor.handleNumber(overlay.getJson(element)); break;
                 case STRING_ESCAPED:
-                case STRING: converter.handleString(overlay.getUnescapedString(element)); break;
-                case ARRAY: convertArray(converter, element); break;
-                case OBJECT: convertObject(converter, element); break;
+                case STRING: visitor.handleString(overlay.getUnescapedString(element)); break;
+                case ARRAY: visitArray(visitor, element); break;
+                case OBJECT: visitObject(visitor, element); break;
                 default: throw new IllegalStateException("unknown type: " + type);
             }
         }
@@ -79,8 +79,8 @@ class Parsed extends Json {
             return Boolean.valueOf(overlay.getJson(element));
         }
 
-        @Override public void convert(Converter converter) {
-            converter.handleBoolean(asBoolean());
+        @Override public void accept(Visitor visitor) {
+            visitor.handleBoolean(asBoolean());
         }
     }
 
@@ -102,8 +102,8 @@ class Parsed extends Json {
             return Double.valueOf(overlay.getJson(element));
         }
 
-        @Override public void convert(Converter converter) {
-            converter.handleNumber(overlay.getJson(element));
+        @Override public void accept(Visitor visitor) {
+            visitor.handleNumber(overlay.getJson(element));
         }
     }
 
@@ -124,9 +124,9 @@ class Parsed extends Json {
             return string;
         }
 
-        @Override public void convert(Converter converter) {
+        @Override public void accept(Visitor visitor) {
             if (string == null) string = overlay.getUnescapedString(element);
-            converter.handleString(string);
+            visitor.handleString(string);
         }
     }
 
@@ -147,8 +147,8 @@ class Parsed extends Json {
             return array;
         }
 
-        @Override public void convert(Converter converter) {
-            convertArray(converter, element);
+        @Override public void accept(Visitor visitor) {
+            visitArray(visitor, element);
         }
 
         @Override public String toString() {
@@ -183,8 +183,8 @@ class Parsed extends Json {
             return map;
         }
 
-        @Override public void convert(Converter converter) {
-            convertObject(converter, element);
+        @Override public void accept(Visitor visitor) {
+            visitObject(visitor, element);
         }
 
         @Override public String toString() {

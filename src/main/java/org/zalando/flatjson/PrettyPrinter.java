@@ -3,7 +3,7 @@ package org.zalando.flatjson;
 import java.util.Stack;
 
 
-public class PrettyPrinter implements Converter {
+public class PrettyPrinter implements Visitor {
 
     public static final String DEFAULT_INDENT = "  ";
 
@@ -20,7 +20,7 @@ public class PrettyPrinter implements Converter {
 
     public static String prettyPrint(Json json, String indent) {
         PrettyPrinter pp = new PrettyPrinter(indent);
-        json.convert(pp);
+        json.accept(pp);
         return pp.toString();
     }
 

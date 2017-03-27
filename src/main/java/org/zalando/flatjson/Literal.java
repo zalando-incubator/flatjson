@@ -1,6 +1,5 @@
 package org.zalando.flatjson;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -12,8 +11,8 @@ class Literal extends Json {
             return true;
         }
 
-        @Override public void convert(Converter converter) {
-            converter.handleNull();
+        @Override public void accept(Visitor visitor) {
+            visitor.handleNull();
         }
 
         @Override public String toString() {
@@ -37,8 +36,8 @@ class Literal extends Json {
             return value;
         }
 
-        @Override public void convert(Converter converter) {
-            converter.handleBoolean(value);
+        @Override public void accept(Visitor visitor) {
+            visitor.handleBoolean(value);
         }
         @Override public String toString() {
             return Boolean.toString(value);
@@ -69,8 +68,8 @@ class Literal extends Json {
             return Double.valueOf(value);
         }
 
-        @Override public void convert(Converter converter) {
-            converter.handleNumber(value);
+        @Override public void accept(Visitor visitor) {
+            visitor.handleNumber(value);
         }
 
         @Override public String toString() {
@@ -94,8 +93,8 @@ class Literal extends Json {
             return string;
         }
 
-        @Override public void convert(Converter converter) {
-            converter.handleString(string);
+        @Override public void accept(Visitor visitor) {
+            visitor.handleString(string);
         }
 
         @Override public String toString() {
@@ -119,10 +118,10 @@ class Literal extends Json {
             return list;
         }
 
-        @Override public void convert(Converter converter) {
-            converter.beginArray();
-            for (Json value : list) value.convert(converter);
-            converter.endArray();
+        @Override public void accept(Visitor visitor) {
+            visitor.beginArray();
+            for (Json value : list) value.accept(visitor);
+            visitor.endArray();
         }
 
         @Override public String toString() {
@@ -146,13 +145,13 @@ class Literal extends Json {
             return map;
         }
 
-        @Override public void convert(Converter converter) {
-            converter.beginObject();
+        @Override public void accept(Visitor visitor) {
+            visitor.beginObject();
             for (Map.Entry<String, Json> entry : map.entrySet()) {
-                converter.handleString(entry.getKey());
-                entry.getValue().convert(converter);
+                visitor.handleString(entry.getKey());
+                entry.getValue().accept(visitor);
             }
-            converter.endObject();
+            visitor.endObject();
         }
 
         @Override public String toString() {
