@@ -6,6 +6,8 @@ import java.util.Map;
 
 public class Json {
 
+    public static final String DEFAULT_INDENT = "  ";
+
     enum Type {
         NULL,
         TRUE,
@@ -108,6 +110,16 @@ public class Json {
 
     public void accept(Visitor visitor) {
         throw new IllegalStateException("not implemented");
+    }
+
+    public String prettyPrint() {
+        return prettyPrint(DEFAULT_INDENT);
+    }
+
+    public String prettyPrint(String indent) {
+        PrettyPrinter printer = new PrettyPrinter(indent);
+        accept(printer);
+        return printer.toString();
     }
 
     @Override public boolean equals(Object other) {

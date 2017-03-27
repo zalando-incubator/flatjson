@@ -3,9 +3,7 @@ package org.zalando.flatjson;
 import java.util.Stack;
 
 
-public class PrettyPrinter implements Visitor {
-
-    public static final String DEFAULT_INDENT = "  ";
+class PrettyPrinter implements Visitor {
 
     private enum Type { TOP, ARRAY, OBJECT }
 
@@ -18,29 +16,15 @@ public class PrettyPrinter implements Visitor {
         }
     }
 
-    public static String prettyPrint(Json json, String indent) {
-        PrettyPrinter pp = new PrettyPrinter(indent);
-        json.accept(pp);
-        return pp.toString();
-    }
-
-    public static String prettyPrint(Json json) {
-        return prettyPrint(json, DEFAULT_INDENT);
-    }
-
     private final StringBuilder builder;
     private final Stack<Context> context;
     private final String indent;
 
-    public PrettyPrinter(String indent) {
+    PrettyPrinter(String indent) {
         builder = new StringBuilder();
-        context = new Stack();
+        context = new Stack<>();
         context.push(new Context(Type.TOP));
         this.indent = indent;
-    }
-
-    public PrettyPrinter() {
-        this(DEFAULT_INDENT);
     }
 
     @Override public void handleNull() {

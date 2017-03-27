@@ -2,19 +2,19 @@ package org.zalando.flatjson;
 
 public interface Visitor {
 
-    public void handleNull();
+    void handleNull();
 
-    public void handleBoolean(boolean value);
+    void handleBoolean(boolean value);
 
-    public void handleNumber(String value);
+    void handleNumber(String value);
 
-    public void handleString(String value);
+    void handleString(String value);
 
-    public void beginArray();
+    void beginArray();
 
-    public void endArray();
+    void endArray();
 
-    public void beginObject();
+    void beginObject();
 
-    public void endObject();
+    void endObject();
 }
