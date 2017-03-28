@@ -34,4 +34,8 @@ public class EqualityTest {
         assertEquals(Json.parse("\"\\foo\""), Json.parse("\"\\foo\""));
     }
 
+    @Test public void compareWithWhitespace() {
+        assertEquals(Json.parse("[1,2,3]"), Json.parse("[\n1,\n2,\n3\n]"));
+    }
+
 }
