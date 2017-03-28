@@ -51,8 +51,10 @@ class PrettyPrinter implements Visitor {
     @Override public void endArray() {
         if (current().type != Type.ARRAY) throw new IllegalStateException("not inside array");
         if (current().count > 0) {
-            builder.append("\n");
-            for (int i = 2; i < context.size(); i++) builder.append(indent);
+            if (indent != null) {
+                builder.append("\n");
+                for (int i = 2; i < context.size(); i++) builder.append(indent);
+            }
         }
         builder.append("]");
         context.pop();
@@ -67,8 +69,10 @@ class PrettyPrinter implements Visitor {
         if (current().type != Type.OBJECT) throw new IllegalStateException("not inside object");
         if (current().count % 2 == 1) throw new IllegalStateException("unbalanced object");
         if (current().count > 0) {
-            builder.append("\n");
-            for (int i = 2; i < context.size(); i++) builder.append(indent);
+            if (indent != null) {
+                builder.append("\n");
+                for (int i = 2; i < context.size(); i++) builder.append(indent);
+            }
         }
         builder.append("}");
         context.pop();
@@ -83,14 +87,21 @@ class PrettyPrinter implements Visitor {
         if (current().type == Type.TOP) {
             if (current().count > 0) throw new IllegalStateException("multiple toplevel values");
         } else if (current().type == Type.ARRAY) {
-            builder.append(current().count > 0 ? ",\n" : "\n");
-            for (int i = 1; i < context.size(); i++) builder.append(indent);
+            if (current().count > 0) builder.append(",");
+            if (indent != null) {
+                builder.append("\n");
+                for (int i = 1; i < context.size(); i++) builder.append(indent);
+            }
         } else if (current().type == Type.OBJECT) {
             if (current().count % 2 == 0) {
-                builder.append(current().count > 0 ? ",\n" : "\n");
-                for (int i = 1; i < context.size(); i++) builder.append(indent);
+                if (current().count > 0) builder.append(",");
+                if (indent != null) {
+                    builder.append("\n");
+                    for (int i = 1; i < context.size(); i++) builder.append(indent);
+                }
             } else {
-                builder.append(": ");
+                builder.append(":");
+                if (indent != null) builder.append(" ");
             }
         }
         builder.append(value);
