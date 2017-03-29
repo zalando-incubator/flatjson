@@ -2,13 +2,13 @@ package org.zalando.flatjson;
 
 public interface Visitor {
 
-    void handleNull();
+    void visitNull();
 
-    void handleBoolean(boolean value);
+    void visitBoolean(boolean value);
 
-    void handleNumber(String value);
+    void visitNumber(String value);
 
-    void handleString(String value);
+    void visitString(String value);
 
     void beginArray();
 

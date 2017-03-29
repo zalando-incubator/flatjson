@@ -27,19 +27,19 @@ class PrettyPrinter implements Visitor {
         this.indent = indent;
     }
 
-    @Override public void handleNull() {
+    @Override public void visitNull() {
         append("null");
     }
 
-    @Override public void handleBoolean(boolean value) {
+    @Override public void visitBoolean(boolean value) {
         append(Boolean.toString(value));
     }
 
-    @Override public void handleNumber(String value) {
+    @Override public void visitNumber(String value) {
         append(value);
     }
 
-    @Override public void handleString(String value) {
+    @Override public void visitString(String value) {
         append(String.format("\"%s\"", StringCodec.escape(value)));
     }
 

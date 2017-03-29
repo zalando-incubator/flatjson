@@ -12,7 +12,7 @@ class Literal extends Json {
         }
 
         @Override public void accept(Visitor visitor) {
-            visitor.handleNull();
+            visitor.visitNull();
         }
 
         @Override public String toString() {
@@ -37,7 +37,7 @@ class Literal extends Json {
         }
 
         @Override public void accept(Visitor visitor) {
-            visitor.handleBoolean(value);
+            visitor.visitBoolean(value);
         }
         @Override public String toString() {
             return Boolean.toString(value);
@@ -69,7 +69,7 @@ class Literal extends Json {
         }
 
         @Override public void accept(Visitor visitor) {
-            visitor.handleNumber(value);
+            visitor.visitNumber(value);
         }
 
         @Override public String toString() {
@@ -94,7 +94,7 @@ class Literal extends Json {
         }
 
         @Override public void accept(Visitor visitor) {
-            visitor.handleString(string);
+            visitor.visitString(string);
         }
 
         @Override public String toString() {
@@ -148,7 +148,7 @@ class Literal extends Json {
         @Override public void accept(Visitor visitor) {
             visitor.beginObject();
             for (Map.Entry<String, Json> entry : map.entrySet()) {
-                visitor.handleString(entry.getKey());
+                visitor.visitString(entry.getKey());
                 entry.getValue().accept(visitor);
             }
             visitor.endObject();

@@ -50,12 +50,12 @@ class Overlay {
     void accept(int element, Visitor visitor) {
         Json.Type type = getType(element);
         switch (type) {
-            case NULL: visitor.handleNull(); break;
-            case TRUE: visitor.handleBoolean(true); break;
-            case FALSE: visitor.handleBoolean(false); break;
-            case NUMBER: visitor.handleNumber(getJson(element)); break;
+            case NULL: visitor.visitNull(); break;
+            case TRUE: visitor.visitBoolean(true); break;
+            case FALSE: visitor.visitBoolean(false); break;
+            case NUMBER: visitor.visitNumber(getJson(element)); break;
             case STRING_ESCAPED:
-            case STRING: visitor.handleString(getUnescapedString(element)); break;
+            case STRING: visitor.visitString(getUnescapedString(element)); break;
             case ARRAY: acceptArray(element, visitor); break;
             case OBJECT: acceptObject(element, visitor); break;
             default: throw new IllegalStateException("unknown type: " + type);
@@ -77,7 +77,7 @@ class Overlay {
         int e = element + 1;
         while (e <= element + getNested(element)) {
             String key = getUnescapedString(e);
-            visitor.handleString(key);
+            visitor.visitString(key);
             accept(e + 1, visitor);
             e += getNested(e + 1) + 2;
         }
