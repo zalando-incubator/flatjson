@@ -96,6 +96,10 @@ class Parsed extends Json {
         this.element = element;
     }
 
+    @Override public void accept(Visitor visitor) {
+        overlay.accept(element, visitor);
+    }
+
     @Override public String toString() {
         return overlay.getJson(element);
     }

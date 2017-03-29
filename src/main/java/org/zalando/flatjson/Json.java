@@ -6,6 +6,12 @@ import java.util.*;
 
 public class Json {
 
+    public static final String DEFAULT_INDENT = "  ";
+
+    public static final Json NULL = new Literal.Null();
+    public static final Json TRUE = new Literal.Bool(true);
+    public static final Json FALSE = new Literal.Bool(false);
+
     enum Type {
         NULL,
         TRUE,
@@ -140,13 +146,28 @@ public class Json {
         throw new IllegalStateException("not an object");
     }
 
+    public void accept(Visitor visitor) {
+        throw new IllegalStateException("not implemented");
+    }
+
+    public String prettyPrint() {
+        return prettyPrint(DEFAULT_INDENT);
+    }
+
+    public String prettyPrint(String indent) {
+        PrettyPrinter printer = new PrettyPrinter(indent);
+        accept(printer);
+        return printer.toString();
+    }
+
     @Override public boolean equals(Object other) {
         if (this == other) return true;
         if (!(other instanceof Json)) return false;
-        return toString().equals(other.toString());
+        Json json = (Json) other;
+        return prettyPrint().equals(json.prettyPrint());
     }
 
     @Override public int hashCode() {
-        return toString().hashCode();
+        return prettyPrint().hashCode();
     }
 }

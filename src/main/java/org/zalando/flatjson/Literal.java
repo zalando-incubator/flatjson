@@ -13,6 +13,10 @@ class Literal extends Json {
             return true;
         }
 
+        @Override public void accept(Visitor visitor) {
+            visitor.visitNull();
+        }
+
         @Override public String toString() {
             return "null";
         }
@@ -34,6 +38,9 @@ class Literal extends Json {
             return value;
         }
 
+        @Override public void accept(Visitor visitor) {
+            visitor.visitBoolean(value);
+        }
         @Override public String toString() {
             return Boolean.toString(value);
         }
@@ -75,6 +82,10 @@ class Literal extends Json {
             return new BigDecimal(value);
         }
 
+        @Override public void accept(Visitor visitor) {
+            visitor.visitNumber(value);
+        }
+
         @Override public String toString() {
             return value;
         }
@@ -94,6 +105,10 @@ class Literal extends Json {
 
         @Override public String asString() {
             return string;
+        }
+
+        @Override public void accept(Visitor visitor) {
+            visitor.visitString(string);
         }
 
         @Override public String toString() {
@@ -117,6 +132,12 @@ class Literal extends Json {
             return list;
         }
 
+        @Override public void accept(Visitor visitor) {
+            visitor.beginArray();
+            for (Json value : list) value.accept(visitor);
+            visitor.endArray();
+        }
+
         @Override public String toString() {
             return list.toString();
         }
@@ -136,6 +157,15 @@ class Literal extends Json {
 
         @Override public Map<String, Json> asObject() {
             return map;
+        }
+
+        @Override public void accept(Visitor visitor) {
+            visitor.beginObject();
+            for (Map.Entry<String, Json> entry : map.entrySet()) {
+                visitor.visitString(entry.getKey());
+                entry.getValue().accept(visitor);
+            }
+            visitor.endObject();
         }
 
         @Override public String toString() {
