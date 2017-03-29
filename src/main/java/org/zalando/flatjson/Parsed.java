@@ -20,49 +20,13 @@ class Parsed extends Json {
         }
 
         @Override public void accept(Visitor visitor) {
-            if (isNull()) visitor.handleNull();
+            overlay.accept(element, visitor);
         }
 
         @Override public String toString() {
             return overlay.getJson(element);
         }
 
-        protected void visitArray(Visitor visitor, int element) {
-            visitor.beginArray();
-            int e = element + 1;
-            while (e <= element + overlay.getNested(element)) {
-                visitValue(visitor, e);
-                e += overlay.getNested(e) + 1;
-            }
-            visitor.endArray();
-        }
-
-        protected void visitObject(Visitor visitor, int element) {
-            visitor.beginObject();
-            int e = element + 1;
-            while (e <= element + overlay.getNested(element)) {
-                String key = overlay.getUnescapedString(e);
-                visitor.handleString(key);
-                visitValue(visitor, e + 1);
-                e += overlay.getNested(e + 1) + 2;
-            }
-            visitor.endObject();
-        }
-
-        protected void visitValue(Visitor visitor, int element) {
-            Type type = overlay.getType(element);
-            switch (type) {
-                case NULL: visitor.handleNull(); break;
-                case TRUE: visitor.handleBoolean(true); break;
-                case FALSE: visitor.handleBoolean(false); break;
-                case NUMBER: visitor.handleNumber(overlay.getJson(element)); break;
-                case STRING_ESCAPED:
-                case STRING: visitor.handleString(overlay.getUnescapedString(element)); break;
-                case ARRAY: visitArray(visitor, element); break;
-                case OBJECT: visitObject(visitor, element); break;
-                default: throw new IllegalStateException("unknown type: " + type);
-            }
-        }
     }
 
     static class Bool extends Value {
@@ -77,10 +41,6 @@ class Parsed extends Json {
 
         @Override public boolean asBoolean() {
             return Boolean.valueOf(overlay.getJson(element));
-        }
-
-        @Override public void accept(Visitor visitor) {
-            visitor.handleBoolean(asBoolean());
         }
     }
 
@@ -101,10 +61,6 @@ class Parsed extends Json {
         @Override public double asDouble() {
             return Double.valueOf(overlay.getJson(element));
         }
-
-        @Override public void accept(Visitor visitor) {
-            visitor.handleNumber(overlay.getJson(element));
-        }
     }
 
     static class Strng extends Value {
@@ -123,11 +79,6 @@ class Parsed extends Json {
             if (string == null) string = overlay.getUnescapedString(element);
             return string;
         }
-
-        @Override public void accept(Visitor visitor) {
-            if (string == null) string = overlay.getUnescapedString(element);
-            visitor.handleString(string);
-        }
     }
 
     static class Array extends Value {
@@ -145,10 +96,6 @@ class Parsed extends Json {
         @Override public List<Json> asArray() {
             if (array == null) array = createArray();
             return array;
-        }
-
-        @Override public void accept(Visitor visitor) {
-            visitArray(visitor, element);
         }
 
         @Override public String toString() {
@@ -181,10 +128,6 @@ class Parsed extends Json {
         @Override public Map<String, Json> asObject() {
             if (map == null) map = createMap();
             return map;
-        }
-
-        @Override public void accept(Visitor visitor) {
-            visitObject(visitor, element);
         }
 
         @Override public String toString() {

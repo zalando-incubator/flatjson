@@ -47,6 +47,43 @@ class Overlay {
         return (getType(element) == Json.Type.STRING_ESCAPED) ? StringCodec.unescape(value) : value;
     }
 
+    void accept(int element, Visitor visitor) {
+        Json.Type type = getType(element);
+        switch (type) {
+            case NULL: visitor.handleNull(); break;
+            case TRUE: visitor.handleBoolean(true); break;
+            case FALSE: visitor.handleBoolean(false); break;
+            case NUMBER: visitor.handleNumber(getJson(element)); break;
+            case STRING_ESCAPED:
+            case STRING: visitor.handleString(getUnescapedString(element)); break;
+            case ARRAY: acceptArray(element, visitor); break;
+            case OBJECT: acceptObject(element, visitor); break;
+            default: throw new IllegalStateException("unknown type: " + type);
+        }
+    }
+
+    private void acceptArray(int element, Visitor visitor) {
+        visitor.beginArray();
+        int e = element + 1;
+        while (e <= element + getNested(element)) {
+            accept(e, visitor);
+            e += getNested(e) + 1;
+        }
+        visitor.endArray();
+    }
+
+    private void acceptObject(int element, Visitor visitor) {
+        visitor.beginObject();
+        int e = element + 1;
+        while (e <= element + getNested(element)) {
+            String key = getUnescapedString(e);
+            visitor.handleString(key);
+            accept(e + 1, visitor);
+            e += getNested(e + 1) + 2;
+        }
+        visitor.endObject();
+    }
+
     private void parse() {
         try {
             int last = skipWhitespace(parseValue(0));
@@ -263,4 +300,5 @@ class Overlay {
     private int getBlockIndex(int element) {
         return (element * 4) % blockSize;
     }
+
 }

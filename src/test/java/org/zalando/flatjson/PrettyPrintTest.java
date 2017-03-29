@@ -110,7 +110,7 @@ public class PrettyPrintTest {
 
     @Test public void prettyPrintCompact() {
         Json json = Json.object();
-        json.asObject().put("foo", Json.array(Json.value(true), Json.value(false)));
+        json.asObject().put("foo", Json.array(Json.TRUE, Json.FALSE));
         assertEquals("{\"foo\":[true,false]}", json.prettyPrint(null));
     }
 
