@@ -8,6 +8,10 @@ public class Json {
 
     public static final String DEFAULT_INDENT = "  ";
 
+    public static final Json NULL = new Literal.Null();
+    public static final Json TRUE = new Literal.Bool(true);
+    public static final Json FALSE = new Literal.Bool(false);
+
     enum Type {
         NULL,
         TRUE,
