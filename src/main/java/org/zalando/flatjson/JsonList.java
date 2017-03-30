@@ -3,13 +3,13 @@ package org.zalando.flatjson;
 import java.util.ArrayList;
 import java.util.List;
 
-class JsonList<E> extends ArrayList<E> {
+class JsonList extends ArrayList<Json> {
 
     public JsonList() {
         super();
     }
 
-    public JsonList(List<E> values) {
+    public JsonList(List<Json> values) {
         super(values);
     }
 
@@ -23,4 +23,15 @@ class JsonList<E> extends ArrayList<E> {
         return result.toString();
     }
 
+    @Override public JsonList clone() {
+        JsonList list = new JsonList();
+        for (Json value: this) {
+            if (value.isObject() || value.isArray()) {
+                list.add(value.clone());
+            } else {
+                list.add(value);
+            }
+        }
+        return list;
+    }
 }

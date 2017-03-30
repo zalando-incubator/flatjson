@@ -1,5 +1,9 @@
 .idea
 .gradle
+.classpath
+.project
+.settings/
 out
 build
 data
+/bin/

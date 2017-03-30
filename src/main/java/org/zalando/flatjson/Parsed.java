@@ -3,7 +3,7 @@ package org.zalando.flatjson;
 import java.util.List;
 import java.util.Map;
 
-class Parsed extends Json {
+abstract class Parsed extends Json {
 
     static class Strng extends Parsed {
 
@@ -21,11 +21,19 @@ class Parsed extends Json {
             if (string == null) string = overlay.getUnescapedString(element);
             return string;
         }
+
+        @Override public boolean equals(java.lang.Object obj) {
+            return  this == obj || obj != null && obj.equals(asString());
+        }
+
+        @Override public int hashCode() {
+            return asString().hashCode();
+        }
     }
 
     static class Array extends Parsed {
 
-        private List<Json> array;
+        private JsonList array;
 
         Array(Overlay overlay, int element) {
             super(overlay, element);
@@ -41,11 +49,11 @@ class Parsed extends Json {
         }
 
         @Override public String toString() {
-            return (array == null) ? super.toString() : array.toString();
+            return asArray().toString();
         }
 
-        private List<Json> createArray() {
-            List<Json> result = new JsonList<>();
+        private JsonList createArray() {
+            JsonList result = new JsonList();
             int e = element + 1;
             while (e <= element + overlay.getNested(element)) {
                 result.add(create(overlay, e));
@@ -53,11 +61,25 @@ class Parsed extends Json {
             }
             return result;
         }
+
+        @Override public boolean equals(java.lang.Object obj) {
+            return this == obj || obj != null && obj.equals(asArray());
+        }
+
+        @Override public int hashCode() {
+            return asArray().hashCode();
+        }
+
+        @Override public Array clone() {
+            Array copy = new Array(overlay, element);
+            copy.array = (array != null) ? array.clone() : null;
+            return copy;
+        }
     }
 
     static class Object extends Parsed {
 
-        private Map<String, Json> map;
+        private JsonMap map;
 
         Object(Overlay overlay, int element) {
             super(overlay, element);
@@ -76,8 +98,8 @@ class Parsed extends Json {
             return (map == null) ? super.toString() : map.toString();
         }
 
-        private Map<String, Json> createMap() {
-            Map<String, Json> result = new JsonMap<>();
+        private JsonMap createMap() {
+            JsonMap result = new JsonMap();
             int e = element + 1;
             while (e <= element + overlay.getNested(element)) {
                 String key = overlay.getUnescapedString(e);
@@ -85,6 +107,20 @@ class Parsed extends Json {
                 e += overlay.getNested(e + 1) + 2;
             }
             return result;
+        }
+
+        @Override public boolean equals(java.lang.Object obj) {
+            return this == obj || obj != null && obj.equals(asObject());
+        }
+
+        @Override public int hashCode() {
+            return asObject().hashCode();
+        }
+
+        @Override public Object clone() {
+            Object copy = new Object(overlay, element);
+            copy.map = (map != null) ? map.clone() : null;
+            return copy;
         }
     }
 

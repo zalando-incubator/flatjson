@@ -1,10 +1,16 @@
 package org.zalando.flatjson;
 
+import org.zalando.flatjson.Literal.Null;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
-public class Json {
+public abstract class Json implements Cloneable {
+
+    private static final Null NULL = new Literal.Null();
 
     enum Type {
         NULL,
@@ -20,7 +26,7 @@ public class Json {
     protected static Json create(Overlay overlay, int element) {
         Type type = overlay.getType(element);
         switch (type) {
-            case NULL: return new Literal.Null();
+            case NULL: return NULL;
             case TRUE:
             case FALSE: return new Literal.Bool(Boolean.valueOf(overlay.getJson(element)));
             case NUMBER: return new Literal.Number(overlay.getJson(element));
@@ -57,15 +63,23 @@ public class Json {
     }
 
     public static Json value(BigInteger value) {
-        return (value == null) ? new Literal.Null() : new Literal.Number(value.toString());
+        return (value == null) ? NULL : new Literal.Number(value.toString());
     }
 
     public static Json value(BigDecimal value) {
-        return (value == null) ? new Literal.Null() : new Literal.Number(value.toString());
+        return (value == null) ? NULL : new Literal.Number(value.toString());
     }
 
     public static Json value(String value) {
-        return (value == null) ? new Literal.Null() : new Literal.Strng(value);
+        return (value == null) ? NULL : new Literal.Strng(value);
+    }
+
+    public static Json value() {
+        return NULL;
+    }
+
+    public static Json array(List<Json> values) {
+        return new Literal.Array(values);
     }
 
     public static Json array(Json... values) {
@@ -73,7 +87,7 @@ public class Json {
     }
 
     public static Json object() {
-        return new Literal.Object();
+        return new Literal.Object(new JsonMap());
     }
 
     public boolean isNull() {
@@ -140,13 +154,7 @@ public class Json {
         throw new IllegalStateException("not an object");
     }
 
-    @Override public boolean equals(Object other) {
-        if (this == other) return true;
-        if (!(other instanceof Json)) return false;
-        return toString().equals(other.toString());
-    }
-
-    @Override public int hashCode() {
-        return toString().hashCode();
+    @Override public Json clone() {
+        return this;
     }
 }

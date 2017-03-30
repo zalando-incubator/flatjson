@@ -16,7 +16,7 @@ class StringCodec {
                     case '\r': result.append("\\r"); break;
                     case '\t': result.append("\\t"); break;
                     default: if (c < 32 || c > 126) {
-                        result.append("\\u" + Integer.toUnsignedString((int)c, 16));
+                        result.append("\\u" + Integer.toUnsignedString(c, 16));
                     } else {
                         result.append(c);
                     }
