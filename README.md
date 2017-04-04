@@ -48,7 +48,7 @@ when serializing json, flatjson handles unchanged subtrees by copying substrings
 flatjson is on Maven Central, simply add it as a gradle dependency:
 
 ```
-compile 'org.zalando:flatjson:1.0.1'
+compile 'org.zalando:flatjson:1.1.0'
 ```
 
 ### Usage
@@ -109,9 +109,15 @@ contributions are welcome &mdash; especially
 * adding your favorite json parser to the benchmarks &mdash; can it beat flatjson?
 * adding more unit tests.
 
-apart from the `converter` branch currently in the works, i consider flatjson feature complete, and will not easily be persuaded to merge in major new features.
+i will not easily be persuaded to merge in major new features, though.
+
 
 ### History
+
+##### 1.1.0 &mdash; 2017-04-03
+* implemented `Visitor` pattern to interact with json
+* added `json.prettyPrint()` (implemented as `Visitor`)
+* `json.equals()` now based on `json.prettyPrint()`
 
 ##### 1.0.1 &mdash; 2017-03-17
 * support additional number types: `int`, `float`, `BigInteger`, `BigDecimal`
