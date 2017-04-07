@@ -1,7 +1,5 @@
 package org.zalando.flatjson;
 
-import org.zalando.flatjson.Literal.Null;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -10,7 +8,11 @@ import java.util.Map;
 
 public abstract class Json implements Cloneable {
 
-    private static final Null NULL = new Literal.Null();
+    public static final String DEFAULT_INDENT = "  ";
+
+    public static final Json NULL = new Literal.Null();
+    public static final Json TRUE = new Literal.Bool(true);
+    public static final Json FALSE = new Literal.Bool(false);
 
     enum Type {
         NULL,
@@ -152,6 +154,20 @@ public abstract class Json implements Cloneable {
 
     public Map<String, Json> asObject() {
         throw new IllegalStateException("not an object");
+    }
+
+    public void accept(Visitor visitor) {
+        throw new IllegalStateException("not implemented");
+    }
+
+    public String prettyPrint() {
+        return prettyPrint(DEFAULT_INDENT);
+    }
+
+    public String prettyPrint(String indent) {
+        PrettyPrinter printer = new PrettyPrinter(indent);
+        accept(printer);
+        return printer.toString();
     }
 
     @Override public Json clone() {

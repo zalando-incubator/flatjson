@@ -33,6 +33,10 @@ abstract class Literal extends Json {
             return null;
         }
 
+        @Override public void accept(Visitor visitor) {
+            visitor.visitNull();
+        }
+
         @Override public String toString() {
             return "null";
         }
@@ -62,6 +66,10 @@ abstract class Literal extends Json {
             return value;
         }
 
+        @Override public void accept(Visitor visitor) {
+            visitor.visitBoolean(value);
+        }
+
         @Override public String toString() {
             return Boolean.toString(value);
         }
@@ -77,50 +85,68 @@ abstract class Literal extends Json {
 
     static class Number extends Literal {
 
-        private final BigDecimal value;
+        private final String value;
+        private BigDecimal number;
 
         Number(String value) {
-            this.value = new BigDecimal(value);
+            this.value = value;
+        }
+
+        Number(BigDecimal number) {
+            this.value = number.toString();
+            this.number = number;
         }
 
         @Override public boolean isNumber() {
             return true;
         }
 
+        private BigDecimal getNumber() {
+            if (number != null) {
+                return number;
+            } else {
+                return number = new BigDecimal(value);
+            }
+        }
+
         @Override public int asInt() {
-            return value.intValue();
+            return getNumber().intValue();
         }
 
         @Override public long asLong() {
-            return value.longValue();
+            return getNumber().longValue();
         }
 
         @Override public float asFloat() {
-            return value.floatValue();
+            return getNumber().floatValue();
         }
 
         @Override public double asDouble() {
-            return value.doubleValue();
+            return getNumber().doubleValue();
         }
 
         @Override public BigInteger asBigInteger() {
-            return value.toBigInteger();
+            return getNumber().toBigInteger();
         }
 
         @Override public BigDecimal asBigDecimal() {
-            return value;
+            return getNumber();
+        }
+
+        @Override public void accept(Visitor visitor) {
+            visitor.visitNumber(value);
         }
 
         @Override public String toString() {
-            return value.toString();
+            return value;
         }
 
         @Override public boolean equals(java.lang.Object obj) {
-            return obj != null && obj.equals(value);
+            return obj != null && obj.equals(getNumber());
         }
 
         @Override public int hashCode() {
-            return value.hashCode();
+            return getNumber().hashCode();
         }
     }
 
@@ -138,6 +164,10 @@ abstract class Literal extends Json {
 
         @Override public String asString() {
             return string;
+        }
+
+        @Override public void accept(Visitor visitor) {
+            visitor.visitString(string);
         }
 
         @Override public String toString() {
@@ -167,6 +197,12 @@ abstract class Literal extends Json {
 
         @Override public List<Json> asArray() {
             return list;
+        }
+
+        @Override public void accept(Visitor visitor) {
+            visitor.beginArray();
+            for (Json value : list) value.accept(visitor);
+            visitor.endArray();
         }
 
         @Override public String toString() {
@@ -200,6 +236,15 @@ abstract class Literal extends Json {
 
         @Override public Map<String, Json> asObject() {
             return map;
+        }
+
+        @Override public void accept(Visitor visitor) {
+            visitor.beginObject();
+            for (Map.Entry<String, Json> entry : map.entrySet()) {
+                visitor.visitString(entry.getKey());
+                entry.getValue().accept(visitor);
+            }
+            visitor.endObject();
         }
 
         @Override public String toString() {
