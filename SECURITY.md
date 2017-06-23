@@ -1,0 +1,1 @@
+please email tech-security@zalando.de in case you discover a security vulnerability. 
